@@ -1,0 +1,90 @@
+[
+  {
+    "_id": "ww32cccmpzrpwsv",
+    "eventTitle": "TechCorp Annual Summit 2026",
+    "clientName": "Sanjay Kapoor (HR)",
+    "clientMobileNumber": "+91 99998 88888",
+    "eventType": "Corporate",
+    "eventDate": "2026-05-30",
+    "eventTime": "09:00",
+    "eventLocation": "Nesco Center, Goregaon, Mumbai",
+    "description": "Keynote shoots, group photo, highlights video.",
+    "eventBudget": 95000,
+    "advanceReceived": 95000,
+    "remainingAmount": 0,
+    "status": "Completed",
+    "assignedEmployees": [
+      {
+        "employeeId": "itorf9qmpzrpwsp",
+        "roleAtEvent": "Event Photographer"
+      },
+      {
+        "employeeId": "9wrhl17mpzrpwsr",
+        "roleAtEvent": "Assistant Shooter"
+      }
+    ],
+    "createdAt": "2026-06-04T17:27:23.215Z",
+    "updatedAt": "2026-06-04T17:27:23.215Z"
+  },
+  {
+    "_id": "4okfb25mpzrpwsy",
+    "eventTitle": "Mehta Pre-Wedding Shoot",
+    "clientName": "Kunal Mehta",
+    "clientMobileNumber": "+91 88888 77777",
+    "eventType": "Pre-Wedding",
+    "eventDate": "2026-06-06",
+    "eventTime": "06:00",
+    "eventLocation": "Marine Drive & Gateway of India",
+    "description": "Outdoor sunrise couple shoot.",
+    "eventBudget": 50000,
+    "advanceReceived": 20000,
+    "remainingAmount": 30000,
+    "status": "Upcoming",
+    "assignedEmployees": [
+      {
+        "employeeId": "itorf9qmpzrpwsp",
+        "roleAtEvent": "Candid Photographer"
+      },
+      {
+        "employeeId": "bt6g5o4mpzrpwsp",
+        "roleAtEvent": "Drone Specialist"
+      }
+    ],
+    "createdAt": "2026-06-04T17:27:23.218Z",
+    "updatedAt": "2026-06-04T17:27:23.218Z"
+  },
+  {
+    "_id": "icgm12pmpzrpwsz",
+    "eventTitle": "Rohan Birthday Bash",
+    "clientName": "Deepa Shah",
+    "clientMobileNumber": "+91 77777 66666",
+    "eventType": "Birthday",
+    "eventDate": "2026-06-09",
+    "eventTime": "19:00",
+    "eventLocation": "Glocal Junction, Worli, Mumbai",
+    "description": "1st Birthday coverage and photobooth.",
+    "eventBudget": 35000,
+    "advanceReceived": 10000,
+    "remainingAmount": 25000,
+    "status": "Upcoming",
+    "assignedEmployees": [
+      {
+        "employeeId": "9wrhl17mpzrpwsr",
+        "roleAtEvent": "Photographer"
+      }
+    ],
+    "createdAt": "2026-06-04T17:27:23.219Z",
+    "updatedAt": "2026-06-04T17:27:23.219Z"
+  },
+  {
+    "_id": "oucwmuxmpzuobu4",
+    "employeeId": "9wrhl17mpzrpwsr",
+    "eventDate": "2026-06-01",
+    "eventType": "Photography",
+    "eventLocation": "hotle",
+    "employeeCharge": 60000,
+    "notes": "",
+    "createdAt": "2026-06-04T18:50:08.236Z",
+    "updatedAt": "2026-06-04T18:50:08.236Z"
+  }
+]

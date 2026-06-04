@@ -1,0 +1,92 @@
+[
+  {
+    "_id": "oyflcd9mpzrpwt6",
+    "message": "Upcoming Event Alert: Mehta Pre-Wedding Shoot scheduled in 2 days.",
+    "type": "upcoming_event",
+    "date": "2026-06-04T17:27:23.226Z",
+    "read": false,
+    "referenceId": "upcoming_1",
+    "createdAt": "2026-06-04T17:27:23.226Z",
+    "updatedAt": "2026-06-04T17:27:23.226Z"
+  },
+  {
+    "_id": "tzava5hmpzrpwt6",
+    "message": "Salary payment for Rohit Kadam is pending action.",
+    "type": "employee_payment",
+    "date": "2026-06-04T17:27:23.226Z",
+    "read": false,
+    "referenceId": "payout_1",
+    "createdAt": "2026-06-04T17:27:23.226Z",
+    "updatedAt": "2026-06-04T17:27:23.226Z"
+  },
+  {
+    "_id": "84np716mpzs42dy",
+    "message": "PAYMENT DUE: Shyam/Staff payment of ₹5000 is pending for Shyam Sundar (Event: \"TechCorp Annual Summit 2026\")",
+    "type": "employee_payment",
+    "date": "2026-06-04T17:38:23.638Z",
+    "read": false,
+    "referenceId": "agru7gfmpzrpwsw_pending_emp",
+    "createdAt": "2026-06-04T17:38:23.638Z",
+    "updatedAt": "2026-06-04T17:38:23.638Z"
+  },
+  {
+    "_id": "onndvurmpzs42dz",
+    "message": "PAYMENT DUE: Shyam/Staff payment of ₹3500 is pending for Rohit Kadam (Event: \"TechCorp Annual Summit 2026\")",
+    "type": "employee_payment",
+    "date": "2026-06-04T17:38:23.639Z",
+    "read": false,
+    "referenceId": "vvuzc1hmpzrpwsx_pending_emp",
+    "createdAt": "2026-06-04T17:38:23.639Z",
+    "updatedAt": "2026-06-04T17:38:23.639Z"
+  },
+  {
+    "_id": "mnhanjzmpzs42e1",
+    "message": "CLIENT BALANCE: Client \"Alok Sharma\" owes ₹70000 for event \"Sharma & Verma Wedding Gala\"",
+    "type": "client_payment",
+    "date": "2026-06-04T17:38:23.641Z",
+    "read": false,
+    "referenceId": "bcqr6r5mpzrpwss_pending_client",
+    "createdAt": "2026-06-04T17:38:23.641Z",
+    "updatedAt": "2026-06-04T17:38:23.641Z"
+  },
+  {
+    "_id": "5xuv12kmpzs42e1",
+    "message": "CLIENT BALANCE: Client \"Kunal Mehta\" owes ₹30000 for event \"Mehta Pre-Wedding Shoot\"",
+    "type": "client_payment",
+    "date": "2026-06-04T17:38:23.641Z",
+    "read": false,
+    "referenceId": "oyn5276mpzrpwsz_pending_client",
+    "createdAt": "2026-06-04T17:38:23.641Z",
+    "updatedAt": "2026-06-04T17:38:23.641Z"
+  },
+  {
+    "_id": "bw2bhlampzs42e2",
+    "message": "CLIENT BALANCE: Client \"Deepa Shah\" owes ₹25000 for event \"Rohan Birthday Bash\"",
+    "type": "client_payment",
+    "date": "2026-06-04T17:38:23.642Z",
+    "read": false,
+    "referenceId": "5pshfk5mpzrpwt0_pending_client",
+    "createdAt": "2026-06-04T17:38:23.642Z",
+    "updatedAt": "2026-06-04T17:38:23.642Z"
+  },
+  {
+    "_id": "jxn1f73mpzsln4y",
+    "message": "Payment settled for Shyam Sundar for event \"TechCorp Annual Summit 2026\"",
+    "type": "employee_payment",
+    "date": "2026-06-04T17:52:03.682Z",
+    "read": false,
+    "referenceId": "itorf9qmpzrpwsp",
+    "createdAt": "2026-06-04T17:52:03.682Z",
+    "updatedAt": "2026-06-04T17:52:03.682Z"
+  },
+  {
+    "_id": "29to636mpzslpmb",
+    "message": "Payment settled for Rohit Kadam for event \"TechCorp Annual Summit 2026\"",
+    "type": "employee_payment",
+    "date": "2026-06-04T17:52:06.899Z",
+    "read": false,
+    "referenceId": "9wrhl17mpzrpwsr",
+    "createdAt": "2026-06-04T17:52:06.899Z",
+    "updatedAt": "2026-06-04T17:52:06.899Z"
+  }
+]

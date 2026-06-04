@@ -1,0 +1,292 @@
+const bcrypt = require('bcryptjs');
+const db = require('../db/connection');
+
+const seed = async () => {
+  console.log('Starting database seeding...');
+  
+  try {
+    // 1. Seed admin
+    const passwordHash = await bcrypt.hash('admin123', 10);
+    // Clear and reset users
+    const users = db.User._read();
+    if (users.length === 0) {
+      await db.User.create({
+        name: 'Vivid Admin',
+        email: 'admin@vivid.com',
+        password: passwordHash
+      });
+      console.log('Seeded User: admin@vivid.com / admin123');
+    }
+
+    // 2. Seed Employees
+    const employeeData = [
+      {
+        fullName: 'Shyam Sundar',
+        mobileNumber: '+91 98765 12345',
+        email: 'shyam@vivid.com',
+        address: 'B-402, Sunset Heights, Andheri West, Mumbai',
+        role: 'Photographer',
+        perDayCharge: 5000,
+        joiningDate: '2025-01-15',
+        notes: 'Senior photographer. Specializes in candid portraits.',
+        profilePhoto: '',
+        status: 'Active'
+      },
+      {
+        fullName: 'Jay Patel',
+        mobileNumber: '+91 98765 23456',
+        email: 'jay@vivid.com',
+        address: 'Flat 12, Royal Arcade, Bandra East, Mumbai',
+        role: 'Drone Operator',
+        perDayCharge: 6500,
+        joiningDate: '2025-03-10',
+        notes: 'Experienced FAA-equivalent certified pilot. Owns DJI Inspire.',
+        profilePhoto: '',
+        status: 'Active'
+      },
+      {
+        fullName: 'Rahul Sharma',
+        mobileNumber: '+91 98765 34567',
+        email: 'rahul@vivid.com',
+        address: '44, Green Glen layout, Thane, Mumbai',
+        role: 'Videographer',
+        perDayCharge: 5500,
+        joiningDate: '2025-02-20',
+        notes: 'Cinematic reel specialist. Fast turnaround.',
+        profilePhoto: '',
+        status: 'Active'
+      },
+      {
+        fullName: 'Priya Nair',
+        mobileNumber: '+91 98765 45678',
+        email: 'priya@vivid.com',
+        address: 'Studio Row 5, Chembur, Mumbai',
+        role: 'Editor',
+        perDayCharge: 4000,
+        joiningDate: '2025-04-01',
+        notes: 'Premiere Pro and DaVinci Resolve colorist expert.',
+        profilePhoto: '',
+        status: 'Active'
+      },
+      {
+        fullName: 'Rohit Kadam',
+        mobileNumber: '+91 98765 56789',
+        email: 'rohit@vivid.com',
+        address: 'Sector 17, Vashi, Navi Mumbai',
+        role: 'Freelancer',
+        perDayCharge: 3500,
+        joiningDate: '2025-05-18',
+        notes: 'Assistant shooter and backup camera operator.',
+        profilePhoto: '',
+        status: 'Active'
+      }
+    ];
+
+    // Seed employees if empty
+    const currentEmployees = await db.Employee.find();
+    let employeesList = currentEmployees;
+    if (currentEmployees.length === 0) {
+      employeesList = [];
+      for (const emp of employeeData) {
+        const doc = await db.Employee.create(emp);
+        employeesList.push(doc);
+      }
+      console.log(`Seeded ${employeesList.length} employees.`);
+    }
+
+    // Map employees to make it easy to reference
+    const empMap = {};
+    employeesList.forEach(e => {
+      empMap[e.fullName] = e;
+    });
+
+    // 3. Seed Events
+    const today = new Date();
+    const formatDate = (daysOffset) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() + daysOffset);
+      return d.toISOString().split('T')[0];
+    };
+
+    const eventData = [
+      {
+        eventTitle: 'Sharma & Verma Wedding Gala',
+        clientName: 'Alok Sharma',
+        clientMobileNumber: '+91 91234 56789',
+        eventType: 'Wedding',
+        eventDate: formatDate(-15),
+        eventTime: '18:00',
+        eventLocation: 'The Leela Grand Ballroom, Mumbai',
+        description: 'Grand wedding coverage. 500 guests.',
+        eventBudget: 150000,
+        advanceReceived: 80000,
+        remainingAmount: 70000,
+        status: 'Completed',
+        assignedEmployees: [
+          { employeeId: empMap['Shyam Sundar']._id, roleAtEvent: 'Lead Photographer' },
+          { employeeId: empMap['Rahul Sharma']._id, roleAtEvent: 'Videographer' },
+          { employeeId: empMap['Jay Patel']._id, roleAtEvent: 'Drone Operator' }
+        ]
+      },
+      {
+        eventTitle: 'TechCorp Annual Summit 2026',
+        clientName: 'Sanjay Kapoor (HR)',
+        clientMobileNumber: '+91 99998 88888',
+        eventType: 'Corporate',
+        eventDate: formatDate(-5),
+        eventTime: '09:00',
+        eventLocation: 'Nesco Center, Goregaon, Mumbai',
+        description: 'Keynote shoots, group photo, highlights video.',
+        eventBudget: 95000,
+        advanceReceived: 95000,
+        remainingAmount: 0,
+        status: 'Completed',
+        assignedEmployees: [
+          { employeeId: empMap['Shyam Sundar']._id, roleAtEvent: 'Event Photographer' },
+          { employeeId: empMap['Rohit Kadam']._id, roleAtEvent: 'Assistant Shooter' }
+        ]
+      },
+      {
+        eventTitle: 'Mehta Pre-Wedding Shoot',
+        clientName: 'Kunal Mehta',
+        clientMobileNumber: '+91 88888 77777',
+        eventType: 'Pre-Wedding',
+        eventDate: formatDate(2),
+        eventTime: '06:00',
+        eventLocation: 'Marine Drive & Gateway of India',
+        description: 'Outdoor sunrise couple shoot.',
+        eventBudget: 50000,
+        advanceReceived: 20000,
+        remainingAmount: 30000,
+        status: 'Upcoming',
+        assignedEmployees: [
+          { employeeId: empMap['Shyam Sundar']._id, roleAtEvent: 'Candid Photographer' },
+          { employeeId: empMap['Jay Patel']._id, roleAtEvent: 'Drone Specialist' }
+        ]
+      },
+      {
+        eventTitle: 'Rohan Birthday Bash',
+        clientName: 'Deepa Shah',
+        clientMobileNumber: '+91 77777 66666',
+        eventType: 'Birthday',
+        eventDate: formatDate(5),
+        eventTime: '19:00',
+        eventLocation: 'Glocal Junction, Worli, Mumbai',
+        description: '1st Birthday coverage and photobooth.',
+        eventBudget: 35000,
+        advanceReceived: 10000,
+        remainingAmount: 25000,
+        status: 'Upcoming',
+        assignedEmployees: [
+          { employeeId: empMap['Rohit Kadam']._id, roleAtEvent: 'Photographer' }
+        ]
+      }
+    ];
+
+    const currentEvents = await db.Event.find();
+    let eventsList = currentEvents;
+    if (currentEvents.length === 0) {
+      eventsList = [];
+      for (const ev of eventData) {
+        const doc = await db.Event.create(ev);
+        eventsList.push(doc);
+
+        // Trigger Ledgers for Completed Events
+        if (ev.status === 'Completed') {
+          for (const crew of ev.assignedEmployees) {
+            const employee = await db.Employee.findById(crew.employeeId);
+            if (employee) {
+              const dayCharge = employee.perDayCharge;
+              // For first completed event: fully paid, for second: pending/unpaid
+              const isFirstEvent = ev.eventTitle.includes('Sharma');
+              const paid = isFirstEvent ? dayCharge : 0;
+              const pending = dayCharge - paid;
+
+              await db.EmployeeLedger.create({
+                employeeId: employee._id,
+                eventId: doc._id,
+                totalAmount: dayCharge,
+                paidAmount: paid,
+                pendingAmount: pending,
+                payments: paid > 0 ? [{
+                  amount: paid,
+                  date: formatDate(-14),
+                  notes: 'Completed Event Payout',
+                  transactionId: 'TXN' + Math.floor(100000 + Math.random() * 900000)
+                }] : []
+              });
+            }
+          }
+        }
+      }
+      console.log(`Seeded ${eventsList.length} events with ledgers & income statements.`);
+    }
+
+
+
+    // 5. Seed Expenses
+    const expenseData = [
+      {
+        expenseCategory: 'Petrol',
+        amount: 2500,
+        date: formatDate(-14),
+        description: 'Fuel for transport to Leela Grand Ballroom Wedding.',
+        receiptUrl: ''
+      },
+      {
+        expenseCategory: 'Food',
+        amount: 1800,
+        date: formatDate(-14),
+        description: 'Crew snacks and dinner during Wedding shoot.',
+        receiptUrl: ''
+      },
+      {
+        expenseCategory: 'Travel',
+        amount: 3200,
+        date: formatDate(-5),
+        description: 'Cab fares for transporting gear to Nesco Goregaon.',
+        receiptUrl: ''
+      },
+      {
+        expenseCategory: 'Equipment',
+        amount: 15000,
+        date: formatDate(-25),
+        description: 'Sony A7IV camera cage and battery chargers purchase.',
+        receiptUrl: ''
+      },
+      {
+        expenseCategory: 'Salary',
+        amount: 17000,
+        date: formatDate(-14),
+        description: 'Completed wedding payments to Shyam, Rahul, Jay.',
+        receiptUrl: ''
+      },
+      {
+        expenseCategory: 'Miscellaneous',
+        amount: 900,
+        date: formatDate(-8),
+        description: 'Hard-drive backup markers and stationery.',
+        receiptUrl: ''
+      }
+    ];
+
+    const currentExpenses = await db.Expense.find();
+    if (currentExpenses.length === 0) {
+      for (const exp of expenseData) {
+        await db.Expense.create(exp);
+      }
+      console.log(`Seeded ${expenseData.length} expenses.`);
+    }
+
+    console.log('Database seeding successfully finished!');
+  } catch (err) {
+    console.error('Error during database seed:', err);
+  }
+};
+
+// Run seed if called directly
+if (require.main === module) {
+  seed();
+}
+
+module.exports = seed;

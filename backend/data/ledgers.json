@@ -1,0 +1,92 @@
+[
+  {
+    "_id": "mwafcidmpzrpwst",
+    "employeeId": "itorf9qmpzrpwsp",
+    "eventId": "ibtxfw4mpzrpwss",
+    "totalAmount": 5000,
+    "paidAmount": 5000,
+    "pendingAmount": 0,
+    "payments": [
+      {
+        "amount": 5000,
+        "date": "2026-05-21",
+        "notes": "Completed Event Payout",
+        "transactionId": "TXN770310"
+      }
+    ],
+    "createdAt": "2026-06-04T17:27:23.213Z",
+    "updatedAt": "2026-06-04T17:27:23.213Z"
+  },
+  {
+    "_id": "fj39211mpzrpwsu",
+    "employeeId": "a98vgmympzrpwsq",
+    "eventId": "ibtxfw4mpzrpwss",
+    "totalAmount": 5500,
+    "paidAmount": 5500,
+    "pendingAmount": 0,
+    "payments": [
+      {
+        "amount": 5500,
+        "date": "2026-05-21",
+        "notes": "Completed Event Payout",
+        "transactionId": "TXN872113"
+      }
+    ],
+    "createdAt": "2026-06-04T17:27:23.214Z",
+    "updatedAt": "2026-06-04T17:27:23.214Z"
+  },
+  {
+    "_id": "ovbzdc4mpzrpwsv",
+    "employeeId": "bt6g5o4mpzrpwsp",
+    "eventId": "ibtxfw4mpzrpwss",
+    "totalAmount": 6500,
+    "paidAmount": 6500,
+    "pendingAmount": 0,
+    "payments": [
+      {
+        "amount": 6500,
+        "date": "2026-05-21",
+        "notes": "Completed Event Payout",
+        "transactionId": "TXN950065"
+      }
+    ],
+    "createdAt": "2026-06-04T17:27:23.215Z",
+    "updatedAt": "2026-06-04T17:27:23.215Z"
+  },
+  {
+    "_id": "agru7gfmpzrpwsw",
+    "employeeId": "itorf9qmpzrpwsp",
+    "eventId": "ww32cccmpzrpwsv",
+    "totalAmount": 5000,
+    "paidAmount": 5000,
+    "pendingAmount": 0,
+    "payments": [
+      {
+        "amount": 5000,
+        "date": "2026-06-04",
+        "notes": "Payout installment for TechCorp Annual Summit 2026",
+        "transactionId": "XLZ44E5"
+      }
+    ],
+    "createdAt": "2026-06-04T17:27:23.216Z",
+    "updatedAt": "2026-06-04T17:52:03.681Z"
+  },
+  {
+    "_id": "vvuzc1hmpzrpwsx",
+    "employeeId": "9wrhl17mpzrpwsr",
+    "eventId": "ww32cccmpzrpwsv",
+    "totalAmount": 3500,
+    "paidAmount": 3500,
+    "pendingAmount": 0,
+    "payments": [
+      {
+        "amount": 3500,
+        "date": "2026-06-04",
+        "notes": "Payout installment for TechCorp Annual Summit 2026",
+        "transactionId": "B7JRPQD"
+      }
+    ],
+    "createdAt": "2026-06-04T17:27:23.217Z",
+    "updatedAt": "2026-06-04T17:52:06.899Z"
+  }
+]
