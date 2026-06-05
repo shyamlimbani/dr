@@ -7,7 +7,7 @@ let db;
 // Attempt MongoDB Connection if URI is provided
 if (process.env.MONGODB_URI) {
   mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('Database initialized: Successfully connected to MongoDB Atlas.'))
+    .then(() => console.log('MongoDB Connected'))
     .catch(err => {
       console.error('MongoDB connection error:', err.message);
       console.log('WARNING: Mongoose models are loaded, but connection failed.');

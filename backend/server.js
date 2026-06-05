@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 
 // Load environment variables
 dotenv.config();
+console.log('Environment Loaded');
 
 const apiRouter = require('./routes/api');
 
@@ -25,12 +26,34 @@ app.use(express.urlencoded({ extended: true }));
 // Serve Static Uploads folder
 app.use('/uploads', express.express ? express.static(path.join(__dirname, 'uploads')) : express.static(path.join(__dirname, 'uploads')));
 
+// Root Route
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: "Studio Management API is Running",
+    status: "online"
+  });
+});
+
+// Health Check Route
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    status: "healthy",
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Serve API Routes
 app.use('/api', apiRouter);
 
-// Health Check Route
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+// 404 Handler for undefined routes
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: `Cannot ${req.method} ${req.originalUrl}`,
+    error: 'Route not found'
+  });
 });
 
 // Error handling middleware
@@ -45,8 +68,10 @@ app.use((err, req, res, next) => {
 // Start Server
 app.listen(PORT, () => {
   console.log(`====================================================`);
-  console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-  console.log(`API Health Check: http://localhost:${PORT}/health`);
+  console.log(`Server Running`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Port: ${PORT}`);
+  console.log(`API Health Check: http://localhost:${PORT}/api/health`);
   console.log(`Default Credentials: admin@vivid.com / admin123`);
   console.log(`====================================================`);
 });
