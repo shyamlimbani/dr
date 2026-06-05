@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const getBaseUrl = () => {
-  return import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  return import.meta.env.VITE_API_URL || 'https://dr-o5yc.onrender.com';
 };
 
 export const getAssetUrl = (path) => {
