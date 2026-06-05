@@ -1,7 +1,12 @@
 import axios from 'axios';
 
 export const getBaseUrl = () => {
-  return import.meta.env.VITE_API_URL || 'https://dr-o5yc.onrender.com';
+  let url = import.meta.env.VITE_API_URL || 'https://dr-o5yc.onrender.com';
+  // Ensure the URL ends with /api (ignoring trailing slash)
+  if (!url.endsWith('/api') && !url.endsWith('/api/')) {
+    url = url.replace(/\/$/, '') + '/api';
+  }
+  return url;
 };
 
 export const getAssetUrl = (path) => {
