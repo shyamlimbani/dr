@@ -86,38 +86,41 @@ const Dashboard = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-2 lg:px-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 px-1.5 md:px-4">
           {cards.map((card, idx) => {
             const Icon = card.icon;
             return (
               <div 
                 key={idx}
                 onClick={() => navigate(card.path)}
-                className="group relative bg-white dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-3xl p-8 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-slate-900/20 overflow-hidden"
+                className="group relative bg-white dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl md:rounded-3xl p-4 md:p-6 lg:p-8 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/10 overflow-hidden"
               >
                 {/* Glow effect on hover */}
                 <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${card.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
                 
-                <div className="flex flex-col h-full gap-6 relative z-10">
-                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${card.iconBg} shadow-inner transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-                    <Icon size={32} strokeWidth={1.5} />
+                <div className="flex flex-col h-full gap-3 md:gap-6 relative z-10">
+                  <div className={`w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center ${card.iconBg} shadow-inner transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                    <Icon className="w-5 h-5 md:w-8 md:h-8" strokeWidth={1.5} />
                   </div>
                   
-                  <div className="space-y-3 flex-1">
-                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white group-hover:text-teal-400 transition-colors">
+                  <div className="space-y-1.5 md:space-y-3 flex-1">
+                    <h2 className="text-sm md:text-xl lg:text-2xl font-bold text-slate-800 dark:text-white group-hover:text-teal-400 transition-colors">
                       {card.title}
                     </h2>
-                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm md:text-base">
+                    <p className="text-[11px] md:text-sm text-slate-500 dark:text-slate-400 leading-normal md:leading-relaxed line-clamp-3 md:line-clamp-none">
                       {card.description}
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between mt-auto">
-                    <span className="font-semibold text-slate-800 dark:text-white text-sm">
+                  <div className="pt-2 md:pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between mt-auto">
+                    <span className="hidden sm:inline font-semibold text-slate-800 dark:text-white text-xs md:text-sm">
                       Open {card.title}
                     </span>
-                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-teal-500 group-hover:text-white transition-colors duration-300">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <span className="sm:hidden font-semibold text-slate-800 dark:text-white text-[10px]">
+                      Open
+                    </span>
+                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-teal-500 group-hover:text-white transition-colors duration-300 shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 md:w-4 md:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M5 12h14"></path>
                         <path d="m12 5 7 7-7 7"></path>
                       </svg>

@@ -298,10 +298,10 @@ const Events = () => {
             Back to Employees
           </button>
 
-          <div className="flex flex-col md:flex-row gap-6">
+          <div className="flex flex-col lg:flex-row gap-6">
             
             {/* LEFT COLUMN: 60% */}
-            <div className="w-full md:w-[60%] space-y-6">
+            <div className="w-full lg:w-[60%] space-y-6">
               
               {/* Profile Header */}
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex items-center gap-6 shadow-sm">
@@ -403,17 +403,34 @@ const Events = () => {
                       <div 
                         key={idx}
                         onClick={() => day && handleDayClick(day)}
-                        className={`min-h-[80px] p-2 rounded-2xl border transition-all flex flex-col gap-1 ${
+                        className={`min-h-[50px] lg:min-h-[80px] p-1.5 lg:p-2 rounded-xl lg:rounded-2xl border transition-all flex flex-col gap-1 ${
                           day 
                             ? 'bg-slate-50 hover:bg-indigo-50 dark:bg-slate-950/50 dark:hover:bg-indigo-500/10 border-slate-100 dark:border-slate-800 hover:border-indigo-500 cursor-pointer' 
                             : 'bg-transparent border-transparent opacity-0 cursor-default pointer-events-none'
                         }`}
                       >
-                        <span className={`text-xs font-bold ${day ? 'text-slate-600 dark:text-slate-300' : ''}`}>
+                        <span className={`text-[10px] lg:text-xs font-bold ${day ? 'text-slate-600 dark:text-slate-300' : ''}`}>
                           {day}
                         </span>
                         
-                        <div className="flex flex-col gap-1 overflow-y-auto">
+                        {/* Mobile event indicator dots */}
+                        <div className="flex justify-center gap-0.5 mt-auto lg:hidden">
+                          {dayEvents.length > 0 && (
+                            <div className="flex gap-0.5">
+                              {dayEvents.slice(0, 3).map(ev => {
+                                const isToday = new Date(ev.eventDate).toISOString().split('T')[0] === todayStr;
+                                return (
+                                  <span key={ev._id} className={`w-1 lg:w-1.5 h-1 lg:h-1.5 rounded-full ${
+                                    isToday ? 'bg-emerald-500' : 'bg-indigo-500'
+                                  }`} />
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Desktop event badges */}
+                        <div className="hidden lg:flex flex-col gap-1 overflow-y-auto w-full mt-1">
                           {dayEvents.map(ev => {
                             const isToday = new Date(ev.eventDate).toISOString().split('T')[0] === todayStr;
                             return (
@@ -433,7 +450,7 @@ const Events = () => {
             </div>
 
             {/* RIGHT COLUMN: 40% (Booking History Panel) */}
-            <div className="w-full md:w-[40%] flex flex-col h-full space-y-6">
+            <div className="w-full lg:w-[40%] flex flex-col h-full space-y-6">
               
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col h-[calc(100vh-140px)]">
                 <div className="mb-6">
@@ -576,15 +593,15 @@ const Events = () => {
 
       {/* Add Employee Modal */}
       {showEmpModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
               <h3 className="font-bold text-lg">Add Employee</h3>
               <button onClick={() => setShowEmpModal(false)} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors">
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleEmpSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleEmpSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Employee Name</label>
                 <input required type="text" value={empName} onChange={e => setEmpName(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="e.g. John Doe" />
@@ -597,30 +614,30 @@ const Events = () => {
                 <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Profile Photo (Optional)</label>
                 <input type="file" accept="image/*" onChange={e => setEmpPhoto(e.target.files[0])} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-400 focus:outline-none" />
               </div>
-              <div className="pt-4 flex gap-3">
-                <button type="button" onClick={() => setShowEmpModal(false)} className="flex-1 py-3 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                  Cancel
-                </button>
-                <button type="submit" className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all">
-                  Save Employee
-                </button>
-              </div>
             </form>
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 shrink-0 bg-slate-50 dark:bg-slate-950">
+              <button type="button" onClick={() => setShowEmpModal(false)} className="flex-1 py-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm">
+                Cancel
+              </button>
+              <button type="submit" onClick={handleEmpSubmit} className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all text-sm">
+                Save Employee
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Event Assignment Modal */}
       {showEventModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
               <h3 className="font-bold text-lg">{editingEventId ? 'Edit Booking' : 'Assign Event'}</h3>
               <button onClick={() => setShowEventModal(false)} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors">
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleEventSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleEventSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Selected Date</label>
@@ -649,15 +666,15 @@ const Events = () => {
                 <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Notes</label>
                 <textarea rows={3} value={eventNotes} onChange={e => setEventNotes(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="Any special instructions..."></textarea>
               </div>
-              <div className="pt-4 flex gap-3">
-                <button type="button" onClick={() => setShowEventModal(false)} className="flex-1 py-3 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                  Cancel
-                </button>
-                <button type="submit" className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all">
-                  {editingEventId ? 'Update Booking' : 'Save Event'}
-                </button>
-              </div>
             </form>
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 shrink-0 bg-slate-50 dark:bg-slate-950">
+              <button type="button" onClick={() => setShowEventModal(false)} className="flex-1 py-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm">
+                Cancel
+              </button>
+              <button type="submit" onClick={handleEventSubmit} className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all text-sm">
+                {editingEventId ? 'Update Booking' : 'Save Event'}
+              </button>
+            </div>
           </div>
         </div>
       )}

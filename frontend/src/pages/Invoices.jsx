@@ -356,22 +356,22 @@ const Invoices = () => {
 
                 <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                   <div className="flex gap-2">
-                    <button onClick={() => handlePdfAction(item._id, 'view')} className="p-2 bg-blue-500/10 text-blue-600 rounded-lg">
-                      <Eye size={16} />
+                    <button onClick={() => handlePdfAction(item._id, 'view')} className="w-12 h-12 flex items-center justify-center bg-blue-500/10 text-blue-600 rounded-xl hover:bg-blue-500/20 transition-colors">
+                      <Eye size={18} />
                     </button>
-                    <button onClick={() => handlePdfAction(item._id, 'download')} className="p-2 bg-emerald-500/10 text-emerald-600 rounded-lg">
-                      <Download size={16} />
+                    <button onClick={() => handlePdfAction(item._id, 'download')} className="w-12 h-12 flex items-center justify-center bg-emerald-500/10 text-emerald-600 rounded-xl hover:bg-emerald-500/20 transition-colors">
+                      <Download size={18} />
                     </button>
-                    <button onClick={() => handlePdfAction(item._id, 'print')} className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg">
-                      <Printer size={16} />
+                    <button onClick={() => handlePdfAction(item._id, 'print')} className="w-12 h-12 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                      <Printer size={18} />
                     </button>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => openEditModal(item)} className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg">
-                      <Edit2 size={16} />
+                    <button onClick={() => openEditModal(item)} className="w-12 h-12 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                      <Edit2 size={18} />
                     </button>
-                    <button onClick={() => handleDelete(item._id)} className="p-2 bg-rose-500/10 text-rose-600 rounded-lg">
-                      <Trash2 size={16} />
+                    <button onClick={() => handleDelete(item._id)} className="w-12 h-12 flex items-center justify-center bg-rose-500/10 text-rose-600 rounded-xl hover:bg-rose-500/20 transition-colors">
+                      <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
@@ -555,10 +555,10 @@ const Invoices = () => {
             </div>
 
             <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 shrink-0 bg-slate-50 dark:bg-slate-950">
-              <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+              <button type="button" onClick={() => setShowModal(false)} className="flex-1 h-12 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm">
                 Cancel
               </button>
-              <button type="submit" form="docForm" className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all">
+              <button type="submit" form="docForm" className="flex-1 h-12 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all text-sm">
                 {editingId ? 'Update' : 'Save'} Document
               </button>
             </div>

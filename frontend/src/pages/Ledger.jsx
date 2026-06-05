@@ -253,7 +253,56 @@ Thank You.`;
           <p className="text-slate-500 font-medium">No payment records found.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <>
+        {/* DESKTOP TABLE VIEW */}
+        <div className="hidden lg:block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
+          <table className="w-full text-sm text-left whitespace-nowrap">
+            <thead className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
+              <tr>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Employee Name</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Mobile Number</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Total Amount</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Paid Amount</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Pending Amount</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {filteredPayments.map(payment => (
+                <tr key={payment._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">{payment.employeeName}</td>
+                  <td className="px-6 py-4 text-slate-500">{payment.mobileNumber}</td>
+                  <td className="px-6 py-4 font-bold text-slate-800 dark:text-white text-right">₹{payment.totalAmount?.toLocaleString('en-IN')}</td>
+                  <td className="px-6 py-4 font-bold text-emerald-500 text-right">₹{payment.paidAmount?.toLocaleString('en-IN')}</td>
+                  <td className={`px-6 py-4 font-black text-right ${payment.pendingAmount > 0 ? 'text-orange-500' : 'text-slate-300 dark:text-slate-600'}`}>₹{payment.pendingAmount?.toLocaleString('en-IN')}</td>
+                  <td className="px-6 py-4 flex items-center justify-center gap-2">
+                    <button onClick={() => openHistory(payment)} title="History" className="p-2 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                      <History size={16} />
+                    </button>
+                    <button onClick={() => openEditModal(payment)} title="Edit" className="p-2 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                      <Edit2 size={16} />
+                    </button>
+                    <button onClick={() => handleDelete(payment._id)} title="Delete" className="p-2 bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 rounded-lg transition-colors">
+                      <Trash2 size={16} />
+                    </button>
+                    <button 
+                      onClick={() => sendWhatsApp(payment)} 
+                      title="Send WhatsApp Remainder" 
+                      className="p-2 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 rounded-lg transition-colors"
+                    >
+                      <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* MOBILE CARDS VIEW */}
+        <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filteredPayments.map(payment => (
             <div key={payment._id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col justify-between hover:shadow-xl hover:border-indigo-500/30 transition-all group">
               
@@ -266,7 +315,7 @@ Thank You.`;
                       {payment.mobileNumber}
                     </div>
                   </div>
-                  <div className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                  <div className="opacity-100 flex gap-1">
                     <button onClick={() => openEditModal(payment)} className="p-1.5 text-slate-400 hover:text-indigo-500 bg-slate-50 dark:bg-slate-800 rounded-lg">
                       <Edit2 size={14} />
                     </button>
@@ -312,19 +361,20 @@ Thank You.`;
             </div>
           ))}
         </div>
+        </>
       )}
 
       {/* ADD / EDIT MODAL */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
               <h3 className="font-bold text-lg">{editingId ? 'Edit Payment' : 'Add Payment'}</h3>
               <button onClick={() => setShowModal(false)} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg">
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
               
               {!editingId && (
                 <div>
@@ -373,25 +423,24 @@ Thank You.`;
                   ₹{pendingAmountCalc}
                 </span>
               </div>
-
-              <div className="pt-4 flex gap-3">
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-3 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm">
-                  Cancel
-                </button>
-                <button type="submit" className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all text-sm">
-                  Save Payment
-                </button>
-              </div>
             </form>
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 shrink-0 bg-slate-50 dark:bg-slate-950">
+              <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm">
+                Cancel
+              </button>
+              <button type="submit" onClick={handleSubmit} className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all text-sm">
+                Save Payment
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* HISTORY MODAL */}
       {showHistoryModal && activeHistory && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
               <div>
                 <h3 className="font-bold text-lg">Payment History</h3>
                 <p className="text-xs text-slate-500">{activeHistory.employeeName}</p>
@@ -401,11 +450,11 @@ Thank You.`;
               </button>
             </div>
             
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-1">
               {!activeHistory.payments || activeHistory.payments.length === 0 ? (
                 <p className="text-center text-sm text-slate-400 py-6">No historical records found.</p>
               ) : (
-                <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2">
+                <div className="space-y-4 pr-2">
                   {activeHistory.payments.map((ph, idx) => (
                     <div key={idx} className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 last:border-0 last:pb-0">
                       <div>
@@ -422,7 +471,7 @@ Thank You.`;
               )}
             </div>
             
-            <div className="p-6 pt-0">
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex shrink-0 bg-slate-50 dark:bg-slate-950">
               <button onClick={() => setShowHistoryModal(false)} className="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl transition-colors text-sm">
                 Close
               </button>

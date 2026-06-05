@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -9,8 +9,8 @@ import {
   LayoutDashboard,
   Settings as SettingsIcon,
   LogOut, 
-  Menu, 
-  X
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { useSettings } from '../services/SettingsContext';
 import { getAssetUrl } from '../services/api';
@@ -21,7 +21,22 @@ const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Collapsed by default on tablet width
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        // Mobile layout: sidebar hidden
+      } else if (window.innerWidth < 1024) {
+        setSidebarCollapsed(true);
+      } else {
+        setSidebarCollapsed(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -38,76 +53,98 @@ const Layout = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
-      {/* SIDEBAR FOR DESKTOP */}
-      <aside className="hidden lg:flex flex-col w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 h-screen transition-colors duration-200">
-        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800">
-          <Link to="/" className="flex items-center gap-2">
-            {settings.companyLogo ? (
-              <img src={getAssetUrl(settings.companyLogo)} alt="Logo" className="max-h-8 max-w-[150px] object-contain" />
-            ) : (
-              <span className="text-xl font-extrabold bg-gradient-to-r from-teal-500 to-emerald-400 bg-clip-text text-transparent">
-                {settings.studioName || 'VIVID ADMIN'}
-              </span>
-            )}
-          </Link>
+    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-200">
+      
+      {/* SIDEBAR FOR TABLET & DESKTOP */}
+      <aside 
+        className={`hidden md:flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 h-screen transition-all duration-300 shrink-0 ${
+          sidebarCollapsed ? 'w-20' : 'w-64'
+        }`}
+      >
+        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800">
+          {!sidebarCollapsed && (
+            <Link to="/" className="flex items-center gap-2 truncate">
+              {settings.companyLogo ? (
+                <img src={getAssetUrl(settings.companyLogo)} alt="Logo" className="max-h-8 max-w-[120px] object-contain" />
+              ) : (
+                <span className="text-base font-black bg-gradient-to-r from-teal-500 to-emerald-400 bg-clip-text text-transparent uppercase tracking-wider truncate">
+                  {settings.studioName || 'VIVID'}
+                </span>
+              )}
+            </Link>
+          )}
+          <button 
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg mx-auto text-slate-500 transition-colors"
+          >
+            {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          </button>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+
+        <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto">
           {menuItems.map((item) => {
-            const isActive = location.pathname === item.path || location.pathname.startsWith(item.path);
+            const isActive = item.path === '/' 
+              ? location.pathname === '/' 
+              : location.pathname.startsWith(item.path);
             const Icon = item.icon;
             return (
               <Link
                 key={item.name}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                className={`flex items-center rounded-xl text-sm font-semibold transition-all duration-150 ${
+                  sidebarCollapsed ? 'justify-center p-3' : 'gap-3 px-4 py-3'
+                } ${
                   isActive 
                     ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/20' 
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
+                title={sidebarCollapsed ? item.name : ''}
               >
-                <Icon size={18} />
-                {item.name}
+                <Icon size={18} className="shrink-0" />
+                {!sidebarCollapsed && <span>{item.name}</span>}
               </Link>
             );
           })}
         </nav>
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+
+        <div className="p-3 border-t border-slate-200 dark:border-slate-800">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all duration-150"
+            className={`flex items-center rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all duration-150 ${
+              sidebarCollapsed ? 'justify-center p-3 w-full' : 'gap-3 px-4 py-3 w-full'
+            }`}
+            title={sidebarCollapsed ? 'Sign Out' : ''}
           >
-            <LogOut size={18} />
-            Sign Out
+            <LogOut size={18} className="shrink-0" />
+            {!sidebarCollapsed && <span>Sign Out</span>}
           </button>
         </div>
       </aside>
 
       {/* MAIN CONTAINER */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden pb-20 lg:pb-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden pb-20 md:pb-0">
         
         {/* TOP HEADER */}
-        <header className="h-16 flex items-center justify-between px-4 lg:px-8 border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur sticky top-0 z-30 transition-colors duration-200 relative">
+        <header className="h-16 flex items-center justify-between px-4 md:px-8 border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur sticky top-0 z-30 transition-colors duration-200">
           
           <div className="flex items-center gap-4 w-1/3">
-            <h1 className="hidden lg:block text-xl font-bold tracking-tight text-slate-800 dark:text-white">
+            <h1 className="hidden md:block text-lg font-bold tracking-tight text-slate-800 dark:text-white truncate">
               {settings.studioName || 'Vivid Productions'}
             </h1>
           </div>
 
           {/* MOBILE ONLY CENTERED LOGO */}
-          <div className="lg:hidden absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center h-full pointer-events-none w-1/3 text-center">
+          <div className="md:hidden absolute left-1/2 -translate-x-1/2 flex items-center justify-center text-center pointer-events-none w-1/3">
             {settings.companyLogo ? (
-              <img src={getAssetUrl(settings.companyLogo)} alt="Logo" className="h-7 object-contain" />
+              <img src={getAssetUrl(settings.companyLogo)} alt="Logo" className="h-8 max-w-[120px] object-contain" />
             ) : (
-              <div className="w-7 h-7 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold text-xs">V</div>
+              <span className="text-base font-black bg-gradient-to-r from-teal-500 to-emerald-400 bg-clip-text text-transparent uppercase tracking-wider truncate">
+                {settings.studioName || 'Vivid'}
+              </span>
             )}
-            <span className="text-[10px] font-extrabold text-slate-800 dark:text-slate-200 mt-0.5 uppercase tracking-wider truncate w-full text-center">
-              {settings.studioName || 'Vivid'}
-            </span>
           </div>
 
-          <div className="flex items-center justify-end gap-2 lg:gap-4 w-1/3">
+          <div className="flex items-center justify-end gap-2 md:gap-4 w-1/3">
             <div className="h-9 w-9 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md border border-white/20">
               {user?.name ? user.name.split(' ').map(n=>n[0]).join('') : 'AD'}
             </div>
@@ -115,78 +152,42 @@ const Layout = () => {
         </header>
 
         {/* MAIN ROUTE CONTENT */}
-        <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
           <Outlet />
         </main>
       </div>
 
-      {/* MOBILE BOTTOM NAVIGATION BAR */}
-      <div className="lg:hidden fixed bottom-0 w-full z-50">
-        <div className="nav-notch-bg rounded-t-[24px] pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
-          <div className="flex relative h-16 w-full mx-auto">
+      {/* PREMIUM MOBILE BOTTOM NAVIGATION BAR */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pb-safe shadow-2xl">
+        <div className="flex h-16 w-full items-center justify-around">
+          {menuItems.map((item) => {
+            const isActive = item.path === '/' 
+              ? location.pathname === '/' 
+              : location.pathname.startsWith(item.path);
+            const Icon = item.icon;
             
-            {/* Sliding Active Indicator */}
-            {(() => {
-              const mobileMenuItems = [
-                { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-                { name: 'Events', path: '/events', icon: Calendar },
-                { name: 'Payments', path: '/payments', icon: CreditCard },
-                { name: 'Bills', path: '/billing', icon: FileText },
-                { name: 'Expenses', path: '/expenses', icon: Receipt },
-                { name: 'Settings', path: '/settings', icon: SettingsIcon },
-              ];
-              
-              const getActiveIndex = () => {
-                const exactMatch = mobileMenuItems.findIndex(i => location.pathname === i.path);
-                if (exactMatch >= 0) return exactMatch;
-                const startsWithMatch = mobileMenuItems.findIndex(i => i.path !== '/' && location.pathname.startsWith(i.path));
-                if (startsWithMatch >= 0) return startsWithMatch;
-                return 0; // Default to Dashboard
-              };
-              
-              const validIndex = getActiveIndex();
-              
-              return (
-                <div 
-                  className="absolute top-0 h-full w-1/6 flex justify-center pointer-events-none transition-transform duration-500 ease-in-out"
-                  style={{ transform: `translateX(${validIndex * 100}%)` }}
-                >
-                  <div className="nav-indicator"></div>
+            return (
+              <Link 
+                key={item.name} 
+                to={item.path} 
+                className={`flex flex-col items-center justify-center flex-1 h-full py-2 transition-all ${
+                  isActive 
+                    ? 'text-teal-500 dark:text-teal-400 font-bold' 
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                }`}
+              >
+                <div className={`relative transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}>
+                  <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                  {isActive && (
+                    <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-teal-500 dark:bg-teal-400 rounded-full animate-pulse"></span>
+                  )}
                 </div>
-              );
-            })()}
-            
-            {/* Navigation Items */}
-            {[
-                { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-                { name: 'Events', path: '/events', icon: Calendar },
-                { name: 'Payments', path: '/payments', icon: CreditCard },
-                { name: 'Bills', path: '/billing', icon: FileText },
-                { name: 'Expenses', path: '/expenses', icon: Receipt },
-                { name: 'Settings', path: '/settings', icon: SettingsIcon },
-            ].map((item, index) => {
-              const isActive = item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path);
-              const Icon = item.icon;
-              
-              return (
-                <Link 
-                  key={item.name} 
-                  to={item.path} 
-                  className="relative flex flex-col items-center justify-center w-1/6 h-full z-10 pt-2"
-                >
-                  {/* Icon */}
-                  <div className={`relative transition-all duration-500 ease-in-out ${isActive ? '-translate-y-6 text-white' : 'text-slate-500 hover:text-slate-400'}`}>
-                    <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
-                  </div>
-                  
-                  {/* Label */}
-                  <span className={`absolute bottom-2 left-1/2 -translate-x-1/2 w-full text-center text-[9px] sm:text-[10px] font-bold transition-all duration-500 ease-in-out ${isActive ? 'text-teal-400 translate-y-0 opacity-100' : 'text-slate-500 translate-y-2 opacity-0'} tracking-tighter sm:tracking-normal`}>
-                    {item.name}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
+                <span className="text-[9px] mt-1 font-medium tracking-tighter">
+                  {item.name === 'Billing' ? 'Billing' : item.name}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </div>
 

@@ -243,9 +243,9 @@ const Expenses = () => {
                 </p>
                 <button
                   onClick={() => handleDelete(exp._id)}
-                  className="p-2 bg-rose-500/10 text-rose-600 rounded-lg shrink-0"
+                  className="w-12 h-12 flex items-center justify-center bg-rose-500/10 text-rose-600 rounded-xl shrink-0"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={18} />
                 </button>
               </div>
             </div>
@@ -256,9 +256,9 @@ const Expenses = () => {
 
       {/* EXPENSE MODAL */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
               <h3 className="font-bold text-base">Log New Expense</h3>
               <button 
                 onClick={() => setShowModal(false)}
@@ -268,7 +268,7 @@ const Expenses = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
               {formError && (
                 <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs rounded-xl flex items-center gap-2">
                   <AlertCircle size={15} />
@@ -281,7 +281,7 @@ const Expenses = () => {
                 <select
                   value={formData.expenseCategory}
                   onChange={(e) => setFormData({...formData, expenseCategory: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500"
                 >
                   <option value="Office">Office</option>
                   <option value="Event">Event</option>
@@ -298,7 +298,7 @@ const Expenses = () => {
                   required
                   value={formData.amount}
                   onChange={(e) => setFormData({...formData, amount: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500"
                   placeholder="Enter expense amount"
                 />
               </div>
@@ -310,7 +310,7 @@ const Expenses = () => {
                   required
                   value={formData.date}
                   onChange={(e) => setFormData({...formData, date: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500"
                 />
               </div>
 
@@ -319,27 +319,27 @@ const Expenses = () => {
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500 min-h-[80px]"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500 min-h-[80px]"
                   placeholder="What was this expense for?"
                 />
               </div>
-
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 bg-rose-500 hover:bg-rose-400 text-white font-bold rounded-xl shadow-md text-xs shadow-rose-500/20 transition-all"
-                >
-                  Save Expense
-                </button>
-              </div>
             </form>
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3 shrink-0 bg-slate-50 dark:bg-slate-950">
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="flex-1 h-12 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                className="flex-1 h-12 bg-rose-500 hover:bg-rose-400 text-white font-bold rounded-xl shadow-md text-sm shadow-rose-500/20 transition-all"
+              >
+                Save Expense
+              </button>
+            </div>
           </div>
         </div>
       )}

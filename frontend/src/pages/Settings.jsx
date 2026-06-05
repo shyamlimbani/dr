@@ -98,9 +98,9 @@ const Settings = () => {
         <form onSubmit={handleSubmit} className="space-y-8">
           
           {/* LOGO UPLOAD */}
-          <div className="flex flex-col md:flex-row gap-8 items-start">
-            <div className="flex-shrink-0">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Company Logo</label>
+          <div className="flex flex-col md:flex-row gap-8 items-center md:items-start w-full">
+            <div className="flex-shrink-0 flex flex-col items-center md:items-start">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 text-center md:text-left">Company Logo</label>
               <div className="relative group cursor-pointer w-40 h-40 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex flex-col items-center justify-center overflow-hidden hover:border-teal-500 transition-colors">
                 {logoPreview ? (
                   <img src={logoPreview} alt="Logo Preview" className="w-full h-full object-contain p-2" />
