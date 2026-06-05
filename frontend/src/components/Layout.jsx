@@ -178,9 +178,6 @@ const Layout = () => {
               >
                 <div className={`relative transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}>
                   <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
-                  {isActive && (
-                    <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-teal-500 dark:bg-teal-400 rounded-full animate-pulse"></span>
-                  )}
                 </div>
                 <span className="text-[9px] mt-1 font-medium tracking-tighter">
                   {item.name === 'Billing' ? 'Billing' : item.name}
