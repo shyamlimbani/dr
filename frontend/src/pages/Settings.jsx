@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from '../services/SettingsContext';
-import apiClient from '../services/api';
+import apiClient, { getAssetUrl } from '../services/api';
 import { Camera, Save } from 'lucide-react';
 
 const Settings = () => {
@@ -33,7 +33,7 @@ const Settings = () => {
         websiteUrl: settings.websiteUrl || ''
       });
       if (settings.companyLogo) {
-        setLogoPreview(`http://localhost:5000${settings.companyLogo}`);
+        setLogoPreview(getAssetUrl(settings.companyLogo));
       }
     }
   }, [settings]);

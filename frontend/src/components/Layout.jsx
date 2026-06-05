@@ -13,6 +13,7 @@ import {
   X
 } from 'lucide-react';
 import { useSettings } from '../services/SettingsContext';
+import { getAssetUrl } from '../services/api';
 
 const Layout = () => {
   const { user, logout } = useAuth();
@@ -43,7 +44,7 @@ const Layout = () => {
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800">
           <Link to="/" className="flex items-center gap-2">
             {settings.companyLogo ? (
-              <img src={`http://localhost:5000${settings.companyLogo}`} alt="Logo" className="max-h-8 max-w-[150px] object-contain" />
+              <img src={getAssetUrl(settings.companyLogo)} alt="Logo" className="max-h-8 max-w-[150px] object-contain" />
             ) : (
               <span className="text-xl font-extrabold bg-gradient-to-r from-teal-500 to-emerald-400 bg-clip-text text-transparent">
                 {settings.studioName || 'VIVID ADMIN'}
@@ -97,7 +98,7 @@ const Layout = () => {
           {/* MOBILE ONLY CENTERED LOGO */}
           <div className="lg:hidden absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center h-full pointer-events-none w-1/3 text-center">
             {settings.companyLogo ? (
-              <img src={`http://localhost:5000${settings.companyLogo}`} alt="Logo" className="h-7 object-contain" />
+              <img src={getAssetUrl(settings.companyLogo)} alt="Logo" className="h-7 object-contain" />
             ) : (
               <div className="w-7 h-7 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold text-xs">V</div>
             )}

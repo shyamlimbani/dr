@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../services/api';
+import apiClient, { getAssetUrl } from '../services/api';
 import { 
   Plus, 
   ArrowLeft, 
@@ -269,7 +269,7 @@ const Events = () => {
                   className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col items-center text-center cursor-pointer hover:shadow-xl hover:border-indigo-500/50 transition-all duration-300 group"
                 >
                   {emp.profilePhoto ? (
-                    <img src={`http://localhost:5000${emp.profilePhoto}`} alt={emp.fullName} className="w-20 h-20 rounded-full object-cover shadow-inner mb-4 group-hover:scale-105 transition-transform" />
+                    <img src={getAssetUrl(emp.profilePhoto)} alt={emp.fullName} className="w-20 h-20 rounded-full object-cover shadow-inner mb-4 group-hover:scale-105 transition-transform" />
                   ) : (
                     <div className="w-20 h-20 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-500 flex items-center justify-center text-2xl font-bold mb-4 shadow-inner group-hover:scale-105 transition-transform">
                       {emp.fullName.charAt(0)}
@@ -306,7 +306,7 @@ const Events = () => {
               {/* Profile Header */}
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex items-center gap-6 shadow-sm">
                 {activeEmployee.profilePhoto ? (
-                  <img src={`http://localhost:5000${activeEmployee.profilePhoto}`} alt={activeEmployee.fullName} className="w-20 h-20 rounded-full object-cover shadow-inner" />
+                  <img src={getAssetUrl(activeEmployee.profilePhoto)} alt={activeEmployee.fullName} className="w-20 h-20 rounded-full object-cover shadow-inner" />
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-500 flex items-center justify-center text-3xl font-bold shadow-inner">
                     {activeEmployee.fullName.charAt(0)}

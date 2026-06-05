@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../services/api';
+import apiClient, { getBaseUrl } from '../services/api';
 import { 
   Plus, 
   Search, 
@@ -173,7 +173,7 @@ const Invoices = () => {
   };
 
   const handlePdfAction = (id, action) => {
-    const baseUrl = 'http://localhost:5000/api';
+    const baseUrl = getBaseUrl();
     const endpoint = activeTab === 'bills' ? `/bills/${id}/pdf` : `/quotations/${id}/pdf`;
     const url = `${baseUrl}${endpoint}`;
     

@@ -1,14 +1,23 @@
+import axios from 'axios';
+
+export const getBaseUrl = () => {
+  return import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+};
+
+export const getAssetUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+    return path;
+  }
+  const apiBase = getBaseUrl();
+  const rootDomain = apiBase.replace(/\/api\/?$/, '');
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${rootDomain}${cleanPath}`;
+};
+
 const getAuthToken = () => {
   return localStorage.getItem('token');
 };
-
-const getBaseUrl = () => {
-  // Can be configured via env
-  return 'http://localhost:5000/api';
-};
-
-// Create Axios Client
-import axios from 'axios';
 
 const apiClient = axios.create({
   baseURL: getBaseUrl(),
