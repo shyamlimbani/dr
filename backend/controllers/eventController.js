@@ -40,7 +40,6 @@ const createEvent = async (req, res) => {
     const {
       employeeId,
       eventDate,
-      eventTime,
       eventType,
       eventLocation,
       employeeCharge,
@@ -54,7 +53,6 @@ const createEvent = async (req, res) => {
     const event = await db.Event.create({
       employeeId,
       eventDate,
-      eventTime: eventTime || '',
       eventType,
       eventLocation: eventLocation || '',
       employeeCharge: Number(employeeCharge) || 0,

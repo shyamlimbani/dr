@@ -31,7 +31,6 @@ const Events = () => {
   const [showEventModal, setShowEventModal] = useState(false);
   const [editingEventId, setEditingEventId] = useState(null);
   const [selectedDate, setSelectedDate] = useState('');
-  const [eventTime, setEventTime] = useState('');
   const [eventType, setEventType] = useState('Photography');
   const [eventLocation, setEventLocation] = useState('');
   const [employeeCharge, setEmployeeCharge] = useState('');
@@ -102,7 +101,6 @@ const Events = () => {
 
   const openAddEventModal = () => {
     setSelectedDate(new Date().toISOString().split('T')[0]);
-    setEventTime('');
     setEventType('Photography');
     setEventLocation('');
     setEmployeeCharge('');
@@ -114,7 +112,6 @@ const Events = () => {
   const openEditModal = (ev) => {
     setEditingEventId(ev._id);
     setSelectedDate(new Date(ev.eventDate).toISOString().split('T')[0]);
-    setEventTime(ev.eventTime || '');
     setEventType(ev.eventType);
     setEventLocation(ev.eventLocation);
     setEmployeeCharge(ev.employeeCharge);
@@ -139,7 +136,6 @@ const Events = () => {
       const payload = {
         employeeId: activeEmployee._id,
         eventDate: selectedDate,
-        eventTime,
         eventType,
         eventLocation,
         employeeCharge,
@@ -336,7 +332,6 @@ const Events = () => {
                           <span className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mt-3">
                             <CalendarIcon size={14} className="text-slate-400" />
                             {new Date(ev.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                            {ev.eventTime && ` • ${ev.eventTime}`}
                           </span>
                         </div>
                         
@@ -435,15 +430,9 @@ const Events = () => {
               </button>
             </div>
             <form onSubmit={handleEventSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Selected Date</label>
-                  <input type="date" required value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Event Time</label>
-                  <input type="time" value={eventTime} onChange={e => setEventTime(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
-                </div>
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Selected Date</label>
+                <input type="date" required value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Event Type</label>
