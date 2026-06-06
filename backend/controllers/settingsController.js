@@ -1,12 +1,18 @@
 const db = require('../db/connection');
 
+let cachedSettings = null;
+
 const getSettings = async (req, res) => {
   try {
+    if (cachedSettings) {
+      return res.json(cachedSettings);
+    }
     let settings = await db.Settings.findOne();
     if (!settings) {
       // Auto-create default settings if none exist
       settings = await db.Settings.create({});
     }
+    cachedSettings = settings;
     res.json(settings);
   } catch (error) {
     console.error('Get settings error:', error);
@@ -26,6 +32,7 @@ const updateSettings = async (req, res) => {
     } else {
       settings = await db.Settings.findByIdAndUpdate(settings._id, updateData, { new: true });
     }
+    cachedSettings = settings;
     res.json(settings);
   } catch (error) {
     console.error('Update settings error:', error);

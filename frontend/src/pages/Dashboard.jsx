@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/api';
 import { Calendar, Wallet, FileText, Receipt, Download } from 'lucide-react';
+import { useSettings } from '../services/SettingsContext';
+import { generatePdf } from '../utils/pdfGenerator';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { settings } = useSettings();
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   const cards = [
     {
@@ -43,18 +47,15 @@ const Dashboard = () => {
 
   const downloadRevenuePdf = async () => {
     try {
-      const response = await apiClient.get('/revenue/pdf', { responseType: 'blob' });
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'Revenue_Report.pdf');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      setPdfLoading(true);
+      const res = await apiClient.get('/bills');
+      const sortedBills = (res.data || []).sort((a, b) => new Date(b.billDate || b.createdAt) - new Date(a.billDate || a.createdAt));
+      await generatePdf('Revenue_Report', sortedBills, settings, 'download');
     } catch (error) {
       console.error('Download PDF error', error);
-      alert('Failed to download PDF report');
+      alert('Failed to generate revenue report');
+    } finally {
+      setPdfLoading(false);
     }
   };
 
@@ -132,6 +133,15 @@ const Dashboard = () => {
           })}
         </div>
       </div>
+      {/* PDF Generation Loader Overlay */}
+      {pdfLoading && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-xl flex flex-col items-center gap-4 border border-slate-100 dark:border-slate-800">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
+            <p className="text-sm font-bold text-slate-800 dark:text-white">Generating PDF...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

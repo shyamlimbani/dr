@@ -10,10 +10,14 @@ import {
   AlertCircle,
   Download
 } from 'lucide-react';
+import { useSettings } from '../services/SettingsContext';
+import { generatePdf } from '../utils/pdfGenerator';
 
 const Expenses = () => {
+  const { settings } = useSettings();
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
 
@@ -88,18 +92,13 @@ const Expenses = () => {
 
   const downloadPdf = async () => {
     try {
-      const response = await apiClient.get('/expenses/pdf', { responseType: 'blob' });
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'Expense_Report.pdf');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      setPdfLoading(true);
+      await generatePdf('Expense_Report', filteredExpenses, settings, 'download');
     } catch (error) {
       console.error('Download PDF error', error);
-      alert('Failed to download PDF report');
+      alert('Failed to generate PDF report');
+    } finally {
+      setPdfLoading(false);
     }
   };
 
@@ -340,6 +339,15 @@ const Expenses = () => {
                 Save Expense
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* PDF Generation Loader Overlay */}
+      {pdfLoading && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-xl flex flex-col items-center gap-4 border border-slate-100 dark:border-slate-800">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-rose-500"></div>
+            <p className="text-sm font-bold text-slate-800 dark:text-white">Generating PDF...</p>
           </div>
         </div>
       )}

@@ -13,25 +13,21 @@ import {
   FileSpreadsheet,
   Trash
 } from 'lucide-react';
+import { useSettings } from '../services/SettingsContext';
+import { generatePdf } from '../utils/pdfGenerator';
 
 const Invoices = () => {
   const [activeTab, setActiveTab] = useState('bills'); // 'bills' | 'quotations'
   
+  // Global settings context
+  const { settings } = useSettings();
+
   // Data State
   const [bills, setBills] = useState([]);
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [search, setSearch] = useState('');
-
-  // Settings State (for Quotation Auto Fetch Header)
-  const [settings, setSettings] = useState({
-    studioName: '',
-    ownerName: '',
-    mobileNumber: '',
-    email: '',
-    address: '',
-    companyLogo: ''
-  });
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -63,7 +59,6 @@ const Invoices = () => {
 
   useEffect(() => {
     fetchData();
-    fetchSettings();
   }, [activeTab]);
 
   const fetchData = async () => {
@@ -80,15 +75,6 @@ const Invoices = () => {
       console.error(err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchSettings = async () => {
-    try {
-      const res = await apiClient.get('/settings');
-      if (res.data) setSettings(res.data);
-    } catch (err) {
-      console.error('Error fetching settings:', err);
     }
   };
 
@@ -258,35 +244,26 @@ const Invoices = () => {
     }
   };
 
-  const handlePdfAction = (id, action) => {
-    const baseUrl = getBaseUrl();
-    const endpoint = activeTab === 'bills' ? `/bills/${id}/pdf` : `/quotations/${id}/pdf`;
-    const url = `${baseUrl}${endpoint}`;
-    
-    // Auth token needed since routes are protected
-    const token = localStorage.getItem('token');
-    
-    // Fetch blob and open/download
-    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-      .then(async res => {
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(errText);
-        }
-        return res.blob();
-      })
-      .then(blob => {
-        const blobUrl = window.URL.createObjectURL(blob);
-        if (action === 'download') {
-          const a = document.createElement('a');
-          a.href = blobUrl;
-          a.download = `${activeTab === 'bills' ? 'Bill' : 'Quotation'}_${id}.pdf`;
-          a.click();
-        } else {
-          window.open(blobUrl, '_blank');
-        }
-      })
-      .catch(err => console.error('PDF fetch error:', err));
+  const handlePdfAction = async (id, action) => {
+    try {
+      setPdfLoading(true);
+      const item = activeTab === 'bills'
+        ? bills.find(b => b._id === id)
+        : quotations.find(q => q._id === id);
+
+      if (!item) {
+        alert('Document record not found locally');
+        return;
+      }
+
+      const type = activeTab === 'bills' ? 'Bill' : 'Quotation';
+      await generatePdf(type, item, settings, action);
+    } catch (err) {
+      console.error('Error generating PDF on client:', err);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setPdfLoading(false);
+    }
   };
 
   const filteredData = (activeTab === 'bills' ? bills : quotations).filter(item => 
@@ -751,6 +728,15 @@ const Invoices = () => {
         </div>
       )}
 
+      {/* PDF Generation Loader Overlay */}
+      {pdfLoading && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-xl flex flex-col items-center gap-4 border border-slate-100 dark:border-slate-800">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
+            <p className="text-sm font-bold text-slate-800 dark:text-white">Generating PDF...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
