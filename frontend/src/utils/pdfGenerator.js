@@ -585,11 +585,21 @@ export const generatePdf = async (type, data, settings, action) => {
     html = getRevenueReportHtml(data, settings, logoData);
   }
 
-  // Create absolute positioned hidden container
+  // Create fixed positioned container underneath everything (z-index: -9999)
+  // html2canvas requires the element to be in the DOM and visible (not display: none or offscreen coordinates)
+  // to correctly render bounding boxes and calculate stylesheet formatting.
   const container = document.createElement('div');
-  container.className = 'absolute -left-[9999px] -top-[9999px] bg-white';
+  container.style.position = 'fixed';
+  container.style.left = '0';
+  container.style.top = '0';
+  container.style.width = '210mm';
+  container.style.zIndex = '-9999';
+  container.style.backgroundColor = 'white';
   container.innerHTML = html;
   document.body.appendChild(container);
+
+  // Wait 150ms for the browser to perform layout, paint, and apply active Tailwind styles
+  await new Promise((resolve) => setTimeout(resolve, 150));
 
   const opt = {
     margin:       0,
