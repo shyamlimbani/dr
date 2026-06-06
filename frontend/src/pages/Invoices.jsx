@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import apiClient, { getBaseUrl } from '../services/api';
+import apiClient, { getBaseUrl, getAssetUrl } from '../services/api';
 import { 
   Plus, 
   Search, 
@@ -23,6 +23,16 @@ const Invoices = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
 
+  // Settings State (for Quotation Auto Fetch Header)
+  const [settings, setSettings] = useState({
+    studioName: '',
+    ownerName: '',
+    mobileNumber: '',
+    email: '',
+    address: '',
+    companyLogo: ''
+  });
+
   // Modal State
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -38,13 +48,22 @@ const Invoices = () => {
   const [advanceReceived, setAdvanceReceived] = useState(0);
   const [notes, setNotes] = useState('');
   
-  // Dynamic Services Array
+  // Dynamic Services Array (Used by Bills)
   const [services, setServices] = useState([
     { serviceName: '', quantity: 1, price: 0, total: 0 }
   ]);
 
+  // Dynamic Sections Array (Used by Quotations)
+  const [sections, setSections] = useState([
+    { title: 'Day 01', items: [''] }
+  ]);
+
+  // Manual grand total state (Used by Quotations)
+  const [manualGrandTotal, setManualGrandTotal] = useState('');
+
   useEffect(() => {
     fetchData();
+    fetchSettings();
   }, [activeTab]);
 
   const fetchData = async () => {
@@ -64,6 +83,15 @@ const Invoices = () => {
     }
   };
 
+  const fetchSettings = async () => {
+    try {
+      const res = await apiClient.get('/settings');
+      if (res.data) setSettings(res.data);
+    } catch (err) {
+      console.error('Error fetching settings:', err);
+    }
+  };
+
   const openAddModal = () => {
     setEditingId(null);
     setClientName('');
@@ -76,6 +104,16 @@ const Invoices = () => {
     setAdvanceReceived(0);
     setNotes('');
     setServices([{ serviceName: '', quantity: 1, price: 0, total: 0 }]);
+    if (activeTab === 'quotations') {
+      setSections([
+        { title: 'DAY 01', items: ['Regular Photography', 'Regular DSLR Videography', 'Candidate Photography', 'Candidate DSLR Video'] },
+        { title: 'DAY 02', items: ['Regular Photography', 'Regular DSLR Videography', 'Candidate Photography', 'Candidate DSLR Video'] },
+        { title: 'PRE WEDDING SHOOT', items: ['Candidate Photography', 'Cinematic Videography', 'Drone Video'] },
+        { title: 'VIDEO OUTPUT', items: ['Full Video Editing', 'Wedding Highlight', 'Reels Editing', 'Pen Drive'] },
+        { title: 'PHOTO OUTPUT', items: ['Album', 'Couple Frame', 'Raw Photos', 'Edited Photos'] }
+      ]);
+      setManualGrandTotal('');
+    }
     setShowModal(true);
   };
 
@@ -91,10 +129,14 @@ const Invoices = () => {
     setAdvanceReceived(item.advanceReceived || 0);
     setNotes(item.notes || '');
     setServices(item.services && item.services.length > 0 ? item.services : [{ serviceName: '', quantity: 1, price: 0, total: 0 }]);
+    if (activeTab === 'quotations') {
+      setSections(item.sections && item.sections.length > 0 ? item.sections : []);
+      setManualGrandTotal(item.grandTotal || '');
+    }
     setShowModal(true);
   };
 
-  // Service Handlers
+  // Service Handlers (Bills)
   const addServiceRow = () => {
     setServices([...services, { serviceName: '', quantity: 1, price: 0, total: 0 }]);
   };
@@ -114,14 +156,49 @@ const Invoices = () => {
     setServices(updated);
   };
 
+  // Section Handlers (Quotations)
+  const addSection = (title = 'New Section') => {
+    setSections([...sections, { title, items: [''] }]);
+  };
+
+  const removeSection = (sectionIndex) => {
+    const updated = [...sections];
+    updated.splice(sectionIndex, 1);
+    setSections(updated);
+  };
+
+  const updateSectionTitle = (sectionIndex, title) => {
+    const updated = [...sections];
+    updated[sectionIndex].title = title;
+    setSections(updated);
+  };
+
+  const addSectionItem = (sectionIndex) => {
+    const updated = [...sections];
+    updated[sectionIndex].items.push('');
+    setSections(updated);
+  };
+
+  const updateSectionItem = (sectionIndex, itemIndex, val) => {
+    const updated = [...sections];
+    updated[sectionIndex].items[itemIndex] = val;
+    setSections(updated);
+  };
+
+  const removeSectionItem = (sectionIndex, itemIndex) => {
+    const updated = [...sections];
+    updated[sectionIndex].items.splice(itemIndex, 1);
+    setSections(updated);
+  };
+
   // Calculations
   const subtotal = services.reduce((sum, s) => sum + (Number(s.total) || 0), 0);
-  const grandTotal = Math.max(0, subtotal - Number(discount));
+  const grandTotal = activeTab === 'bills' ? Math.max(0, subtotal - Number(discount)) : Number(manualGrandTotal) || 0;
   const remainingAmount = Math.max(0, grandTotal - Number(advanceReceived));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
+    const payload = activeTab === 'bills' ? {
       clientName,
       mobileNumber,
       email,
@@ -135,6 +212,15 @@ const Invoices = () => {
       advanceReceived: Number(advanceReceived),
       remainingAmount,
       notes
+    } : {
+      clientName,
+      mobileNumber,
+      email: undefined,
+      eventName,
+      eventDate,
+      eventLocation,
+      sections,
+      grandTotal: Number(manualGrandTotal) || 0
     };
 
     try {
@@ -394,8 +480,21 @@ const Invoices = () => {
                 <X size={24} />
               </button>
             </div>
-            
-            <div className="p-6 overflow-y-auto flex-1">
+                     <div className="p-6 overflow-y-auto flex-1">
+              {activeTab === 'quotations' && (
+                <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs">
+                  <div>
+                    <span className="font-bold text-slate-400 block uppercase tracking-wider text-[10px] mb-1">Company Details (Auto Fetched)</span>
+                    <h5 className="font-bold text-slate-800 dark:text-white text-sm">{settings.studioName || 'Studio Name'}</h5>
+                    <p className="text-slate-500 mt-0.5">{settings.ownerName} • {settings.email} • {settings.mobileNumber}</p>
+                  </div>
+                  <div className="text-left sm:text-right max-w-xs">
+                    <span className="font-bold text-slate-400 block uppercase tracking-wider text-[10px] mb-1">Address</span>
+                    <p className="text-slate-500 mt-0.5">{settings.address || 'No Address Set'}</p>
+                  </div>
+                </div>
+              )}
+
               <form id="docForm" onSubmit={handleSubmit} className="space-y-8">
                 
                 {/* Client & Event Section */}
@@ -410,10 +509,12 @@ const Invoices = () => {
                       <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">Mobile Number</label>
                       <input required type="text" value={mobileNumber} onChange={e => setMobileNumber(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500" />
                     </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">Email (Optional)</label>
-                      <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500" />
-                    </div>
+                    {activeTab === 'bills' && (
+                      <div>
+                        <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">Email (Optional)</label>
+                        <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500" />
+                      </div>
+                    )}
                   </div>
                   
                   <div className="space-y-4">
@@ -433,63 +534,136 @@ const Invoices = () => {
                   </div>
                 </div>
 
-                {/* Services Section */}
-                <div className="space-y-4">
-                  <div className="flex justify-between items-end border-b border-slate-100 dark:border-slate-800 pb-2">
-                    <h4 className="font-bold text-slate-800 dark:text-white">Services</h4>
-                    <button type="button" onClick={addServiceRow} className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors">
-                      <Plus size={14} /> Add Row
-                    </button>
+                {/* Services Section for Bills */}
+                {activeTab === 'bills' && (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-end border-b border-slate-100 dark:border-slate-800 pb-2">
+                      <h4 className="font-bold text-slate-800 dark:text-white">Services</h4>
+                      <button type="button" onClick={addServiceRow} className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors">
+                        <Plus size={14} /> Add Row
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {services.map((srv, idx) => (
+                        <div key={idx} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                          <div className="flex-1 w-full">
+                            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1 sm:hidden">Service Name</label>
+                            <input 
+                              required 
+                              type="text" 
+                              placeholder="e.g. Photography, Drone Shoot"
+                              value={srv.serviceName} 
+                              onChange={e => updateService(idx, 'serviceName', e.target.value)} 
+                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" 
+                            />
+                          </div>
+                          <div className="w-full sm:w-24">
+                            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1 sm:hidden">Qty</label>
+                            <input 
+                              required 
+                              type="number" 
+                              min="1"
+                              value={srv.quantity} 
+                              onChange={e => updateService(idx, 'quantity', e.target.value)} 
+                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-center" 
+                            />
+                          </div>
+                          <div className="w-full sm:w-32">
+                            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1 sm:hidden">Price (₹)</label>
+                            <input 
+                              required 
+                              type="number" 
+                              value={srv.price} 
+                              onChange={e => updateService(idx, 'price', e.target.value)} 
+                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" 
+                            />
+                          </div>
+                          <div className="w-full sm:w-32 flex justify-between items-center bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg border border-transparent">
+                            <span className="text-[10px] font-bold uppercase text-slate-400 sm:hidden">Total</span>
+                            <span className="font-bold text-slate-800 dark:text-white">₹{srv.total}</span>
+                          </div>
+                          {services.length > 1 && (
+                            <button type="button" onClick={() => removeServiceRow(idx)} className="p-2 text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors shrink-0">
+                              <Trash size={16} />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  
-                  <div className="space-y-3">
-                    {services.map((srv, idx) => (
-                      <div key={idx} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                        <div className="flex-1 w-full">
-                          <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1 sm:hidden">Service Name</label>
-                          <input 
-                            required 
-                            type="text" 
-                            placeholder="e.g. Photography, Drone Shoot"
-                            value={srv.serviceName} 
-                            onChange={e => updateService(idx, 'serviceName', e.target.value)} 
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" 
-                          />
+                )}
+
+                {/* Quotation Content Builder */}
+                {activeTab === 'quotations' && (
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-end border-b border-slate-100 dark:border-slate-800 pb-2">
+                      <h4 className="font-bold text-slate-800 dark:text-white">Quotation Content Builder</h4>
+                      <button 
+                        type="button" 
+                        onClick={() => addSection('New Section')} 
+                        className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
+                      >
+                        <Plus size={14} /> Add Section
+                      </button>
+                    </div>
+
+                    <div className="space-y-6">
+                      {sections.map((sec, secIdx) => (
+                        <div key={secIdx} className="bg-slate-50 dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+                          <div className="flex items-center justify-between gap-4">
+                            <input 
+                              required
+                              type="text" 
+                              placeholder="Section Title (e.g. DAY 01)"
+                              value={sec.title} 
+                              onChange={e => updateSectionTitle(secIdx, e.target.value)} 
+                              className="font-bold text-slate-800 dark:text-white bg-transparent border-b border-slate-300 dark:border-slate-700 focus:border-indigo-500 focus:outline-none px-1 py-0.5 text-sm"
+                            />
+                            <button 
+                              type="button" 
+                              onClick={() => removeSection(secIdx)} 
+                              className="text-xs text-rose-500 hover:text-rose-600 flex items-center gap-1 font-semibold"
+                            >
+                              <Trash size={14} /> Remove Section
+                            </button>
+                          </div>
+
+                          <div className="space-y-2 pl-4 border-l-2 border-indigo-100 dark:border-indigo-950">
+                            {sec.items.map((item, itemIdx) => (
+                              <div key={itemIdx} className="flex items-center gap-2">
+                                <input 
+                                  required
+                                  type="text" 
+                                  placeholder="e.g. Regular DSLR Videography"
+                                  value={item} 
+                                  onChange={e => updateSectionItem(secIdx, itemIdx, e.target.value)} 
+                                  className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-indigo-500"
+                                />
+                                {sec.items.length > 1 && (
+                                  <button 
+                                    type="button" 
+                                    onClick={() => removeSectionItem(secIdx, itemIdx)} 
+                                    className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                            <button 
+                              type="button" 
+                              onClick={() => addSectionItem(secIdx)} 
+                              className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-1 pt-1"
+                            >
+                              <Plus size={12} /> Add Item
+                            </button>
+                          </div>
                         </div>
-                        <div className="w-full sm:w-24">
-                          <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1 sm:hidden">Qty</label>
-                          <input 
-                            required 
-                            type="number" 
-                            min="1"
-                            value={srv.quantity} 
-                            onChange={e => updateService(idx, 'quantity', e.target.value)} 
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-center" 
-                          />
-                        </div>
-                        <div className="w-full sm:w-32">
-                          <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1 sm:hidden">Price (₹)</label>
-                          <input 
-                            required 
-                            type="number" 
-                            value={srv.price} 
-                            onChange={e => updateService(idx, 'price', e.target.value)} 
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" 
-                          />
-                        </div>
-                        <div className="w-full sm:w-32 flex justify-between items-center bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg border border-transparent">
-                          <span className="text-[10px] font-bold uppercase text-slate-400 sm:hidden">Total</span>
-                          <span className="font-bold text-slate-800 dark:text-white">₹{srv.total}</span>
-                        </div>
-                        {services.length > 1 && (
-                          <button type="button" onClick={() => removeServiceRow(idx)} className="p-2 text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors shrink-0">
-                            <Trash size={16} />
-                          </button>
-                        )}
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Totals & Notes Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 border-t border-slate-100 dark:border-slate-800 pt-6">
@@ -511,43 +685,54 @@ const Invoices = () => {
                   </div>
 
                   {/* Right Side: Calculations */}
-                  <div className="space-y-3 bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
-                    <div className="flex justify-between items-center text-sm font-semibold text-slate-600 dark:text-slate-400">
-                      <span>Subtotal</span>
-                      <span>₹{subtotal}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm font-semibold text-slate-600 dark:text-slate-400">
-                      <span>Discount (₹)</span>
-                      <input 
-                        type="number" 
-                        value={discount} 
-                        onChange={e => setDiscount(e.target.value)} 
-                        className="w-24 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-right focus:outline-none focus:border-indigo-500" 
-                      />
-                    </div>
-                    <div className="flex justify-between items-center text-lg font-black text-slate-800 dark:text-white pt-2 border-t border-slate-200 dark:border-slate-800">
-                      <span>Grand Total</span>
-                      <span>₹{grandTotal}</span>
-                    </div>
+                  {activeTab === 'bills' ? (
+                    <div className="space-y-3 bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
+                      <div className="flex justify-between items-center text-sm font-semibold text-slate-600 dark:text-slate-400">
+                        <span>Subtotal</span>
+                        <span>₹{subtotal}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm font-semibold text-slate-600 dark:text-slate-400">
+                        <span>Discount (₹)</span>
+                        <input 
+                          type="number" 
+                          value={discount} 
+                          onChange={e => setDiscount(e.target.value)} 
+                          className="w-24 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-right focus:outline-none focus:border-indigo-500" 
+                        />
+                      </div>
+                      <div className="flex justify-between items-center text-lg font-black text-slate-800 dark:text-white pt-2 border-t border-slate-200 dark:border-slate-800">
+                        <span>Grand Total</span>
+                        <span>₹{grandTotal}</span>
+                      </div>
 
-                    {activeTab === 'bills' && (
-                      <>
-                        <div className="flex justify-between items-center text-sm font-semibold text-slate-600 dark:text-slate-400 pt-4">
-                          <span>Advance Received (₹)</span>
-                          <input 
-                            type="number" 
-                            value={advanceReceived} 
-                            onChange={e => setAdvanceReceived(e.target.value)} 
-                            className="w-24 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-right focus:outline-none focus:border-indigo-500" 
-                          />
-                        </div>
-                        <div className="flex justify-between items-center text-lg font-black text-orange-500 pt-2 border-t border-slate-200 dark:border-slate-800">
-                          <span>Remaining Balance</span>
-                          <span>₹{remainingAmount}</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                      <div className="flex justify-between items-center text-sm font-semibold text-slate-600 dark:text-slate-400 pt-4">
+                        <span>Advance Received (₹)</span>
+                        <input 
+                          type="number" 
+                          value={advanceReceived} 
+                          onChange={e => setAdvanceReceived(e.target.value)} 
+                          className="w-24 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-right focus:outline-none focus:border-indigo-500" 
+                        />
+                      </div>
+                      <div className="flex justify-between items-center text-lg font-black text-orange-500 pt-2 border-t border-slate-200 dark:border-slate-800">
+                        <span>Remaining Balance</span>
+                        <span>₹{remainingAmount}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
+                      <div className="flex justify-between items-center text-lg font-black text-slate-800 dark:text-white">
+                        <span>Grand Total Package Price (₹)</span>
+                        <input 
+                          required
+                          type="number" 
+                          value={manualGrandTotal} 
+                          onChange={e => setManualGrandTotal(e.target.value)} 
+                          className="w-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-right font-black focus:outline-none focus:border-indigo-500 text-lg" 
+                        />
+                      </div>
+                    </div>
+                  )}
 
                 </div>
 

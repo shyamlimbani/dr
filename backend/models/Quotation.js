@@ -1,10 +1,8 @@
 const mongoose = require('mongoose');
 
-const serviceSchema = new mongoose.Schema({
-  serviceName: { type: String, required: true },
-  quantity: { type: Number, default: 1 },
-  price: { type: Number, required: true },
-  total: { type: Number, required: true }
+const quotationSectionSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  items: [{ type: String }]
 });
 
 const quotationSchema = new mongoose.Schema({
@@ -15,9 +13,7 @@ const quotationSchema = new mongoose.Schema({
   eventName: { type: String, required: true },
   eventDate: { type: String, required: true },
   eventLocation: { type: String, default: '' },
-  services: [serviceSchema],
-  subtotal: { type: Number, required: true },
-  discount: { type: Number, default: 0 },
+  sections: [quotationSectionSchema],
   grandTotal: { type: Number, required: true }
 }, { timestamps: true });
 
