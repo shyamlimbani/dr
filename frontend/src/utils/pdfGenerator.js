@@ -566,6 +566,9 @@ const getRevenueReportHtml = (bills, settings, logoData) => {
 // ==========================================
 
 export const generatePdf = async (type, data, settings, action) => {
+  // Dynamically import html2pdf to code-split the bundle
+  const html2pdf = (await import('html2pdf.js')).default;
+
   // Compress Logo asynchronously (caches base64 in memory)
   const logoData = await getCompressedLogo(settings.companyLogo);
   
