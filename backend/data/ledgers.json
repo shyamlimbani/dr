@@ -2,90 +2,60 @@
   {
     "_id": "mwafcidmpzrpwst",
     "employeeId": "itorf9qmpzrpwsp",
-    "eventId": "ibtxfw4mpzrpwss",
-    "totalAmount": 5000,
-    "paidAmount": 5000,
-    "pendingAmount": 0,
-    "payments": [
-      {
-        "amount": 5000,
-        "date": "2026-05-21",
-        "notes": "Completed Event Payout",
-        "transactionId": "TXN770310"
-      }
-    ],
+    "employeeName": "Shyam Sundar",
+    "mobileNumber": "+91 98765 12345",
+    "amount": 5000,
+    "paymentMethod": "UPI",
+    "notes": "Completed Event Payout",
+    "date": "2026-05-21",
     "createdAt": "2026-06-04T17:27:23.213Z",
     "updatedAt": "2026-06-04T17:27:23.213Z"
   },
   {
     "_id": "fj39211mpzrpwsu",
     "employeeId": "a98vgmympzrpwsq",
-    "eventId": "ibtxfw4mpzrpwss",
-    "totalAmount": 5500,
-    "paidAmount": 5500,
-    "pendingAmount": 0,
-    "payments": [
-      {
-        "amount": 5500,
-        "date": "2026-05-21",
-        "notes": "Completed Event Payout",
-        "transactionId": "TXN872113"
-      }
-    ],
+    "employeeName": "Jay Patel",
+    "mobileNumber": "+91 98765 23456",
+    "amount": 5500,
+    "paymentMethod": "Bank Transfer",
+    "notes": "Completed Event Payout",
+    "date": "2026-05-21",
     "createdAt": "2026-06-04T17:27:23.214Z",
     "updatedAt": "2026-06-04T17:27:23.214Z"
   },
   {
     "_id": "ovbzdc4mpzrpwsv",
     "employeeId": "bt6g5o4mpzrpwsp",
-    "eventId": "ibtxfw4mpzrpwss",
-    "totalAmount": 6500,
-    "paidAmount": 6500,
-    "pendingAmount": 0,
-    "payments": [
-      {
-        "amount": 6500,
-        "date": "2026-05-21",
-        "notes": "Completed Event Payout",
-        "transactionId": "TXN950065"
-      }
-    ],
+    "employeeName": "Rahul Sharma",
+    "mobileNumber": "+91 98765 34567",
+    "amount": 6500,
+    "paymentMethod": "Cash",
+    "notes": "Completed Event Payout",
+    "date": "2026-05-21",
     "createdAt": "2026-06-04T17:27:23.215Z",
     "updatedAt": "2026-06-04T17:27:23.215Z"
   },
   {
     "_id": "agru7gfmpzrpwsw",
     "employeeId": "itorf9qmpzrpwsp",
-    "eventId": "ww32cccmpzrpwsv",
-    "totalAmount": 5000,
-    "paidAmount": 5000,
-    "pendingAmount": 0,
-    "payments": [
-      {
-        "amount": 5000,
-        "date": "2026-06-04",
-        "notes": "Payout installment for TechCorp Annual Summit 2026",
-        "transactionId": "XLZ44E5"
-      }
-    ],
+    "employeeName": "Shyam Sundar",
+    "mobileNumber": "+91 98765 12345",
+    "amount": 5000,
+    "paymentMethod": "UPI",
+    "notes": "Payout installment for TechCorp Annual Summit 2026",
+    "date": "2026-06-04",
     "createdAt": "2026-06-04T17:27:23.216Z",
     "updatedAt": "2026-06-04T17:52:03.681Z"
   },
   {
     "_id": "vvuzc1hmpzrpwsx",
     "employeeId": "9wrhl17mpzrpwsr",
-    "eventId": "ww32cccmpzrpwsv",
-    "totalAmount": 3500,
-    "paidAmount": 3500,
-    "pendingAmount": 0,
-    "payments": [
-      {
-        "amount": 3500,
-        "date": "2026-06-04",
-        "notes": "Payout installment for TechCorp Annual Summit 2026",
-        "transactionId": "B7JRPQD"
-      }
-    ],
+    "employeeName": "Rohit Kadam",
+    "mobileNumber": "+91 98765 56789",
+    "amount": 3500,
+    "paymentMethod": "Bank Transfer",
+    "notes": "Payout installment for TechCorp Annual Summit 2026",
+    "date": "2026-06-04",
     "createdAt": "2026-06-04T17:27:23.217Z",
     "updatedAt": "2026-06-04T17:52:06.899Z"
   }

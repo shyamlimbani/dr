@@ -159,9 +159,7 @@ const Events = () => {
 
   // Calculations for Summary Cards
   const employeeLedgers = payments.filter(p => p.employeeId === activeEmployee?._id);
-  const totalPaid = employeeLedgers.reduce((sum, p) => sum + (p.paidAmount || 0), 0);
-  const totalEarnings = employeeEvents.reduce((sum, ev) => sum + (Number(ev.employeeCharge) || 0), 0);
-  const totalPending = totalEarnings - totalPaid;
+  const totalPaymentsGiven = employeeLedgers.reduce((sum, p) => sum + (p.amount || 0), 0);
   const totalEvents = employeeEvents.length;
 
   return (
@@ -196,7 +194,7 @@ const Events = () => {
                   {emp.profilePhoto ? (
                     <img src={getAssetUrl(emp.profilePhoto)} alt={emp.fullName} className="w-20 h-20 rounded-full object-cover shadow-inner mb-4 group-hover:scale-105 transition-transform" />
                   ) : (
-                    <div className="w-20 h-20 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-500 flex items-center justify-center text-2xl font-bold mb-4 shadow-inner group-hover:scale-105 transition-transform">
+                    <div className="w-20 h-20 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-550 flex items-center justify-center text-2xl font-bold mb-4 shadow-inner group-hover:scale-105 transition-transform">
                       {emp.fullName.charAt(0)}
                     </div>
                   )}
@@ -258,12 +256,12 @@ const Events = () => {
             <div className="border-b border-slate-100 dark:border-slate-800/60 pb-3 flex justify-between items-end">
               <div>
                 <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Booking History</h3>
-                <p className="text-sm text-slate-500 mt-1">Track employee assignments and payment ledger.</p>
+                <p className="text-sm text-slate-500 mt-1">Track employee assignments and payment history.</p>
               </div>
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Total Events */}
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
                 <div className="p-4 bg-indigo-500/10 text-indigo-500 rounded-2xl">
@@ -275,41 +273,17 @@ const Events = () => {
                 </div>
               </div>
 
-              {/* Total Earnings */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
-                <div className="p-4 bg-violet-500/10 text-violet-500 rounded-2xl">
-                  <DollarSign size={24} />
-                </div>
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Total Earnings</span>
-                  <span className="text-2xl font-black text-slate-800 dark:text-white mt-1 block">₹{totalEarnings.toLocaleString('en-IN')}</span>
-                </div>
-              </div>
-
-              {/* Total Paid */}
+              {/* Total Payments Given */}
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
                 <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-2xl">
                   <CreditCard size={24} />
                 </div>
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Total Paid</span>
-                  <span className="text-2xl font-black text-emerald-500 mt-1 block">₹{totalPaid.toLocaleString('en-IN')}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Total Payments Given</span>
+                  <span className="text-2xl font-black text-emerald-500 mt-1 block">₹{totalPaymentsGiven.toLocaleString('en-IN')}</span>
                 </div>
               </div>
-
-              {/* Total Pending */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
-                <div className="p-4 bg-orange-500/10 text-orange-500 rounded-2xl">
-                  <Clock size={24} />
-                </div>
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Total Pending</span>
-                  <span className={`text-2xl font-black mt-1 block ${totalPending > 0 ? 'text-orange-500' : 'text-slate-300 dark:text-slate-600'}`}>
-                    ₹{totalPending.toLocaleString('en-IN')}
-                  </span>
-                </div>
-              </div>
-            </div>
+            </div></div>
 
             {/* Booking List */}
             <div className="space-y-4">

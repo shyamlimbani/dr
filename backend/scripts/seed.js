@@ -196,21 +196,18 @@ const seed = async () => {
               // For first completed event: fully paid, for second: pending/unpaid
               const isFirstEvent = ev.eventTitle.includes('Sharma');
               const paid = isFirstEvent ? dayCharge : 0;
-              const pending = dayCharge - paid;
 
-              await db.EmployeeLedger.create({
-                employeeId: employee._id,
-                eventId: doc._id,
-                totalAmount: dayCharge,
-                paidAmount: paid,
-                pendingAmount: pending,
-                payments: paid > 0 ? [{
+              if (paid > 0) {
+                await db.EmployeeLedger.create({
+                  employeeId: employee._id,
+                  employeeName: employee.fullName,
+                  mobileNumber: employee.mobileNumber,
                   amount: paid,
-                  date: formatDate(-14),
+                  paymentMethod: 'Bank Transfer',
                   notes: 'Completed Event Payout',
-                  transactionId: 'TXN' + Math.floor(100000 + Math.random() * 900000)
-                }] : []
-              });
+                  date: formatDate(-14)
+                });
+              }
             }
           }
         }

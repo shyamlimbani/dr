@@ -40,30 +40,21 @@ const getEmployeeById = async (req, res) => {
     }
 
     // Aggregate statistics
-    // 1. Ledger details
-    const ledgers = await db.EmployeeLedger.find({ employeeId: id });
+    // 1. Payment details
+    const payments = await db.EmployeeLedger.find({ employeeId: id });
     
-    let totalEarnings = 0;
-    let paidAmount = 0;
-    let pendingAmount = 0;
+    let totalPaymentsGiven = 0;
     const paymentHistory = [];
 
-    ledgers.forEach(ledger => {
-      totalEarnings += ledger.totalAmount || 0;
-      paidAmount += ledger.paidAmount || 0;
-      pendingAmount += ledger.pendingAmount || 0;
+    payments.forEach(p => {
+      totalPaymentsGiven += p.amount || 0;
       
-      // Collate all payment details
-      if (ledger.payments && ledger.payments.length > 0) {
-        ledger.payments.forEach(p => {
-          paymentHistory.push({
-            eventId: ledger.eventId,
-            amount: p.amount,
-            date: p.date,
-            notes: p.notes || ''
-          });
-        });
-      }
+      paymentHistory.push({
+        amount: p.amount,
+        date: p.date,
+        paymentMethod: p.paymentMethod || '',
+        notes: p.notes || ''
+      });
     });
 
     // Sort payment history by date descending
@@ -76,9 +67,7 @@ const getEmployeeById = async (req, res) => {
       employee,
       stats: {
         totalEvents: assignedEvents.length,
-        totalEarnings,
-        paidAmount,
-        pendingAmount
+        totalPaymentsGiven
       },
       events: assignedEvents.map(ev => ({
         _id: ev._id,

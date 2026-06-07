@@ -22,7 +22,7 @@ const Dashboard = () => {
     {
       title: 'Payments',
       icon: Wallet,
-      description: 'Manage employee payments, pending amounts, payment history and WhatsApp reminders.',
+      description: 'Record employee payments, history, and send WhatsApp reminders.',
       path: '/payments',
       color: 'from-emerald-400 to-teal-500',
       iconBg: 'bg-teal-500/20 text-teal-400'

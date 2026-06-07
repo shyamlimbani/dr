@@ -29,8 +29,11 @@ const Ledger = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [selectedEmpId, setSelectedEmpId] = useState('');
-  const [totalAmount, setTotalAmount] = useState('');
-  const [paidAmount, setPaidAmount] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [amount, setAmount] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('UPI');
+  const [notes, setNotes] = useState('');
+  const [paymentDate, setPaymentDate] = useState(''); // Keep track of the original date when editing
 
   // History Modal
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -65,8 +68,11 @@ const Ledger = () => {
   const resetForm = () => {
     setEditingId(null);
     setSelectedEmpId('');
-    setTotalAmount('');
-    setPaidAmount('');
+    setMobileNumber('');
+    setAmount('');
+    setPaymentMethod('UPI');
+    setNotes('');
+    setPaymentDate('');
   };
 
   const openAddModal = () => {
@@ -77,13 +83,21 @@ const Ledger = () => {
   const openEditModal = (payment) => {
     setEditingId(payment._id);
     setSelectedEmpId(payment.employeeId || '');
-    setTotalAmount(payment.totalAmount);
-    setPaidAmount(payment.paidAmount);
+    setMobileNumber(payment.mobileNumber || '');
+    setAmount(payment.amount || '');
+    setPaymentMethod(payment.paymentMethod || 'UPI');
+    setNotes(payment.notes || '');
+    setPaymentDate(payment.date || '');
     setShowModal(true);
   };
 
   const openHistory = (payment) => {
-    setActiveHistory(payment);
+    // Filter payments for this specific employee
+    const empPayments = payments.filter(p => p.employeeId === payment.employeeId);
+    setActiveHistory({
+      employeeName: payment.employeeName,
+      payments: empPayments
+    });
     setShowHistoryModal(true);
   };
 
@@ -98,6 +112,16 @@ const Ledger = () => {
     }
   };
 
+  const handleEmployeeChange = (empId) => {
+    setSelectedEmpId(empId);
+    const emp = employees.find(e => e._id === empId);
+    if (emp) {
+      setMobileNumber(emp.mobileNumber);
+    } else {
+      setMobileNumber('');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -106,15 +130,17 @@ const Ledger = () => {
       const payload = {
         employeeId: selectedEmpId,
         employeeName: emp ? emp.fullName : 'Unknown Employee',
-        mobileNumber: emp ? emp.mobileNumber : '0000000000',
-        totalAmount: Number(totalAmount),
-        paidAmount: Number(paidAmount) || 0
+        mobileNumber: mobileNumber,
+        amount: Number(amount) || 0,
+        paymentMethod: paymentMethod,
+        notes: notes,
+        date: paymentDate || new Date().toISOString().split('T')[0]
       };
 
       if (editingId) {
         await apiClient.put(`/ledger/${editingId}`, payload);
       } else {
-        if (!emp) return alert('Please select an employee');
+        if (!selectedEmpId) return alert('Please select an employee');
         await apiClient.post('/ledger', payload);
       }
       setShowModal(false);
@@ -127,16 +153,15 @@ const Ledger = () => {
   const sendWhatsApp = (payment) => {
     const message = `Hello ${payment.employeeName},
 
-*Payment Update*
+A payment of ₹${payment.amount} has been provided.
 
-Total Amount: ₹${payment.totalAmount}
-Paid Amount: ₹${payment.paidAmount}
-Pending Amount: ₹${payment.pendingAmount}
+Payment Method: ${payment.paymentMethod}
 
 Thank You.`;
     
     const encoded = encodeURIComponent(message);
-    const url = `https://wa.me/${payment.mobileNumber}?text=${encoded}`;
+    const cleanNumber = (payment.mobileNumber || '').replace(/[^\d+]/g, '');
+    const url = `https://wa.me/${cleanNumber}?text=${encoded}`;
     window.open(url, '_blank');
   };
 
@@ -152,7 +177,14 @@ Thank You.`;
     }
   };
 
-  const pendingAmountCalc = Math.max(0, (Number(totalAmount) || 0) - (Number(paidAmount) || 0));
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3 && parts[0].length === 4) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    return dateStr;
+  };
 
   const filteredPayments = payments.filter(p => 
     (p.employeeName || '').toLowerCase().includes(search.toLowerCase()) ||
@@ -160,8 +192,7 @@ Thank You.`;
   );
 
   const totalEmpCount = new Set(payments.map(p => p.employeeName)).size;
-  const globalTotalPaid = payments.reduce((sum, p) => sum + (p.paidAmount || 0), 0);
-  const globalTotalPending = payments.reduce((sum, p) => sum + (p.pendingAmount || 0), 0);
+  const globalTotalPaymentsGiven = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -194,9 +225,9 @@ Thank You.`;
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Unique Employees Paid</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Total Employees</span>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-blue-500/10 text-blue-500 rounded-2xl">
                 <User size={24} />
@@ -205,23 +236,13 @@ Thank You.`;
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900 border border-emerald-500/30 dark:border-emerald-500/20 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-bl-full pointer-events-none"></div>
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Total Paid Amount</span>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-bl-full pointer-events-none"></div>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Total Payments Given</span>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-2xl">
                 <DollarSign size={24} />
               </div>
-              <span className="text-3xl font-black text-emerald-500">₹{globalTotalPaid.toLocaleString('en-IN')}</span>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-slate-900 border border-orange-500/30 dark:border-orange-500/20 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-bl-full pointer-events-none"></div>
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Total Pending Amount</span>
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-orange-500/10 text-orange-500 rounded-2xl">
-                <DollarSign size={24} />
-              </div>
-              <span className="text-3xl font-black text-orange-500">₹{globalTotalPending.toLocaleString('en-IN')}</span>
+              <span className="text-3xl font-black text-emerald-500">₹{globalTotalPaymentsGiven.toLocaleString('en-IN')}</span>
             </div>
           </div>
         </div>
@@ -259,9 +280,9 @@ Thank You.`;
               <tr>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Employee Name</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Mobile Number</th>
-                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Total Amount</th>
-                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Paid Amount</th>
-                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Pending Amount</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Payment Amount</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-center">Payment Method</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-center">Payment Date</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-center">Actions</th>
               </tr>
             </thead>
@@ -270,9 +291,13 @@ Thank You.`;
                 <tr key={payment._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">{payment.employeeName}</td>
                   <td className="px-6 py-4 text-slate-500">{payment.mobileNumber}</td>
-                  <td className="px-6 py-4 font-bold text-slate-800 dark:text-white text-right">₹{payment.totalAmount?.toLocaleString('en-IN')}</td>
-                  <td className="px-6 py-4 font-bold text-emerald-500 text-right">₹{payment.paidAmount?.toLocaleString('en-IN')}</td>
-                  <td className={`px-6 py-4 font-black text-right ${payment.pendingAmount > 0 ? 'text-orange-500' : 'text-slate-300 dark:text-slate-600'}`}>₹{payment.pendingAmount?.toLocaleString('en-IN')}</td>
+                  <td className="px-6 py-4 font-bold text-slate-800 dark:text-white text-right">₹{payment.amount?.toLocaleString('en-IN')}</td>
+                  <td className="px-6 py-4 text-center">
+                    <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                      {payment.paymentMethod}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-slate-500 text-center">{formatDate(payment.date)}</td>
                   <td className="px-6 py-4 flex items-center justify-center gap-2">
                     <button onClick={() => openHistory(payment)} title="History" className="p-2 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
                       <History size={16} />
@@ -285,7 +310,7 @@ Thank You.`;
                     </button>
                     <button 
                       onClick={() => sendWhatsApp(payment)} 
-                      title="Send WhatsApp Remainder" 
+                      title="Send WhatsApp Update" 
                       className="p-2 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 rounded-lg transition-colors"
                     >
                       <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
@@ -325,23 +350,17 @@ Thank You.`;
 
                 <div className="grid grid-cols-2 gap-3 text-sm border-y border-slate-100 dark:border-slate-800 py-4">
                   <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Total</span>
-                    <p className="font-bold text-slate-800 dark:text-white">₹{payment.totalAmount}</p>
+                    <span className="text-[10px] uppercase font-bold text-slate-400">Amount</span>
+                    <p className="font-bold text-slate-800 dark:text-white">₹{payment.amount}</p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Paid</span>
-                    <p className="font-bold text-emerald-500">₹{payment.paidAmount}</p>
-                  </div>
-                  <div className="col-span-2 space-y-1 pt-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Pending</span>
-                    <p className={`font-black text-lg ${payment.pendingAmount > 0 ? 'text-orange-500' : 'text-slate-300 dark:text-slate-600'}`}>
-                      ₹{payment.pendingAmount}
-                    </p>
+                    <span className="text-[10px] uppercase font-bold text-slate-400">Method</span>
+                    <p className="font-semibold text-indigo-500">{payment.paymentMethod}</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium pt-1">
-                  <span className="flex items-center gap-1"><Calendar size={12}/> Updated: {new Date(payment.updatedAt || payment.createdAt).toLocaleDateString()}</span>
+                  <span className="flex items-center gap-1"><Calendar size={12}/> Date: {formatDate(payment.date)}</span>
                   <button onClick={() => openHistory(payment)} className="flex items-center gap-1 text-indigo-500 hover:text-indigo-400 font-bold">
                     <History size={12}/> History
                   </button>
@@ -374,52 +393,69 @@ Thank You.`;
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
               
-              {!editingId && (
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Employee Name</label>
-                  <select 
-                    required 
-                    value={selectedEmpId} 
-                    onChange={e => setSelectedEmpId(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none"
-                  >
-                    <option value="">-- Select Employee --</option>
-                    {employees.map(emp => (
-                      <option key={emp._id} value={emp._id}>{emp.fullName}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Employee Name</label>
+                <select 
+                  required 
+                  disabled={!!editingId}
+                  value={selectedEmpId} 
+                  onChange={e => handleEmployeeChange(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none disabled:opacity-60"
+                >
+                  <option value="">-- Select Employee --</option>
+                  {employees.map(emp => (
+                    <option key={emp._id} value={emp._id}>{emp.fullName}</option>
+                  ))}
+                </select>
+              </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Total Amount (₹)</label>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Mobile Number</label>
+                <input 
+                  type="text" 
+                  required 
+                  value={mobileNumber} 
+                  onChange={e => setMobileNumber(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" 
+                  placeholder="e.g. 9876543210" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Payment Amount (₹)</label>
                 <input 
                   type="number" 
                   required 
-                  value={totalAmount} 
-                  onChange={e => setTotalAmount(e.target.value)}
+                  value={amount} 
+                  onChange={e => setAmount(e.target.value)}
                   className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" 
                   placeholder="e.g. 5000" 
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Paid Amount (₹)</label>
-                <input 
-                  type="number" 
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Payment Method</label>
+                <select 
                   required 
-                  value={paidAmount} 
-                  onChange={e => setPaidAmount(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500" 
-                  placeholder="e.g. 3000" 
-                />
+                  value={paymentMethod} 
+                  onChange={e => setPaymentMethod(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none"
+                >
+                  <option value="Cash">Cash</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="UPI">UPI</option>
+                </select>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800 mt-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Auto Calculated Pending</span>
-                <span className={`text-2xl font-black ${pendingAmountCalc > 0 ? 'text-orange-500' : 'text-emerald-500'}`}>
-                  ₹{pendingAmountCalc}
-                </span>
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Notes (Optional)</label>
+                <textarea 
+                  value={notes} 
+                  onChange={e => setNotes(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" 
+                  placeholder="Optional payment notes..."
+                  rows={3}
+                />
               </div>
             </form>
             <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 shrink-0 bg-slate-50 dark:bg-slate-950">
@@ -437,7 +473,7 @@ Thank You.`;
       {/* HISTORY MODAL */}
       {showHistoryModal && activeHistory && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
             <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
               <div>
                 <h3 className="font-bold text-lg">Payment History</h3>
@@ -456,12 +492,13 @@ Thank You.`;
                   {activeHistory.payments.map((ph, idx) => (
                     <div key={idx} className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 last:border-0 last:pb-0">
                       <div>
-                        <span className="font-bold text-sm text-slate-800 dark:text-white block">{ph.notes || 'Payment'}</span>
-                        <span className="text-xs text-slate-400 flex items-center gap-1 mt-0.5"><Calendar size={10}/> {ph.date}</span>
+                        <span className="font-bold text-sm text-slate-800 dark:text-white block">{activeHistory.employeeName}</span>
+                        <span className="text-xs text-slate-400 flex items-center gap-1 mt-0.5"><Calendar size={10}/> {formatDate(ph.date)}</span>
+                        {ph.notes && <span className="text-xs text-slate-400 italic block mt-0.5">Note: {ph.notes}</span>}
                       </div>
                       <div className="text-right">
-                        <span className="font-black text-emerald-500 text-sm block">+₹{ph.amount}</span>
-                        <span className="text-[9px] text-slate-300 dark:text-slate-600 font-mono">#{ph.transactionId}</span>
+                        <span className="font-black text-emerald-500 text-sm block">₹{ph.amount}</span>
+                        <span className="text-[10px] text-slate-400">{ph.paymentMethod}</span>
                       </div>
                     </div>
                   ))}

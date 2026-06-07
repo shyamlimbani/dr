@@ -495,21 +495,29 @@ const getQuotationHtml = (data, settings, logoData) => {
 };
 
 const getPaymentReportHtml = (ledgers, settings, logoData) => {
-  let totalPaid = 0;
-  let totalPending = 0;
+  let totalPaymentsGiven = 0;
 
   let tableRows = '';
   ledgers.forEach((l, index) => {
-    totalPaid += l.paidAmount || 0;
-    totalPending += l.pendingAmount || 0;
+    totalPaymentsGiven += l.amount || 0;
     const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
+
+    // Format date to DD-MM-YYYY if it is YYYY-MM-DD
+    let displayDate = l.date || '';
+    if (displayDate.includes('-')) {
+      const parts = displayDate.split('-');
+      if (parts.length === 3 && parts[0].length === 4) {
+        displayDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+
     tableRows += `
       <tr class="${bgClass} border-b border-slate-100">
         <td class="py-3 px-4 text-slate-700 font-medium">${l.employeeName}</td>
         <td class="py-3 px-4 text-slate-650">${l.mobileNumber}</td>
-        <td class="py-3 px-4 text-right text-slate-650">₹${(l.totalAmount || 0).toLocaleString('en-IN')}</td>
-        <td class="py-3 px-4 text-right text-emerald-600 font-semibold">₹${(l.paidAmount || 0).toLocaleString('en-IN')}</td>
-        <td class="py-3 px-4 text-right text-rose-600 font-semibold">₹${(l.pendingAmount || 0).toLocaleString('en-IN')}</td>
+        <td class="py-3 px-4 text-right text-slate-700 font-semibold">₹${(l.amount || 0).toLocaleString('en-IN')}</td>
+        <td class="py-3 px-4 text-center text-slate-650">${l.paymentMethod || ''}</td>
+        <td class="py-3 px-4 text-center text-slate-650">${displayDate}</td>
       </tr>
     `;
   });
@@ -544,9 +552,9 @@ const getPaymentReportHtml = (ledgers, settings, logoData) => {
             <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
               <th class="py-4 px-4">Employee Name</th>
               <th class="py-4 px-4">Mobile</th>
-              <th class="py-4 px-4 text-right">Total Amount</th>
-              <th class="py-4 px-4 text-right">Paid</th>
-              <th class="py-4 px-4 text-right">Pending</th>
+              <th class="py-4 px-4 text-right">Payment Amount</th>
+              <th class="py-4 px-4 text-center">Payment Method</th>
+              <th class="py-4 px-4 text-center">Payment Date</th>
             </tr>
           </thead>
           <tbody>
@@ -559,12 +567,8 @@ const getPaymentReportHtml = (ledgers, settings, logoData) => {
       <div class="flex justify-end mb-12 text-xs">
         <div class="w-72 space-y-1">
           <div class="flex justify-between items-center py-1 text-slate-600">
-            <span class="font-medium">Total Paid Amount</span>
-            <span class="font-bold text-emerald-600">₹${totalPaid.toLocaleString('en-IN')}</span>
-          </div>
-          <div class="flex justify-between items-center py-1 text-slate-600">
-            <span class="font-medium">Total Pending Amount</span>
-            <span class="font-bold text-rose-600">₹${totalPending.toLocaleString('en-IN')}</span>
+            <span class="font-medium">Total Payments Given</span>
+            <span class="font-bold text-indigo-600">₹${totalPaymentsGiven.toLocaleString('en-IN')}</span>
           </div>
         </div>
       </div>
