@@ -47,18 +47,18 @@ const getEmployeeById = async (req, res) => {
     const paymentHistory = [];
 
     payments.forEach(p => {
-      totalPaymentsGiven += p.amount || 0;
+      totalPaymentsGiven += p.amountGiven || 0;
       
       paymentHistory.push({
-        amount: p.amount,
-        date: p.date,
+        amountGiven: p.amountGiven,
+        paymentDate: p.paymentDate,
         paymentMethod: p.paymentMethod || '',
         notes: p.notes || ''
       });
     });
 
     // Sort payment history by date descending
-    paymentHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+    paymentHistory.sort((a, b) => new Date(b.paymentDate) - new Date(a.paymentDate));
 
     // 2. Event History
     const assignedEvents = await db.Event.find({ employeeId: id });

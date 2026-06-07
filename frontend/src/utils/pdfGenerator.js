@@ -499,11 +499,11 @@ const getPaymentReportHtml = (ledgers, settings, logoData) => {
 
   let tableRows = '';
   ledgers.forEach((l, index) => {
-    totalPaymentsGiven += l.amount || 0;
+    totalPaymentsGiven += l.amountGiven || 0;
     const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
 
     // Format date to DD-MM-YYYY if it is YYYY-MM-DD
-    let displayDate = l.date || '';
+    let displayDate = l.paymentDate || '';
     if (displayDate.includes('-')) {
       const parts = displayDate.split('-');
       if (parts.length === 3 && parts[0].length === 4) {
@@ -514,10 +514,11 @@ const getPaymentReportHtml = (ledgers, settings, logoData) => {
     tableRows += `
       <tr class="${bgClass} border-b border-slate-100">
         <td class="py-3 px-4 text-slate-700 font-medium">${l.employeeName}</td>
-        <td class="py-3 px-4 text-slate-650">${l.mobileNumber}</td>
-        <td class="py-3 px-4 text-right text-slate-700 font-semibold">₹${(l.amount || 0).toLocaleString('en-IN')}</td>
+        <td class="py-3 px-4 text-slate-655">${l.mobileNumber}</td>
+        <td class="py-3 px-4 text-right text-slate-700 font-semibold">₹${(l.amountGiven || 0).toLocaleString('en-IN')}</td>
         <td class="py-3 px-4 text-center text-slate-650">${l.paymentMethod || ''}</td>
         <td class="py-3 px-4 text-center text-slate-650">${displayDate}</td>
+        <td class="py-3 px-4 text-slate-650">${l.notes || '-'}</td>
       </tr>
     `;
   });
@@ -552,13 +553,14 @@ const getPaymentReportHtml = (ledgers, settings, logoData) => {
             <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
               <th class="py-4 px-4">Employee Name</th>
               <th class="py-4 px-4">Mobile</th>
-              <th class="py-4 px-4 text-right">Payment Amount</th>
+              <th class="py-4 px-4 text-right">Amount Given</th>
               <th class="py-4 px-4 text-center">Payment Method</th>
               <th class="py-4 px-4 text-center">Payment Date</th>
+              <th class="py-4 px-4">Notes</th>
             </tr>
           </thead>
           <tbody>
-            ${tableRows || '<tr><td colspan="5" class="text-center py-4 text-slate-500">No payment records found.</td></tr>'}
+            ${tableRows || '<tr><td colspan="6" class="text-center py-4 text-slate-500">No payment records found.</td></tr>'}
           </tbody>
         </table>
       </div>

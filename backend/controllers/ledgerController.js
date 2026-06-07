@@ -4,8 +4,8 @@ const puppeteer = require('puppeteer');
 const getLedgers = async (req, res) => {
   try {
     const ledgers = await db.EmployeeLedger.find();
-    // Sort by date or created descending
-    ledgers.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
+    // Sort by paymentDate descending
+    ledgers.sort((a, b) => new Date(b.paymentDate || b.createdAt || 0) - new Date(a.paymentDate || a.createdAt || 0));
     res.json(ledgers);
   } catch (error) {
     console.error('Get ledgers error:', error);
@@ -15,22 +15,22 @@ const getLedgers = async (req, res) => {
 
 const createLedger = async (req, res) => {
   try {
-    const { employeeId, employeeName, mobileNumber, amount, paymentMethod, notes, date } = req.body;
+    const { employeeId, employeeName, mobileNumber, amountGiven, paymentMethod, notes, paymentDate } = req.body;
     
-    if (!employeeName || !mobileNumber || amount === undefined || !paymentMethod) {
-      return res.status(400).json({ message: 'Employee Name, Mobile Number, Amount, and Payment Method are required' });
+    if (!employeeName || !mobileNumber || amountGiven === undefined || !paymentMethod) {
+      return res.status(400).json({ message: 'Employee Name, Mobile Number, Amount Given, and Payment Method are required' });
     }
 
-    const paymentDate = date || new Date().toISOString().split('T')[0];
+    const pDate = paymentDate || new Date().toISOString().split('T')[0];
 
     const ledger = await db.EmployeeLedger.create({
       employeeId: employeeId || 'custom',
       employeeName,
       mobileNumber,
-      amount: Number(amount) || 0,
+      amountGiven: Number(amountGiven) || 0,
       paymentMethod,
       notes: notes || '',
-      date: paymentDate
+      paymentDate: pDate
     });
 
     res.status(201).json(ledger);
@@ -43,7 +43,7 @@ const createLedger = async (req, res) => {
 const updateLedger = async (req, res) => {
   try {
     const { id } = req.params;
-    const { employeeName, mobileNumber, amount, paymentMethod, notes, date } = req.body;
+    const { employeeName, mobileNumber, amountGiven, paymentMethod, notes, paymentDate } = req.body;
 
     const ledger = await db.EmployeeLedger.findById(id);
     if (!ledger) {
@@ -53,10 +53,10 @@ const updateLedger = async (req, res) => {
     const updateData = {
       employeeName: employeeName || ledger.employeeName,
       mobileNumber: mobileNumber || ledger.mobileNumber,
-      amount: amount !== undefined ? Number(amount) : ledger.amount,
+      amountGiven: amountGiven !== undefined ? Number(amountGiven) : ledger.amountGiven,
       paymentMethod: paymentMethod || ledger.paymentMethod,
       notes: notes !== undefined ? notes : ledger.notes,
-      date: date || ledger.date || new Date().toISOString().split('T')[0]
+      paymentDate: paymentDate || ledger.paymentDate || new Date().toISOString().split('T')[0]
     };
 
     const updatedLedger = await db.EmployeeLedger.findByIdAndUpdate(id, updateData, { new: true });
@@ -102,17 +102,17 @@ const generateLedgerPdf = async (req, res) => {
     }
 
     const ledgers = await db.EmployeeLedger.find();
-    ledgers.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
+    ledgers.sort((a, b) => new Date(b.paymentDate || b.createdAt || 0) - new Date(a.paymentDate || a.createdAt || 0));
 
     let totalPaymentsGiven = 0;
     
     let tableRows = '';
     ledgers.forEach((l, index) => {
-      totalPaymentsGiven += l.amount || 0;
+      totalPaymentsGiven += l.amountGiven || 0;
       const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
 
       // Format date to DD-MM-YYYY if it is YYYY-MM-DD
-      let displayDate = l.date || '';
+      let displayDate = l.paymentDate || '';
       if (displayDate.includes('-')) {
         const parts = displayDate.split('-');
         if (parts.length === 3 && parts[0].length === 4) {
@@ -124,9 +124,10 @@ const generateLedgerPdf = async (req, res) => {
         <tr class="${bgClass} border-b border-slate-100">
           <td class="py-3 px-4 text-slate-700">${l.employeeName}</td>
           <td class="py-3 px-4 text-slate-650">${l.mobileNumber}</td>
-          <td class="py-3 px-4 text-right text-slate-700 font-medium">&#8377;${(l.amount || 0).toLocaleString('en-IN')}</td>
+          <td class="py-3 px-4 text-right text-slate-700 font-medium">&#8377;${(l.amountGiven || 0).toLocaleString('en-IN')}</td>
           <td class="py-3 px-4 text-center text-slate-600">${l.paymentMethod || ''}</td>
           <td class="py-3 px-4 text-center text-slate-600">${displayDate}</td>
+          <td class="py-3 px-4 text-slate-600">${l.notes || '-'}</td>
         </tr>
       `;
     });
@@ -175,13 +176,14 @@ const generateLedgerPdf = async (req, res) => {
               <tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-semibold">
                 <th class="py-4 px-4">Employee Name</th>
                 <th class="py-4 px-4">Mobile</th>
-                <th class="py-4 px-4 text-right">Payment Amount</th>
+                <th class="py-4 px-4 text-right">Amount Given</th>
                 <th class="py-4 px-4 text-center">Payment Method</th>
                 <th class="py-4 px-4 text-center">Payment Date</th>
+                <th class="py-4 px-4">Notes</th>
               </tr>
             </thead>
             <tbody class="text-sm">
-              ${tableRows || '<tr><td colspan="5" class="text-center py-4 text-slate-500">No payment records found.</td></tr>'}
+              ${tableRows || '<tr><td colspan="6" class="text-center py-4 text-slate-500">No payment records found.</td></tr>'}
             </tbody>
           </table>
         </div>
@@ -191,7 +193,7 @@ const generateLedgerPdf = async (req, res) => {
           <div class="w-72">
             <div class="flex justify-between items-center py-2 text-sm text-slate-600">
               <span class="font-medium">Total Payments Given</span>
-              <span class="font-bold text-indigo-650">&#8377;${totalPaymentsGiven.toLocaleString('en-IN')}</span>
+              <span class="font-bold text-indigo-600">&#8377;${totalPaymentsGiven.toLocaleString('en-IN')}</span>
             </div>
           </div>
         </div>

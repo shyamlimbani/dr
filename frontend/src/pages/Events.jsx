@@ -159,7 +159,7 @@ const Events = () => {
 
   // Calculations for Summary Cards
   const employeeLedgers = payments.filter(p => p.employeeId === activeEmployee?._id);
-  const totalPaymentsGiven = employeeLedgers.reduce((sum, p) => sum + (p.amount || 0), 0);
+  const totalPaymentsGiven = employeeLedgers.reduce((sum, p) => sum + (p.amountGiven || 0), 0);
   const totalEvents = employeeEvents.length;
 
   return (

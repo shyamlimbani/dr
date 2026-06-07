@@ -202,10 +202,10 @@ const seed = async () => {
                   employeeId: employee._id,
                   employeeName: employee.fullName,
                   mobileNumber: employee.mobileNumber,
-                  amount: paid,
+                  amountGiven: paid,
                   paymentMethod: 'Bank Transfer',
                   notes: 'Completed Event Payout',
-                  date: formatDate(-14)
+                  paymentDate: formatDate(-14)
                 });
               }
             }

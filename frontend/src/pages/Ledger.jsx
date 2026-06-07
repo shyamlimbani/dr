@@ -12,7 +12,8 @@ import {
   DollarSign,
   Calendar,
   Download,
-  CreditCard
+  CreditCard,
+  FileText
 } from 'lucide-react';
 import { useSettings } from '../services/SettingsContext';
 import { generatePdf } from '../utils/pdfGenerator';
@@ -30,10 +31,10 @@ const Ledger = () => {
   const [editingId, setEditingId] = useState(null);
   const [selectedEmpId, setSelectedEmpId] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
-  const [amount, setAmount] = useState('');
+  const [amountGiven, setAmountGiven] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('UPI');
   const [notes, setNotes] = useState('');
-  const [paymentDate, setPaymentDate] = useState(''); // Keep track of the original date when editing
+  const [paymentDate, setPaymentDate] = useState('');
 
   // History Modal
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -45,7 +46,7 @@ const Ledger = () => {
       const res = await apiClient.get('/ledger');
       setPayments(res.data);
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching payments:', err);
     } finally {
       setLoading(false);
     }
@@ -56,7 +57,7 @@ const Ledger = () => {
       const res = await apiClient.get('/employees');
       setEmployees(res.data);
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching employees:', err);
     }
   };
 
@@ -69,10 +70,10 @@ const Ledger = () => {
     setEditingId(null);
     setSelectedEmpId('');
     setMobileNumber('');
-    setAmount('');
+    setAmountGiven('');
     setPaymentMethod('UPI');
     setNotes('');
-    setPaymentDate('');
+    setPaymentDate(new Date().toISOString().split('T')[0]); // Default to today
   };
 
   const openAddModal = () => {
@@ -84,15 +85,14 @@ const Ledger = () => {
     setEditingId(payment._id);
     setSelectedEmpId(payment.employeeId || '');
     setMobileNumber(payment.mobileNumber || '');
-    setAmount(payment.amount || '');
+    setAmountGiven(payment.amountGiven || '');
     setPaymentMethod(payment.paymentMethod || 'UPI');
     setNotes(payment.notes || '');
-    setPaymentDate(payment.date || '');
+    setPaymentDate(payment.paymentDate || new Date().toISOString().split('T')[0]);
     setShowModal(true);
   };
 
   const openHistory = (payment) => {
-    // Filter payments for this specific employee
     const empPayments = payments.filter(p => p.employeeId === payment.employeeId);
     setActiveHistory({
       employeeName: payment.employeeName,
@@ -131,10 +131,10 @@ const Ledger = () => {
         employeeId: selectedEmpId,
         employeeName: emp ? emp.fullName : 'Unknown Employee',
         mobileNumber: mobileNumber,
-        amount: Number(amount) || 0,
+        amountGiven: Number(amountGiven) || 0,
         paymentMethod: paymentMethod,
         notes: notes,
-        date: paymentDate || new Date().toISOString().split('T')[0]
+        paymentDate: paymentDate || new Date().toISOString().split('T')[0]
       };
 
       if (editingId) {
@@ -153,7 +153,7 @@ const Ledger = () => {
   const sendWhatsApp = (payment) => {
     const message = `Hello ${payment.employeeName},
 
-A payment of ₹${payment.amount} has been provided.
+A payment of ₹${payment.amountGiven} has been provided.
 
 Payment Method: ${payment.paymentMethod}
 
@@ -192,7 +192,7 @@ Thank You.`;
   );
 
   const totalEmpCount = new Set(payments.map(p => p.employeeName)).size;
-  const globalTotalPaymentsGiven = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+  const globalTotalPaymentsGiven = payments.reduce((sum, p) => sum + (p.amountGiven || 0), 0);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -205,7 +205,7 @@ Thank You.`;
               <CreditCard className="text-indigo-500" />
               Employee Payments
             </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Track and manage employee payments.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Record money given to employees.</p>
           </div>
           <div className="flex gap-3">
             <button 
@@ -280,9 +280,10 @@ Thank You.`;
               <tr>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Employee Name</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Mobile Number</th>
-                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Payment Amount</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Amount Given</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-center">Payment Method</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-center">Payment Date</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Notes</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-center">Actions</th>
               </tr>
             </thead>
@@ -291,13 +292,14 @@ Thank You.`;
                 <tr key={payment._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">{payment.employeeName}</td>
                   <td className="px-6 py-4 text-slate-500">{payment.mobileNumber}</td>
-                  <td className="px-6 py-4 font-bold text-slate-800 dark:text-white text-right">₹{payment.amount?.toLocaleString('en-IN')}</td>
+                  <td className="px-6 py-4 font-bold text-slate-800 dark:text-white text-right">₹{payment.amountGiven?.toLocaleString('en-IN')}</td>
                   <td className="px-6 py-4 text-center">
                     <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                       {payment.paymentMethod}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-slate-500 text-center">{formatDate(payment.date)}</td>
+                  <td className="px-6 py-4 text-slate-500 text-center">{formatDate(payment.paymentDate)}</td>
+                  <td className="px-6 py-4 text-slate-500 max-w-xs truncate" title={payment.notes}>{payment.notes || '-'}</td>
                   <td className="px-6 py-4 flex items-center justify-center gap-2">
                     <button onClick={() => openHistory(payment)} title="History" className="p-2 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
                       <History size={16} />
@@ -335,7 +337,7 @@ Thank You.`;
                     <h3 className="font-extrabold text-lg text-slate-800 dark:text-white line-clamp-1">{payment.employeeName}</h3>
                     <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
                       <Phone size={12} />
-                      {payment.mobileNumber}
+                      Mobile: {payment.mobileNumber}
                     </div>
                   </div>
                   <div className="opacity-100 flex gap-1">
@@ -350,17 +352,24 @@ Thank You.`;
 
                 <div className="grid grid-cols-2 gap-3 text-sm border-y border-slate-100 dark:border-slate-800 py-4">
                   <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Amount</span>
-                    <p className="font-bold text-slate-800 dark:text-white">₹{payment.amount}</p>
+                    <span className="text-[10px] uppercase font-bold text-slate-400">Amount Given</span>
+                    <p className="font-bold text-slate-800 dark:text-white">₹{payment.amountGiven}</p>
                   </div>
                   <div className="space-y-1">
                     <span className="text-[10px] uppercase font-bold text-slate-400">Method</span>
                     <p className="font-semibold text-indigo-500">{payment.paymentMethod}</p>
                   </div>
                 </div>
+
+                {payment.notes && (
+                  <div className="text-xs text-slate-500 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <span className="font-bold block text-slate-400 mb-0.5">Notes:</span>
+                    {payment.notes}
+                  </div>
+                )}
                 
                 <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium pt-1">
-                  <span className="flex items-center gap-1"><Calendar size={12}/> Date: {formatDate(payment.date)}</span>
+                  <span className="flex items-center gap-1"><Calendar size={12}/> Date: {formatDate(payment.paymentDate)}</span>
                   <button onClick={() => openHistory(payment)} className="flex items-center gap-1 text-indigo-500 hover:text-indigo-400 font-bold">
                     <History size={12}/> History
                   </button>
@@ -422,12 +431,12 @@ Thank You.`;
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Payment Amount (₹)</label>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Amount Given (₹)</label>
                 <input 
                   type="number" 
                   required 
-                  value={amount} 
-                  onChange={e => setAmount(e.target.value)}
+                  value={amountGiven} 
+                  onChange={e => setAmountGiven(e.target.value)}
                   className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" 
                   placeholder="e.g. 5000" 
                 />
@@ -442,9 +451,20 @@ Thank You.`;
                   className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 appearance-none"
                 >
                   <option value="Cash">Cash</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
                   <option value="UPI">UPI</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Payment Date</label>
+                <input 
+                  type="date" 
+                  required 
+                  value={paymentDate} 
+                  onChange={e => setPaymentDate(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" 
+                />
               </div>
 
               <div>
@@ -493,11 +513,11 @@ Thank You.`;
                     <div key={idx} className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 last:border-0 last:pb-0">
                       <div>
                         <span className="font-bold text-sm text-slate-800 dark:text-white block">{activeHistory.employeeName}</span>
-                        <span className="text-xs text-slate-400 flex items-center gap-1 mt-0.5"><Calendar size={10}/> {formatDate(ph.date)}</span>
-                        {ph.notes && <span className="text-xs text-slate-400 italic block mt-0.5">Note: {ph.notes}</span>}
+                        <span className="text-xs text-slate-400 flex items-center gap-1 mt-0.5"><Calendar size={10}/> {formatDate(ph.paymentDate)}</span>
+                        {ph.notes && <span className="text-xs text-slate-500 dark:text-slate-450 italic block mt-1">Note: {ph.notes}</span>}
                       </div>
                       <div className="text-right">
-                        <span className="font-black text-emerald-500 text-sm block">₹{ph.amount}</span>
+                        <span className="font-black text-emerald-500 text-sm block">₹{ph.amountGiven}</span>
                         <span className="text-[10px] text-slate-400">{ph.paymentMethod}</span>
                       </div>
                     </div>
