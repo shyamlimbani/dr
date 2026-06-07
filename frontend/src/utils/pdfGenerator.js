@@ -101,19 +101,19 @@ export const getBillHtml = (data, settings, logoData) => {
   return `
     <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box; position: relative;">
       <!-- HEADER -->
-      <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
+      <div class="flex justify-between items-start mb-4" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
-          ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>` : `<h1 class="text-3xl font-extrabold text-teal-700 tracking-tight mb-1">${settings.studioName}</h1>`}
+          ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 12px;"/>` : `<h1 class="text-3xl font-extrabold text-teal-700 tracking-tight mb-1">${settings.studioName}</h1>`}
           <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">INVOICE</h2>
           <p class="text-xs font-semibold text-slate-500 tracking-wider uppercase">${docNumber}</p>
-          <div class="mt-4">
+          <div class="mt-2">
             ${statusBadge}
           </div>
         </div>
         <div class="text-right">
           ${logoData ? `<h2 class="text-lg font-bold text-teal-700 mb-1">${settings.studioName}</h2>` : ''}
           <p class="text-xs text-slate-600 max-w-[240px] ml-auto leading-relaxed">${settings.address || ''}</p>
-          <p class="text-xs text-slate-600 mt-2">
+          <p class="text-xs text-slate-600 mt-1">
             <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''} <br/>
             ${settings.whatsappNumber ? `<span class="font-semibold text-slate-400">W:</span> ${settings.whatsappNumber} <br/>` : ''}
             <span class="font-semibold text-slate-400">E:</span> ${settings.email || ''} <br/>
@@ -122,15 +122,15 @@ export const getBillHtml = (data, settings, logoData) => {
         </div>
       </div>
 
-      <div class="w-full h-1 rounded-full bg-slate-100 mb-8 overflow-hidden" style="break-inside: avoid; page-break-inside: avoid;">
+      <div class="w-full h-1 rounded-full bg-slate-100 mb-4 overflow-hidden" style="break-inside: avoid; page-break-inside: avoid;">
         <div class="h-full w-1/3" style="background-color: #0d9488;"></div>
       </div>
 
       <!-- INFO CARDS -->
-      <div class="grid grid-cols-2 gap-6 mb-8" style="break-inside: avoid; page-break-inside: avoid;">
+      <div class="grid grid-cols-2 gap-6 mb-4" style="break-inside: avoid; page-break-inside: avoid;">
         <!-- BILL TO -->
-        <div class="p-5 rounded-2xl border border-slate-200 bg-white">
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Bill To</p>
+        <div class="p-4 rounded-2xl border border-slate-200 bg-white">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Bill To</p>
           <h3 class="text-base font-bold text-slate-800">${data.clientName}</h3>
           <p class="text-xs text-slate-600 mt-1">
             <span class="font-semibold text-slate-400">M:</span> ${data.mobileNumber}
@@ -141,9 +141,9 @@ export const getBillHtml = (data, settings, logoData) => {
         </div>
 
         <!-- EVENT & DATES -->
-        <div class="p-5 rounded-2xl border border-slate-200 bg-teal-50/20">
-          <p class="text-[10px] font-bold text-teal-750 uppercase tracking-wider mb-2" style="color: #0d9488;">Event Details</p>
-          <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="p-4 rounded-2xl border border-slate-200 bg-teal-50/20">
+          <p class="text-[10px] font-bold text-teal-750 uppercase tracking-wider mb-1" style="color: #0d9488;">Event Details</p>
+          <div class="grid grid-cols-2 gap-1 text-xs">
             <div>
               <span class="text-[10px] font-bold text-slate-400 uppercase block">Event Name</span>
               <span class="font-semibold text-slate-800">${data.eventName}</span>
@@ -161,26 +161,26 @@ export const getBillHtml = (data, settings, logoData) => {
       </div>
 
       <!-- DATES SUMMARY -->
-      <div class="flex gap-12 mb-8 px-2 text-xs" style="break-inside: avoid; page-break-inside: avoid;">
+      <div class="flex gap-12 mb-4 px-2 text-xs" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
           <p class="text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-1">Issue Date</p>
           <p class="font-semibold text-slate-800">${docDate}</p>
         </div>
         <div>
           <p class="text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-1">Due Date</p>
-          <p class="font-semibold text-slate-800">${dueDate}</p>
+          <p class="font-semibold text-slate-850">${dueDate}</p>
         </div>
       </div>
 
       <!-- SERVICES TABLE -->
-      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8" style="break-inside: avoid; page-break-inside: avoid;">
+      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-4" style="break-inside: avoid; page-break-inside: avoid;">
         <table class="w-full text-left border-collapse text-xs">
           <thead style="display: table-header-group;">
             <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold" style="break-inside: avoid; page-break-inside: avoid;">
-              <th class="py-3 px-4">Service Description</th>
-              <th class="py-3 px-4 text-center">Qty</th>
-              <th class="py-3 px-4 text-right">Rate</th>
-              <th class="py-3 px-4 text-right">Amount</th>
+              <th class="py-2.5 px-4">Service Description</th>
+              <th class="py-2.5 px-4 text-center">Qty</th>
+              <th class="py-2.5 px-4 text-right">Rate</th>
+              <th class="py-2.5 px-4 text-right">Amount</th>
             </tr>
           </thead>
           <tbody>
@@ -190,30 +190,30 @@ export const getBillHtml = (data, settings, logoData) => {
       </div>
 
       <!-- TOTALS SECTION -->
-      <div class="flex justify-end mb-12" style="break-inside: avoid; page-break-inside: avoid;">
-        <div class="w-72 text-xs space-y-2">
-          <div class="flex justify-between py-1 text-slate-600">
+      <div class="flex justify-end mb-4" style="break-inside: avoid; page-break-inside: avoid;">
+        <div class="w-72 text-xs space-y-1.5">
+          <div class="flex justify-between py-0.5 text-slate-600">
             <span>Subtotal</span>
             <span class="font-semibold text-slate-850">₹${(data.subtotal || 0).toLocaleString('en-IN')}</span>
           </div>
           ${data.discount > 0 ? `
-          <div class="flex justify-between py-1 text-rose-500">
+          <div class="flex justify-between py-0.5 text-rose-500">
             <span>Discount</span>
             <span class="font-semibold">- ₹${(data.discount || 0).toLocaleString('en-IN')}</span>
           </div>` : ''}
           
-          <div class="my-2 border-t border-slate-200"></div>
+          <div class="my-1.5 border-t border-slate-200"></div>
           
-          <div class="flex justify-between items-center py-1 mb-1">
+          <div class="flex justify-between items-center py-0.5 mb-0.5">
             <span class="font-bold text-slate-800">Grand Total</span>
             <span class="text-base font-bold text-teal-700" style="color: #0d9488;">₹${(data.grandTotal || 0).toLocaleString('en-IN')}</span>
           </div>
 
-          <div class="flex justify-between py-1.5 text-slate-600 bg-slate-50 px-3 rounded-lg">
+          <div class="flex justify-between py-1 text-slate-600 bg-slate-50 px-3 rounded-lg">
             <span>Advance Paid</span>
             <span class="font-semibold text-slate-800">₹${(data.advanceReceived || 0).toLocaleString('en-IN')}</span>
           </div>
-          <div class="flex justify-between py-2 font-bold text-slate-800 bg-slate-100 px-3 rounded-lg">
+          <div class="flex justify-between py-1.5 font-bold text-slate-800 bg-slate-100 px-3 rounded-lg">
             <span>Remaining Balance</span>
             <span class="${data.remainingAmount > 0 ? 'text-rose-600' : 'text-emerald-600'}">₹${(data.remainingAmount || 0).toLocaleString('en-IN')}</span>
           </div>
@@ -221,13 +221,13 @@ export const getBillHtml = (data, settings, logoData) => {
       </div>
 
       <!-- FOOTER -->
-      <div class="mt-8 border-t border-slate-200 pt-8 flex justify-between items-end text-xs" style="break-inside: avoid; page-break-inside: avoid;">
+      <div class="mt-4 border-t border-slate-200 pt-4 flex justify-between items-end text-xs" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
           <p class="font-semibold text-slate-800 mb-1">Thank you for choosing our services!</p>
           <p class="text-[10px] text-slate-500">Payment is due within 15 days of issue.</p>
         </div>
         <div class="text-center w-48">
-          <div class="border-b border-slate-300 pb-8 mb-2"></div>
+          <div class="border-b border-slate-300 pb-4 mb-2"></div>
           <p class="text-[10px] font-bold text-slate-500 uppercase">Authorized Signature</p>
           <p class="text-xs font-bold text-slate-800 mt-1">${settings.studioName}</p>
         </div>
@@ -754,7 +754,7 @@ export const generatePdf = async (element, filename, action) => {
   // Explicitly set scrollX and scrollY to 0 to capture from the top of the document,
   // preventing blank/cropped canvas issues when page is scrolled down.
   const opt = {
-    margin:       [15, 15, 30, 15],
+    margin:       [15, 15, 25, 15],
     filename:     filename || 'report.pdf',
     image:        { type: 'jpeg', quality: 0.95 },
     html2canvas:  { scale: 2, useCORS: true, logging: true, scrollX: 0, scrollY: 0 },

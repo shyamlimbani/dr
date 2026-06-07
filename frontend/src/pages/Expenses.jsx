@@ -392,7 +392,7 @@ const Expenses = () => {
             {/* The actual target element referenced for PDF capture */}
             <div className="w-full overflow-x-auto flex justify-center py-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800">
               <div 
-                style={{ width: '210mm', minHeight: '297mm', padding: '15mm 15mm 30mm 15mm', boxSizing: 'border-box' }}
+                style={{ width: '210mm', minHeight: '297mm', padding: '15mm 15mm 25mm 15mm', boxSizing: 'border-box' }}
                 className="bg-white text-slate-900 relative shadow-md"
               >
                 <div
