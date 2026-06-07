@@ -283,7 +283,7 @@ const Events = () => {
                   <span className="text-2xl font-black text-emerald-500 mt-1 block">₹{totalPaymentsGiven.toLocaleString('en-IN')}</span>
                 </div>
               </div>
-            </div></div>
+            </div>
 
             {/* Booking List */}
             <div className="space-y-4">
