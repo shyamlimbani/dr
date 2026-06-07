@@ -272,7 +272,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
 
   const coverPageHtml = `
     <!-- PAGE 1: COVER -->
-    <div class="page-break animate-in fade-in duration-500" style="width: 100%; height: 265mm; padding: 40px; box-sizing: border-box; background-color: #0b0f19; color: white; display: flex; flex-direction: column; justify-content: space-between; position: relative; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page; border-radius: 16px;">
+    <div class="page-break animate-in fade-in duration-500" style="width: 100%; height: 250mm; padding: 40px; box-sizing: border-box; background-color: #0b0f19; color: white; display: flex; flex-direction: column; justify-content: space-between; position: relative; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page; border-radius: 16px;">
       <!-- Subtle luxury border overlay -->
       <div style="position: absolute; inset: 15px; border: 1px solid rgba(217, 119, 6, 0.2); border-radius: 12px; pointer-events: none;"></div>
       
@@ -322,7 +322,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
 
   const page2Html = `
     <!-- PAGE 2: ABOUT US & PHILOSOPHY -->
-    <div class="page-break" style="width: 100%; height: 265mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page;">
+    <div class="page-break" style="width: 100%; height: 250mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page;">
       
       <!-- Top Nav -->
       <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; break-inside: avoid; page-break-inside: avoid;">
@@ -384,7 +384,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
 
   const page3Html = `
     <!-- PAGE 3: BESPOKE PACKAGE SUMMARY -->
-    <div class="page-break" style="width: 100%; height: 265mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page;">
+    <div class="page-break" style="width: 100%; height: 250mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page;">
       
       <!-- Top Nav -->
       <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; break-inside: avoid; page-break-inside: avoid;">
@@ -414,7 +414,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
 
   const page4Html = `
     <!-- PAGE 4: INVESTMENT & TERMS -->
-    <div style="width: 100%; height: 265mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif;">
+    <div style="width: 100%; height: 250mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif;">
       
       <!-- Top Nav -->
       <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; break-inside: avoid; page-break-inside: avoid;">
@@ -754,7 +754,7 @@ export const generatePdf = async (element, filename, action) => {
   // Explicitly set scrollX and scrollY to 0 to capture from the top of the document,
   // preventing blank/cropped canvas issues when page is scrolled down.
   const opt = {
-    margin:       15,
+    margin:       [15, 15, 30, 15],
     filename:     filename || 'report.pdf',
     image:        { type: 'jpeg', quality: 0.95 },
     html2canvas:  { scale: 2, useCORS: true, logging: true, scrollX: 0, scrollY: 0 },
