@@ -191,13 +191,17 @@ const Dashboard = () => {
             {/* The actual target element referenced for PDF capture */}
             <div className="w-full overflow-x-auto flex justify-center py-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800">
               <div 
-                ref={revenueReportRef}
-                style={{ width: '210mm', minHeight: '297mm', boxSizing: 'border-box' }}
-                className="bg-white text-slate-900 p-12 relative shadow-md"
-                dangerouslySetInnerHTML={{ 
-                  __html: getRevenueReportHtml(previewData, settings, logoData)
-                }}
-              />
+                style={{ width: '210mm', minHeight: '297mm', padding: '15mm', boxSizing: 'border-box' }}
+                className="bg-white text-slate-900 relative shadow-md"
+              >
+                <div
+                  ref={revenueReportRef}
+                  style={{ width: '180mm', boxSizing: 'border-box' }}
+                  dangerouslySetInnerHTML={{ 
+                    __html: getRevenueReportHtml(previewData, settings, logoData)
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>

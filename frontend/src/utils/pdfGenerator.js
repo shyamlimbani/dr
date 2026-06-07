@@ -89,7 +89,7 @@ export const getBillHtml = (data, settings, logoData) => {
   (data.services || []).forEach((srv, index) => {
     const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
     servicesHtml += `
-      <tr class="${bgClass} border-b border-slate-100">
+      <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
         <td class="py-3 px-4 text-slate-700 font-medium">${srv.serviceName}</td>
         <td class="py-3 px-4 text-center text-slate-600">${srv.quantity}</td>
         <td class="py-3 px-4 text-right text-slate-600">₹${(srv.price || 0).toLocaleString('en-IN')}</td>
@@ -99,9 +99,9 @@ export const getBillHtml = (data, settings, logoData) => {
   });
 
   return `
-    <div class="p-12 bg-white text-slate-900 font-sans" style="width: 210mm; min-height: 297mm; box-sizing: border-box; position: relative;">
+    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box; position: relative;">
       <!-- HEADER -->
-      <div class="flex justify-between items-start mb-8">
+      <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
           ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>` : `<h1 class="text-3xl font-extrabold text-teal-700 tracking-tight mb-1">${settings.studioName}</h1>`}
           <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">INVOICE</h2>
@@ -122,12 +122,12 @@ export const getBillHtml = (data, settings, logoData) => {
         </div>
       </div>
 
-      <div class="w-full h-1 rounded-full bg-slate-100 mb-8 overflow-hidden">
+      <div class="w-full h-1 rounded-full bg-slate-100 mb-8 overflow-hidden" style="break-inside: avoid; page-break-inside: avoid;">
         <div class="h-full w-1/3" style="background-color: #0d9488;"></div>
       </div>
 
       <!-- INFO CARDS -->
-      <div class="grid grid-cols-2 gap-6 mb-8">
+      <div class="grid grid-cols-2 gap-6 mb-8" style="break-inside: avoid; page-break-inside: avoid;">
         <!-- BILL TO -->
         <div class="p-5 rounded-2xl border border-slate-200 bg-white">
           <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Bill To</p>
@@ -161,7 +161,7 @@ export const getBillHtml = (data, settings, logoData) => {
       </div>
 
       <!-- DATES SUMMARY -->
-      <div class="flex gap-12 mb-8 px-2 text-xs">
+      <div class="flex gap-12 mb-8 px-2 text-xs" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
           <p class="text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-1">Issue Date</p>
           <p class="font-semibold text-slate-800">${docDate}</p>
@@ -173,10 +173,10 @@ export const getBillHtml = (data, settings, logoData) => {
       </div>
 
       <!-- SERVICES TABLE -->
-      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8">
+      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8" style="break-inside: avoid; page-break-inside: avoid;">
         <table class="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+          <thead style="display: table-header-group;">
+            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold" style="break-inside: avoid; page-break-inside: avoid;">
               <th class="py-3 px-4">Service Description</th>
               <th class="py-3 px-4 text-center">Qty</th>
               <th class="py-3 px-4 text-right">Rate</th>
@@ -190,7 +190,7 @@ export const getBillHtml = (data, settings, logoData) => {
       </div>
 
       <!-- TOTALS SECTION -->
-      <div class="flex justify-end mb-12">
+      <div class="flex justify-end mb-12" style="break-inside: avoid; page-break-inside: avoid;">
         <div class="w-72 text-xs space-y-2">
           <div class="flex justify-between py-1 text-slate-600">
             <span>Subtotal</span>
@@ -221,7 +221,7 @@ export const getBillHtml = (data, settings, logoData) => {
       </div>
 
       <!-- FOOTER -->
-      <div class="mt-8 border-t border-slate-200 pt-8 flex justify-between items-end text-xs">
+      <div class="mt-8 border-t border-slate-200 pt-8 flex justify-between items-end text-xs" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
           <p class="font-semibold text-slate-800 mb-1">Thank you for choosing our services!</p>
           <p class="text-[10px] text-slate-500">Payment is due within 15 days of issue.</p>
@@ -272,12 +272,12 @@ export const getQuotationHtml = (data, settings, logoData) => {
 
   const coverPageHtml = `
     <!-- PAGE 1: COVER -->
-    <div class="page-break animate-in fade-in duration-500" style="width: 210mm; height: 297mm; padding: 60px; box-sizing: border-box; background-color: #0b0f19; color: white; display: flex; flex-direction: column; justify-content: space-between; position: relative; font-family: 'Poppins', sans-serif; page-break-after: always;">
+    <div class="page-break animate-in fade-in duration-500" style="width: 100%; height: 265mm; padding: 40px; box-sizing: border-box; background-color: #0b0f19; color: white; display: flex; flex-direction: column; justify-content: space-between; position: relative; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page; border-radius: 16px;">
       <!-- Subtle luxury border overlay -->
-      <div style="position: absolute; inset: 20px; border: 1px solid rgba(217, 119, 6, 0.15); pointer-events: none;"></div>
+      <div style="position: absolute; inset: 15px; border: 1px solid rgba(217, 119, 6, 0.2); border-radius: 12px; pointer-events: none;"></div>
       
       <!-- Top Section -->
-      <div class="flex justify-between items-center relative z-10">
+      <div class="flex justify-between items-center relative z-10" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
           ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 48px; max-width: 180px; object-fit: contain; filter: brightness(0) invert(1);"/>` : `<h2 style="font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #d97706; margin: 0;">${settings.studioName.toUpperCase()}</h2>`}
         </div>
@@ -288,7 +288,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
       </div>
 
       <!-- Middle/Title Section -->
-      <div class="my-auto relative z-10" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="my-auto relative z-10" style="padding-top: 20px; padding-bottom: 20px; break-inside: avoid; page-break-inside: avoid;">
         <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; color: #d97706; display: block; margin-bottom: 16px;">Fine Art Photography & Film</span>
         <h1 style="font-family: 'Georgia', serif; font-size: 38px; font-weight: 400; line-height: 1.25; margin: 0 0 24px 0; letter-spacing: -0.5px;">
           Capturing the <br/>
@@ -296,13 +296,13 @@ export const getQuotationHtml = (data, settings, logoData) => {
         </h1>
         <div style="width: 60px; height: 2px; background-color: #d97706; margin-bottom: 32px;"></div>
         
-        <p style="font-size: 13px; color: rgba(255, 255, 255, 0.6); max-width: 420px; leading-relaxed: 1.7; margin: 0;">
+        <p style="font-size: 13px; color: rgba(255, 255, 255, 0.6); max-width: 420px; line-height: 1.7; margin: 0;">
           A bespoke visual services proposal customized for your upcoming event, balancing raw candid emotion with timeless editorial elegance.
         </p>
       </div>
 
       <!-- Bottom Metadata Section -->
-      <div class="grid grid-cols-2 gap-8 relative z-10 border-t border-white/10 pt-8" style="font-size: 11px;">
+      <div class="grid grid-cols-2 gap-8 relative z-10 border-t border-white/10 pt-8" style="font-size: 11px; break-inside: avoid; page-break-inside: avoid;">
         <div>
           <span style="color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px;">Prepared For</span>
           <span style="font-size: 14px; font-weight: 700; color: white; display: block;">${data.clientName}</span>
@@ -322,19 +322,19 @@ export const getQuotationHtml = (data, settings, logoData) => {
 
   const page2Html = `
     <!-- PAGE 2: ABOUT US & PHILOSOPHY -->
-    <div class="page-break" style="width: 210mm; height: 297mm; padding: 60px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always;">
+    <div class="page-break" style="width: 100%; height: 265mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page;">
       
       <!-- Top Nav -->
-      <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px;">
+      <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; break-inside: avoid; page-break-inside: avoid;">
         <span style="color: #64748b;">01 / Vision & Offerings</span>
         <span style="color: #b45309;">${settings.studioName}</span>
       </div>
 
       <!-- Body Section -->
-      <div style="margin-top: 40px; margin-bottom: auto; display: flex; flex-direction: column; gap: 40px;">
-        <div style="max-width: 580px;">
+      <div style="margin-top: 20px; margin-bottom: auto; display: flex; flex-direction: column; gap: 24px;">
+        <div style="max-width: 580px; break-inside: avoid; page-break-inside: avoid;">
           <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #b45309; display: block; margin-bottom: 12px;">Our Philosophy</span>
-          <h2 style="font-family: 'Georgia', serif; font-size: 26px; font-weight: 400; line-height: 1.35; margin: 0 0 16px 0; color: #0f172a;">
+          <h2 style="font-family: 'Georgia', serif; font-size: 24px; font-weight: 400; line-height: 1.35; margin: 0 0 16px 0; color: #0f172a;">
             Crafting visual stories that stand the test of time.
           </h2>
           <p style="font-size: 12px; color: #475569; line-height: 1.7; margin: 0;">
@@ -343,29 +343,29 @@ export const getQuotationHtml = (data, settings, logoData) => {
         </div>
 
         <!-- Editorial Grid representing Portfolio Categories -->
-        <div>
+        <div style="break-inside: avoid; page-break-inside: avoid;">
           <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #b45309; display: block; margin-bottom: 16px;">Core Expertise</span>
           <div class="grid grid-cols-2 gap-4">
             
-            <div style="border: 1px solid #f1f5f9; padding: 20px; border-radius: 16px; background-color: #fafafa;">
+            <div style="border: 1px solid #f1f5f9; padding: 16px; border-radius: 16px; background-color: #fafafa;">
               <div style="width: 8px; height: 8px; border-radius: 50%; background-color: #b45309; margin-bottom: 12px;"></div>
               <h4 style="font-size: 13px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">Fine-Art Photography</h4>
               <p style="font-size: 11px; color: #64748b; margin: 0; line-height: 1.6;">Luminous editorial portraiture, capturing the depth of emotions, gestures, and details with cinematic lighting.</p>
             </div>
 
-            <div style="border: 1px solid #f1f5f9; padding: 20px; border-radius: 16px; background-color: #fafafa;">
+            <div style="border: 1px solid #f1f5f9; padding: 16px; border-radius: 16px; background-color: #fafafa;">
               <div style="width: 8px; height: 8px; border-radius: 50%; background-color: #b45309; margin-bottom: 12px;"></div>
               <h4 style="font-size: 13px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">4K Cinematography</h4>
               <p style="font-size: 11px; color: #64748b; margin: 0; line-height: 1.6;">High-definition wedding films, reels, highlights, and cinematic sound designs tailored for digital screens and theater scopes.</p>
             </div>
 
-            <div style="border: 1px solid #f1f5f9; padding: 20px; border-radius: 16px; background-color: #fafafa;">
+            <div style="border: 1px solid #f1f5f9; padding: 16px; border-radius: 16px; background-color: #fafafa;">
               <div style="width: 8px; height: 8px; border-radius: 50%; background-color: #b45309; margin-bottom: 12px;"></div>
               <h4 style="font-size: 13px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">Pre-Wedding Editorial</h4>
               <p style="font-size: 11px; color: #64748b; margin: 0; line-height: 1.6;">Stylized editorial concepts, multi-location coverage, aerial drone filming, and bespoke style consulting.</p>
             </div>
 
-            <div style="border: 1px solid #f1f5f9; padding: 20px; border-radius: 16px; background-color: #fafafa;">
+            <div style="border: 1px solid #f1f5f9; padding: 16px; border-radius: 16px; background-color: #fafafa;">
               <div style="width: 8px; height: 8px; border-radius: 50%; background-color: #b45309; margin-bottom: 12px;"></div>
               <h4 style="font-size: 13px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">High-End Post Production</h4>
               <p style="font-size: 11px; color: #64748b; margin: 0; line-height: 1.6;">Bespoke color grading, professional retouching, signature layouts, and premium physical leather-bound albums.</p>
@@ -376,7 +376,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
       </div>
 
       <!-- Page Footer -->
-      <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; font-size: 9px; color: #94a3b8; text-align: right;">
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; font-size: 9px; color: #94a3b8; text-align: right; break-inside: avoid; page-break-inside: avoid;">
         Creative Proposal • Confidential Information
       </div>
     </div>
@@ -384,19 +384,19 @@ export const getQuotationHtml = (data, settings, logoData) => {
 
   const page3Html = `
     <!-- PAGE 3: BESPOKE PACKAGE SUMMARY -->
-    <div class="page-break" style="width: 210mm; height: 297mm; padding: 60px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always;">
+    <div class="page-break" style="width: 100%; height: 265mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page;">
       
       <!-- Top Nav -->
-      <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px;">
+      <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; break-inside: avoid; page-break-inside: avoid;">
         <span style="color: #64748b;">02 / Customized Package</span>
         <span style="color: #b45309;">Prepared For: ${data.clientName}</span>
       </div>
 
       <!-- Dynamic Sections Grid -->
-      <div style="margin-top: 30px; margin-bottom: auto; display: flex; flex-direction: column; gap: 20px;">
-        <div>
+      <div style="margin-top: 20px; margin-bottom: auto; display: flex; flex-direction: column; gap: 16px;">
+        <div style="break-inside: avoid; page-break-inside: avoid;">
           <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #b45309; display: block; margin-bottom: 6px;">Your Visual Roster</span>
-          <h2 style="font-family: 'Georgia', serif; font-size: 22px; font-weight: 400; margin: 0 0 10px 0; color: #0f172a;">Custom Package Inclusions</h2>
+          <h2 style="font-family: 'Georgia', serif; font-size: 20px; font-weight: 400; margin: 0 0 10px 0; color: #0f172a;">Custom Package Inclusions</h2>
           <p style="font-size: 11px; color: #64748b; margin: 0;">Each service group has been designed to align with your personal vision and event itinerary.</p>
         </div>
 
@@ -406,7 +406,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
       </div>
 
       <!-- Page Footer -->
-      <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; font-size: 9px; color: #94a3b8; text-align: right;">
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; font-size: 9px; color: #94a3b8; text-align: right; break-inside: avoid; page-break-inside: avoid;">
         Custom Inclusions Summary • Section 02
       </div>
     </div>
@@ -414,19 +414,19 @@ export const getQuotationHtml = (data, settings, logoData) => {
 
   const page4Html = `
     <!-- PAGE 4: INVESTMENT & TERMS -->
-    <div style="width: 210mm; height: 297mm; padding: 60px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif;">
+    <div style="width: 100%; height: 265mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif;">
       
       <!-- Top Nav -->
-      <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px;">
+      <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; break-inside: avoid; page-break-inside: avoid;">
         <span style="color: #64748b;">03 / Pricing & Engagement</span>
         <span style="color: #b45309;">Investment Summary</span>
       </div>
 
       <!-- Content -->
-      <div style="margin-top: 30px; margin-bottom: auto; display: flex; flex-direction: column; gap: 32px;">
+      <div style="margin-top: 20px; margin-bottom: auto; display: flex; flex-direction: column; gap: 24px;">
         
         <!-- Timeline Section -->
-        <div>
+        <div style="break-inside: avoid; page-break-inside: avoid;">
           <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #b45309; display: block; margin-bottom: 12px;">The Creative Journey</span>
           <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; border-left: 0;">
             
@@ -458,7 +458,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
         </div>
 
         <!-- Testimonial Block -->
-        <div style="border-left: 2px solid #b45309; padding: 4px 0 4px 20px; background-color: #fffbeb;">
+        <div style="border-left: 2px solid #b45309; padding: 4px 0 4px 20px; background-color: #fffbeb; break-inside: avoid; page-break-inside: avoid;">
           <p style="font-family: 'Georgia', serif; font-style: italic; font-size: 12px; color: #b45309; margin: 0 0 6px 0; line-height: 1.6;">
             "An absolute dream to work with. They captured the light, the energy, and the quiet intimate details in a way that felt completely natural and cinematic. Timeless."
           </p>
@@ -466,7 +466,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
         </div>
 
         <!-- Grand Total Block Card -->
-        <div style="border: 2px solid #b45309; border-radius: 20px; padding: 24px 30px; display: flex; justify-content: space-between; align-items: center; background-color: #fafafa; box-shadow: 0 4px 12px rgba(180, 83, 9, 0.05);">
+        <div style="border: 2px solid #b45309; border-radius: 20px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; background-color: #fafafa; box-shadow: 0 4px 12px rgba(180, 83, 9, 0.05); break-inside: avoid; page-break-inside: avoid;">
           <div>
             <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #b45309; display: block;">Total Package Investment</span>
             <span style="font-size: 9px; color: #94a3b8; display: block; margin-top: 2px;">Inclusive of all crew, equipment, conceptual consulting, and post production.</span>
@@ -480,19 +480,19 @@ export const getQuotationHtml = (data, settings, logoData) => {
       </div>
 
       <!-- Signatures & Footer -->
-      <div style="margin-top: 40px;">
-        <p style="font-size: 10px; color: #94a3b8; line-height: 1.5; margin: 0 0 32px 0;">
+      <div style="margin-top: 20px; break-inside: avoid; page-break-inside: avoid;">
+        <p style="font-size: 10px; color: #94a3b8; line-height: 1.5; margin: 0 0 20px 0;">
           Terms: To lock the booking, a 50% reservation advance is required. Quotation validity is 30 days from issued date.
         </p>
 
         <div class="grid grid-cols-2 gap-12" style="font-size: 11px;">
           <div>
-            <div style="border-bottom: 1px solid #cbd5e1; padding-bottom: 24px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #cbd5e1; padding-bottom: 16px; margin-bottom: 8px;"></div>
             <span style="font-weight: 700; color: #0f172a; display: block;">Client Acceptance Signature</span>
             <span style="font-size: 10px; color: #64748b; display: block; margin-top: 2px;">Date: ____ / ____ / ________</span>
           </div>
           <div>
-            <div style="border-bottom: 1px solid #cbd5e1; padding-bottom: 24px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #cbd5e1; padding-bottom: 16px; margin-bottom: 8px;"></div>
             <span style="font-weight: 700; color: #0f172a; display: block;">Authorized Studio Representative</span>
             <span style="font-size: 10px; color: #b45309; display: block; margin-top: 2px;">${settings.studioName}</span>
           </div>
@@ -523,7 +523,7 @@ export const getPaymentReportHtml = (ledgers, settings, logoData) => {
     }
 
     tableRows += `
-      <tr class="${bgClass} border-b border-slate-100">
+      <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
         <td class="py-3 px-4 text-slate-700 font-medium">${l.employeeName}</td>
         <td class="py-3 px-4 text-slate-655">${l.mobileNumber}</td>
         <td class="py-3 px-4 text-right text-slate-700 font-semibold">₹${(l.amountGiven || 0).toLocaleString('en-IN')}</td>
@@ -535,9 +535,9 @@ export const getPaymentReportHtml = (ledgers, settings, logoData) => {
   });
 
   return `
-    <div class="p-12 bg-white text-slate-900 font-sans" style="width: 210mm; min-height: 297mm; box-sizing: border-box;">
+    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box;">
       <!-- HEADER -->
-      <div class="flex justify-between items-start mb-8">
+      <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
           ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>` : `<h1 class="text-3xl font-extrabold text-indigo-700 tracking-tight mb-1">${settings.studioName}</h1>`}
           <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">EMPLOYEE PAYMENT REPORT</h2>
@@ -553,15 +553,15 @@ export const getPaymentReportHtml = (ledgers, settings, logoData) => {
         </div>
       </div>
 
-      <div class="w-full h-1 rounded-full bg-slate-100 mb-8 overflow-hidden">
+      <div class="w-full h-1 rounded-full bg-slate-100 mb-8 overflow-hidden" style="break-inside: avoid; page-break-inside: avoid;">
         <div class="h-full w-1/3 bg-indigo-600"></div>
       </div>
 
       <!-- TABLE -->
-      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8 shadow-sm">
+      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8 shadow-sm" style="break-inside: avoid; page-break-inside: avoid;">
         <table class="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+          <thead style="display: table-header-group;">
+            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold" style="break-inside: avoid; page-break-inside: avoid;">
               <th class="py-4 px-4">Employee Name</th>
               <th class="py-4 px-4">Mobile</th>
               <th class="py-4 px-4 text-right">Amount Given</th>
@@ -577,7 +577,7 @@ export const getPaymentReportHtml = (ledgers, settings, logoData) => {
       </div>
 
       <!-- TOTALS SECTION -->
-      <div class="flex justify-end mb-12 text-xs">
+      <div class="flex justify-end mb-12 text-xs" style="break-inside: avoid; page-break-inside: avoid;">
         <div class="w-72 space-y-1">
           <div class="flex justify-between items-center py-1 text-slate-600">
             <span class="font-medium">Total Payments Given</span>
@@ -597,19 +597,19 @@ export const getExpenseReportHtml = (expenses, settings, logoData) => {
     totalExpense += exp.amount || 0;
     const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
     tableRows += `
-      <tr class="${bgClass} border-b border-slate-100">
+      <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
         <td class="py-3 px-4 text-slate-700">${new Date(exp.date).toISOString().split('T')[0]}</td>
         <td class="py-3 px-4 text-slate-700 font-medium">${exp.expenseCategory}</td>
-        <td class="py-3 px-4 text-slate-650">${exp.description || '-'}</td>
+        <td class="py-3 px-4 text-slate-655">${exp.description || '-'}</td>
         <td class="py-3 px-4 text-right font-semibold text-slate-800">₹${(exp.amount || 0).toLocaleString('en-IN')}</td>
       </tr>
     `;
   });
 
   return `
-    <div class="p-12 bg-white text-slate-900 font-sans" style="width: 210mm; min-height: 297mm; box-sizing: border-box;">
+    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box;">
       <!-- HEADER -->
-      <div class="flex justify-between items-start mb-8">
+      <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
           ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>` : `<h1 class="text-3xl font-extrabold text-rose-700 tracking-tight mb-1">${settings.studioName}</h1>`}
           <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">EXPENSE REPORT</h2>
@@ -625,15 +625,15 @@ export const getExpenseReportHtml = (expenses, settings, logoData) => {
         </div>
       </div>
 
-      <div class="w-full h-1 rounded-full bg-slate-100 mb-8 overflow-hidden">
+      <div class="w-full h-1 rounded-full bg-slate-100 mb-8 overflow-hidden" style="break-inside: avoid; page-break-inside: avoid;">
         <div class="h-full w-1/3 bg-rose-600"></div>
       </div>
 
       <!-- TABLE -->
-      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8 shadow-sm">
+      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8 shadow-sm" style="break-inside: avoid; page-break-inside: avoid;">
         <table class="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+          <thead style="display: table-header-group;">
+            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold" style="break-inside: avoid; page-break-inside: avoid;">
               <th class="py-4 px-4">Date</th>
               <th class="py-4 px-4">Category</th>
               <th class="py-4 px-4">Notes</th>
@@ -647,7 +647,7 @@ export const getExpenseReportHtml = (expenses, settings, logoData) => {
       </div>
 
       <!-- TOTALS SECTION -->
-      <div class="flex justify-end mb-12 text-xs">
+      <div class="flex justify-end mb-12 text-xs" style="break-inside: avoid; page-break-inside: avoid;">
         <div class="w-72">
           <div class="flex justify-between items-center py-1 mb-1 border-t border-slate-100 pt-2">
             <span class="font-bold text-slate-800">Total Expenses</span>
@@ -661,14 +661,13 @@ export const getExpenseReportHtml = (expenses, settings, logoData) => {
 
 export const getRevenueReportHtml = (bills, settings, logoData) => {
   let totalRevenue = 0;
-
   let tableRows = '';
   bills.forEach((bill, index) => {
     const amount = (bill.advanceReceived || 0) + ((bill.grandTotal || 0) - (bill.remainingAmount || 0));
     totalRevenue += amount;
     const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
     tableRows += `
-      <tr class="${bgClass} border-b border-slate-100">
+      <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
         <td class="py-3 px-4 text-slate-700 font-medium">${bill.clientName}</td>
         <td class="py-3 px-4 text-slate-700">${bill.eventName}</td>
         <td class="py-3 px-4 text-slate-650">${bill.billDate}</td>
@@ -678,9 +677,9 @@ export const getRevenueReportHtml = (bills, settings, logoData) => {
   });
 
   return `
-    <div class="p-12 bg-white text-slate-900 font-sans" style="width: 210mm; min-height: 297mm; box-sizing: border-box;">
+    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box;">
       <!-- HEADER -->
-      <div class="flex justify-between items-start mb-8">
+      <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
           ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>` : `<h1 class="text-3xl font-extrabold text-teal-700 tracking-tight mb-1">${settings.studioName}</h1>`}
           <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">REVENUE REPORT</h2>
@@ -696,15 +695,15 @@ export const getRevenueReportHtml = (bills, settings, logoData) => {
         </div>
       </div>
 
-      <div class="w-full h-1 rounded-full bg-slate-100 mb-8 overflow-hidden">
+      <div class="w-full h-1 rounded-full bg-slate-100 mb-8 overflow-hidden" style="break-inside: avoid; page-break-inside: avoid;">
         <div class="h-full w-1/3 bg-teal-600"></div>
       </div>
 
       <!-- TABLE -->
-      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8 shadow-sm">
+      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8 shadow-sm" style="break-inside: avoid; page-break-inside: avoid;">
         <table class="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+          <thead style="display: table-header-group;">
+            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold" style="break-inside: avoid; page-break-inside: avoid;">
               <th class="py-4 px-4">Client Name</th>
               <th class="py-4 px-4">Event Name</th>
               <th class="py-4 px-4">Date</th>
@@ -718,7 +717,7 @@ export const getRevenueReportHtml = (bills, settings, logoData) => {
       </div>
 
       <!-- TOTALS SECTION -->
-      <div class="flex justify-end mb-12 text-xs">
+      <div class="flex justify-end mb-12 text-xs" style="break-inside: avoid; page-break-inside: avoid;">
         <div class="w-72">
           <div class="flex justify-between items-center py-1 mb-1 border-t border-slate-100 pt-2">
             <span class="font-bold text-slate-800">Total Revenue</span>
@@ -755,7 +754,7 @@ export const generatePdf = async (element, filename, action) => {
   // Explicitly set scrollX and scrollY to 0 to capture from the top of the document,
   // preventing blank/cropped canvas issues when page is scrolled down.
   const opt = {
-    margin:       0,
+    margin:       15,
     filename:     filename || 'report.pdf',
     image:        { type: 'jpeg', quality: 0.95 },
     html2canvas:  { scale: 2, useCORS: true, logging: true, scrollX: 0, scrollY: 0 },

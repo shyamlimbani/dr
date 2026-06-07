@@ -38,26 +38,53 @@ class JSONCollection {
     return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
   }
 
-  async find(query = {}) {
-    let items = this._read();
-    
-    // Support simple filter matching
-    if (Object.keys(query).length > 0) {
-      items = items.filter(item => {
-        for (const key in query) {
-          // Handle simple equality or search filter
-          if (query[key] && typeof query[key] === 'object' && query[key].$regex) {
-            const regex = new RegExp(query[key].$regex, query[key].$options || 'i');
-            if (!regex.test(item[key] || '')) return false;
-          } else if (query[key] !== undefined && item[key] !== query[key]) {
-            return false;
+  find(query = {}) {
+    const itemsPromise = (async () => {
+      let items = this._read();
+      
+      // Support simple filter matching
+      if (Object.keys(query).length > 0) {
+        items = items.filter(item => {
+          for (const key in query) {
+            // Handle simple equality or search filter
+            if (query[key] && typeof query[key] === 'object' && query[key].$regex) {
+              const regex = new RegExp(query[key].$regex, query[key].$options || 'i');
+              if (!regex.test(item[key] || '')) return false;
+            } else if (query[key] !== undefined && item[key] !== query[key]) {
+              return false;
+            }
           }
-        }
-        return true;
-      });
-    }
-    
-    return items;
+          return true;
+        });
+      }
+      return items;
+    })();
+
+    // Add sort method to the returned Promise so .find().sort() works
+    itemsPromise.sort = (sortQuery) => {
+      return (async () => {
+        const items = await itemsPromise;
+        const sortField = Object.keys(sortQuery)[0];
+        const sortOrder = sortQuery[sortField]; // 1 or -1
+        
+        return [...items].sort((a, b) => {
+          let valA = a[sortField];
+          let valB = b[sortField];
+          
+          // Try date parsing if the field looks like a date or is createdAt/date
+          if (sortField === 'createdAt' || sortField === 'date' || sortField === 'billDate' || sortField === 'paymentDate') {
+            valA = new Date(valA || 0).getTime();
+            valB = new Date(valB || 0).getTime();
+          }
+          
+          if (valA < valB) return sortOrder === -1 ? 1 : -1;
+          if (valA > valB) return sortOrder === -1 ? -1 : 1;
+          return 0;
+        });
+      })();
+    };
+
+    return itemsPromise;
   }
 
   async findOne(query = {}) {

@@ -25,5 +25,32 @@
     "billNumber": "INV-0001",
     "createdAt": "2026-06-07T13:33:01.594Z",
     "updatedAt": "2026-06-07T13:33:01.594Z"
+  },
+  {
+    "_id": "z95vg7mmq3u0cj9",
+    "clientName": "",
+    "mobileNumber": "",
+    "billGenerateDate": "2026-06-07",
+    "billDate": "2026-06-07",
+    "eventName": "",
+    "eventDate": "",
+    "eventLocation": "",
+    "services": [
+      {
+        "serviceName": "",
+        "quantity": 1,
+        "price": 0,
+        "total": 0
+      }
+    ],
+    "subtotal": 0,
+    "discount": 0,
+    "grandTotal": 0,
+    "advanceReceived": 0,
+    "remainingAmount": 0,
+    "notes": "",
+    "billNumber": "INV-0002",
+    "createdAt": "2026-06-07T13:42:34.101Z",
+    "updatedAt": "2026-06-07T13:42:34.101Z"
   }
 ]
