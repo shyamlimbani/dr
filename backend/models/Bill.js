@@ -12,7 +12,7 @@ const billSchema = new mongoose.Schema({
   billDate: { type: String, required: true },
   clientName: { type: String, required: true },
   mobileNumber: { type: String, required: true },
-  email: { type: String, default: '' },
+  billGenerateDate: { type: String, required: true },
   eventName: { type: String, required: true },
   eventDate: { type: String, required: true },
   eventLocation: { type: String, default: '' },

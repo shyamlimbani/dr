@@ -64,8 +64,17 @@ export const getCompressedLogo = (logoPath) => {
 
 const getBillHtml = (data, settings, logoData) => {
   const docNumber = data.billNumber || 'INV-0000';
-  const docDate = data.billDate || new Date().toISOString().split('T')[0];
+  const docDate = data.billGenerateDate || data.billDate || new Date().toISOString().split('T')[0];
   const dueDate = data.eventDate || docDate;
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3 && parts[0].length === 4) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    return dateStr;
+  };
 
   let statusBadge = '';
   if (data.remainingAmount <= 0) {
@@ -126,7 +135,9 @@ const getBillHtml = (data, settings, logoData) => {
           <p class="text-xs text-slate-600 mt-1">
             <span class="font-semibold text-slate-400">M:</span> ${data.mobileNumber}
           </p>
-          ${data.email ? `<p class="text-xs text-slate-600 mt-0.5"><span class="font-semibold text-slate-400">E:</span> ${data.email}</p>` : ''}
+          <p class="text-xs text-slate-600 mt-1">
+            <span class="font-semibold text-slate-400">Date:</span> ${formatDate(data.billGenerateDate || data.billDate)}
+          </p>
         </div>
 
         <!-- EVENT & DATES -->

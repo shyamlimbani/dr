@@ -36,13 +36,22 @@ const Invoices = () => {
   // Form State (Shared mostly)
   const [clientName, setClientName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
-  const [email, setEmail] = useState('');
+  const [billGenerateDate, setBillGenerateDate] = useState(new Date().toISOString().split('T')[0]);
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [eventLocation, setEventLocation] = useState('');
   const [discount, setDiscount] = useState(0);
   const [advanceReceived, setAdvanceReceived] = useState(0);
   const [notes, setNotes] = useState('');
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3 && parts[0].length === 4) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    return dateStr;
+  };
   
   // Dynamic Services Array (Used by Bills)
   const [services, setServices] = useState([
@@ -82,7 +91,7 @@ const Invoices = () => {
     setEditingId(null);
     setClientName('');
     setMobileNumber('');
-    setEmail('');
+    setBillGenerateDate(new Date().toISOString().split('T')[0]);
     setEventName('');
     setEventDate('');
     setEventLocation('');
@@ -107,7 +116,7 @@ const Invoices = () => {
     setEditingId(item._id);
     setClientName(item.clientName);
     setMobileNumber(item.mobileNumber);
-    setEmail(item.email || '');
+    setBillGenerateDate(item.billGenerateDate || item.billDate || new Date().toISOString().split('T')[0]);
     setEventName(item.eventName);
     setEventDate(item.eventDate);
     setEventLocation(item.eventLocation || '');
@@ -187,7 +196,8 @@ const Invoices = () => {
     const payload = activeTab === 'bills' ? {
       clientName,
       mobileNumber,
-      email,
+      billGenerateDate,
+      billDate: billGenerateDate,
       eventName,
       eventDate,
       eventLocation,
@@ -201,7 +211,6 @@ const Invoices = () => {
     } : {
       clientName,
       mobileNumber,
-      email: undefined,
       eventName,
       eventDate,
       eventLocation,
@@ -214,8 +223,7 @@ const Invoices = () => {
         if (editingId) {
           await apiClient.put(`/bills/${editingId}`, payload);
         } else {
-          // Send billDate for new creation, API does the rest
-          await apiClient.post('/bills', { ...payload, billDate: new Date().toISOString().split('T')[0] });
+          await apiClient.post('/bills', payload);
         }
       } else {
         if (editingId) {
@@ -361,7 +369,7 @@ const Invoices = () => {
                       {item.clientName}
                     </td>
                     <td className="px-6 py-4 text-slate-500">
-                      {new Date(item.billDate || item.quotationDate).toLocaleDateString()}
+                      {item.billGenerateDate ? formatDate(item.billGenerateDate) : (item.billDate ? formatDate(item.billDate) : new Date(item.quotationDate).toLocaleDateString())}
                     </td>
                     <td className="px-6 py-4 font-black text-slate-800 dark:text-white text-right">
                       ₹{item.grandTotal?.toLocaleString('en-IN')}
@@ -413,7 +421,9 @@ const Invoices = () => {
                   </div>
                   <div className="space-y-0.5 text-right">
                     <span className="text-[10px] uppercase font-bold text-slate-400 block">Date</span>
-                    <p className="font-medium">{new Date(item.billDate || item.quotationDate).toLocaleDateString()}</p>
+                    <p className="font-medium">
+                      {item.billGenerateDate ? formatDate(item.billGenerateDate) : (item.billDate ? formatDate(item.billDate) : new Date(item.quotationDate).toLocaleDateString())}
+                    </p>
                   </div>
                 </div>
 
@@ -488,8 +498,8 @@ const Invoices = () => {
                     </div>
                     {activeTab === 'bills' && (
                       <div>
-                        <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">Email (Optional)</label>
-                        <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500" />
+                        <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">Bill Generate Date</label>
+                        <input required type="date" value={billGenerateDate} onChange={e => setBillGenerateDate(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500" />
                       </div>
                     )}
                   </div>
