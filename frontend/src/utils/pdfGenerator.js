@@ -754,11 +754,12 @@ export const generatePdf = async (type, data, settings, action) => {
     html = getRevenueReportHtml(data, settings, logoData);
   }
 
-  // Create fixed positioned container underneath everything (z-index: -9999)
+  // Create absolute positioned container at the very top of the document (z-index: -9999)
   // html2canvas requires the element to be in the DOM and visible (not display: none or offscreen coordinates)
   // to correctly render bounding boxes and calculate stylesheet formatting.
+  // Using absolute positioning at top: 0, left: 0 avoids scroll offset alignment bugs in html2canvas.
   const container = document.createElement('div');
-  container.style.position = 'fixed';
+  container.style.position = 'absolute';
   container.style.left = '0';
   container.style.top = '0';
   container.style.width = '210mm';
@@ -767,31 +768,71 @@ export const generatePdf = async (type, data, settings, action) => {
   container.innerHTML = html;
   document.body.appendChild(container);
 
-  // Wait 150ms for the browser to perform layout, paint, and apply active Tailwind styles
-  await new Promise((resolve) => setTimeout(resolve, 150));
-
-  const opt = {
-    margin:       0,
-    filename:     `${type.toLowerCase()}_report.pdf`,
-    image:        { type: 'jpeg', quality: 0.95 },
-    html2canvas:  { scale: 2, useCORS: true, logging: false },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:    { mode: ['css', 'legacy'] }
-  };
-
   try {
+    // 1. Pre-flight HTML Content Audit
+    const textContent = container.textContent || container.innerText || '';
+    if (!textContent.trim() || textContent.length < 50) {
+      throw new Error(`PDF Content Audit Failed: HTML template has insufficient text content (${textContent.length} chars).`);
+    }
+
+    // Verify critical terms exist in DOM
+    const requiredTerms = ['Vivid', type.replace('_', ' ')];
+    if (data.clientName) requiredTerms.push(data.clientName);
+    if (data.employeeName) requiredTerms.push(data.employeeName);
+    
+    const missingTerms = requiredTerms.filter(term => !textContent.toLowerCase().includes(term.toLowerCase()));
+    if (missingTerms.length > 0) {
+      console.warn('PDF content audit warning: missing key terms:', missingTerms);
+    }
+
+    // Wait 150ms for the browser to perform layout, paint, and apply active Tailwind styles
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    // Explicitly set scrollX and scrollY to 0 to capture from the top of the document,
+    // preventing blank/cropped canvas issues when page is scrolled down.
+    const opt = {
+      margin:       0,
+      filename:     `${type.toLowerCase()}_report.pdf`,
+      image:        { type: 'jpeg', quality: 0.95 },
+      html2canvas:  { scale: 2, useCORS: true, logging: true, scrollX: 0, scrollY: 0 },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak:    { mode: ['css', 'legacy'] }
+    };
+
+    const verifyBlob = (blob, label) => {
+      if (!blob) {
+        throw new Error(`PDF generation failed: ${label} Blob is null.`);
+      }
+      // Canvas-drawn pages are typically > 15KB. Empty/blank templates compile to < 3KB.
+      if (blob.size < 10000) { 
+        throw new Error(`PDF generation failed: ${label} PDF is empty or blank (size: ${blob.size} bytes).`);
+      }
+      console.log(`PDF Content Audit Passed: ${label} PDF size is ${blob.size} bytes.`);
+    };
+
     if (action === 'download') {
-      await html2pdf().set(opt).from(container).save();
+      const blob = await html2pdf().set(opt).from(container).outputPdf('blob');
+      verifyBlob(blob, 'Download');
+      
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = opt.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
     } else if (action === 'view') {
-      const pdf = await html2pdf().set(opt).from(container).toPdf().get('pdf');
-      const blob = pdf.output('blob');
+      const blob = await html2pdf().set(opt).from(container).outputPdf('blob');
+      verifyBlob(blob, 'View');
+      
       const blobUrl = URL.createObjectURL(blob);
       window.open(blobUrl, '_blank');
     } else if (action === 'print') {
-      const pdf = await html2pdf().set(opt).from(container).toPdf().get('pdf');
-      const blob = pdf.output('blob');
-      const blobUrl = URL.createObjectURL(blob);
+      const blob = await html2pdf().set(opt).from(container).outputPdf('blob');
+      verifyBlob(blob, 'Print');
       
+      const blobUrl = URL.createObjectURL(blob);
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
       iframe.src = blobUrl;
@@ -800,9 +841,9 @@ export const generatePdf = async (type, data, settings, action) => {
       iframe.onload = () => {
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
-        // Clean up delay
         setTimeout(() => {
           document.body.removeChild(iframe);
+          URL.revokeObjectURL(blobUrl);
         }, 1500);
       };
     }
@@ -810,6 +851,8 @@ export const generatePdf = async (type, data, settings, action) => {
     console.error('PDF Generation failed:', err);
     throw err;
   } finally {
-    document.body.removeChild(container);
+    if (document.body.contains(container)) {
+      document.body.removeChild(container);
+    }
   }
 };
