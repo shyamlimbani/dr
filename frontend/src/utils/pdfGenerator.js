@@ -62,7 +62,7 @@ export const getCompressedLogo = (logoPath) => {
 // PDF TEMPLATES
 // ==========================================
 
-const getBillHtml = (data, settings, logoData) => {
+export const getBillHtml = (data, settings, logoData) => {
   const docNumber = data.billNumber || 'INV-0000';
   const docDate = data.billGenerateDate || data.billDate || new Date().toISOString().split('T')[0];
   const dueDate = data.eventDate || docDate;
@@ -236,7 +236,7 @@ const getBillHtml = (data, settings, logoData) => {
   `;
 };
 
-const getQuotationHtml = (data, settings, logoData) => {
+export const getQuotationHtml = (data, settings, logoData) => {
   const docNumber = data.quotationNumber || 'QTN-0000';
   const docDate = data.quotationDate || new Date().toISOString().split('T')[0];
 
@@ -505,7 +505,7 @@ const getQuotationHtml = (data, settings, logoData) => {
   return `${coverPageHtml}${page2Html}${page3Html}${page4Html}`;
 };
 
-const getPaymentReportHtml = (ledgers, settings, logoData) => {
+export const getPaymentReportHtml = (ledgers, settings, logoData) => {
   let totalPaymentsGiven = 0;
 
   let tableRows = '';
@@ -589,7 +589,7 @@ const getPaymentReportHtml = (ledgers, settings, logoData) => {
   `;
 };
 
-const getExpenseReportHtml = (expenses, settings, logoData) => {
+export const getExpenseReportHtml = (expenses, settings, logoData) => {
   let totalExpense = 0;
 
   let tableRows = '';
@@ -659,7 +659,7 @@ const getExpenseReportHtml = (expenses, settings, logoData) => {
   `;
 };
 
-const getRevenueReportHtml = (bills, settings, logoData) => {
+export const getRevenueReportHtml = (bills, settings, logoData) => {
   let totalRevenue = 0;
 
   let tableRows = '';
@@ -734,84 +734,49 @@ const getRevenueReportHtml = (bills, settings, logoData) => {
 // CORE GENERATOR ENTRYPOINT
 // ==========================================
 
-export const generatePdf = async (type, data, settings, action) => {
+export const generatePdf = async (element, filename, action) => {
+  if (!element) {
+    throw new Error('PDF generation failed: Source element is null or undefined.');
+  }
+
+  // 1. Pre-flight HTML Content Audit
+  const textContent = element.textContent || element.innerText || '';
+  if (!textContent.trim() || textContent.length < 50) {
+    throw new Error(`PDF Content Audit Failed: HTML template has insufficient text content (${textContent.length} chars).`);
+  }
+
+  console.log('PDF Source Element:', element);
+  console.log('HTML Content Length:', element.innerHTML.length);
+  console.log('Rendered Text Count:', textContent.length);
+
   // Dynamically import html2pdf to code-split the bundle
   const html2pdf = (await import('html2pdf.js')).default;
 
-  // Compress Logo asynchronously (caches base64 in memory)
-  const logoData = await getCompressedLogo(settings.companyLogo);
-  
-  let html = '';
-  if (type === 'Bill') {
-    html = getBillHtml(data, settings, logoData);
-  } else if (type === 'Quotation') {
-    html = getQuotationHtml(data, settings, logoData);
-  } else if (type === 'Payment_Report') {
-    html = getPaymentReportHtml(data, settings, logoData);
-  } else if (type === 'Expense_Report') {
-    html = getExpenseReportHtml(data, settings, logoData);
-  } else if (type === 'Revenue_Report') {
-    html = getRevenueReportHtml(data, settings, logoData);
-  }
+  // Explicitly set scrollX and scrollY to 0 to capture from the top of the document,
+  // preventing blank/cropped canvas issues when page is scrolled down.
+  const opt = {
+    margin:       0,
+    filename:     filename || 'report.pdf',
+    image:        { type: 'jpeg', quality: 0.95 },
+    html2canvas:  { scale: 2, useCORS: true, logging: true, scrollX: 0, scrollY: 0 },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak:    { mode: ['css', 'legacy'] }
+  };
 
-  // Create absolute positioned container at the very top of the document (z-index: -9999)
-  // html2canvas requires the element to be in the DOM and visible (not display: none or offscreen coordinates)
-  // to correctly render bounding boxes and calculate stylesheet formatting.
-  // Using absolute positioning at top: 0, left: 0 avoids scroll offset alignment bugs in html2canvas.
-  const container = document.createElement('div');
-  container.style.position = 'absolute';
-  container.style.left = '0';
-  container.style.top = '0';
-  container.style.width = '210mm';
-  container.style.zIndex = '-9999';
-  container.style.backgroundColor = 'white';
-  container.innerHTML = html;
-  document.body.appendChild(container);
+  const verifyBlob = (blob, label) => {
+    if (!blob) {
+      throw new Error(`PDF generation failed: ${label} Blob is null.`);
+    }
+    // Canvas-drawn pages are typically > 15KB. Empty/blank templates compile to < 3KB.
+    if (blob.size < 10000) { 
+      throw new Error(`PDF generation failed: ${label} PDF is empty or blank (size: ${blob.size} bytes).`);
+    }
+    console.log(`PDF Content Audit Passed: ${label} PDF size is ${blob.size} bytes.`);
+  };
 
   try {
-    // 1. Pre-flight HTML Content Audit
-    const textContent = container.textContent || container.innerText || '';
-    if (!textContent.trim() || textContent.length < 50) {
-      throw new Error(`PDF Content Audit Failed: HTML template has insufficient text content (${textContent.length} chars).`);
-    }
-
-    // Verify critical terms exist in DOM
-    const requiredTerms = ['Vivid', type.replace('_', ' ')];
-    if (data.clientName) requiredTerms.push(data.clientName);
-    if (data.employeeName) requiredTerms.push(data.employeeName);
-    
-    const missingTerms = requiredTerms.filter(term => !textContent.toLowerCase().includes(term.toLowerCase()));
-    if (missingTerms.length > 0) {
-      console.warn('PDF content audit warning: missing key terms:', missingTerms);
-    }
-
-    // Wait 150ms for the browser to perform layout, paint, and apply active Tailwind styles
-    await new Promise((resolve) => setTimeout(resolve, 150));
-
-    // Explicitly set scrollX and scrollY to 0 to capture from the top of the document,
-    // preventing blank/cropped canvas issues when page is scrolled down.
-    const opt = {
-      margin:       0,
-      filename:     `${type.toLowerCase()}_report.pdf`,
-      image:        { type: 'jpeg', quality: 0.95 },
-      html2canvas:  { scale: 2, useCORS: true, logging: true, scrollX: 0, scrollY: 0 },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak:    { mode: ['css', 'legacy'] }
-    };
-
-    const verifyBlob = (blob, label) => {
-      if (!blob) {
-        throw new Error(`PDF generation failed: ${label} Blob is null.`);
-      }
-      // Canvas-drawn pages are typically > 15KB. Empty/blank templates compile to < 3KB.
-      if (blob.size < 10000) { 
-        throw new Error(`PDF generation failed: ${label} PDF is empty or blank (size: ${blob.size} bytes).`);
-      }
-      console.log(`PDF Content Audit Passed: ${label} PDF size is ${blob.size} bytes.`);
-    };
-
     if (action === 'download') {
-      const blob = await html2pdf().set(opt).from(container).outputPdf('blob');
+      const blob = await html2pdf().set(opt).from(element).outputPdf('blob');
       verifyBlob(blob, 'Download');
       
       const blobUrl = URL.createObjectURL(blob);
@@ -823,13 +788,13 @@ export const generatePdf = async (type, data, settings, action) => {
       document.body.removeChild(link);
       URL.revokeObjectURL(blobUrl);
     } else if (action === 'view') {
-      const blob = await html2pdf().set(opt).from(container).outputPdf('blob');
+      const blob = await html2pdf().set(opt).from(element).outputPdf('blob');
       verifyBlob(blob, 'View');
       
       const blobUrl = URL.createObjectURL(blob);
       window.open(blobUrl, '_blank');
     } else if (action === 'print') {
-      const blob = await html2pdf().set(opt).from(container).outputPdf('blob');
+      const blob = await html2pdf().set(opt).from(element).outputPdf('blob');
       verifyBlob(blob, 'Print');
       
       const blobUrl = URL.createObjectURL(blob);
@@ -850,9 +815,5 @@ export const generatePdf = async (type, data, settings, action) => {
   } catch (err) {
     console.error('PDF Generation failed:', err);
     throw err;
-  } finally {
-    if (document.body.contains(container)) {
-      document.body.removeChild(container);
-    }
   }
 };

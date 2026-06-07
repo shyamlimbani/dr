@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import apiClient, { getBaseUrl, getAssetUrl } from '../services/api';
 import { 
   Plus, 
@@ -14,10 +14,17 @@ import {
   Trash
 } from 'lucide-react';
 import { useSettings } from '../services/SettingsContext';
-import { generatePdf } from '../utils/pdfGenerator';
+import { generatePdf, getBillHtml, getQuotationHtml, getCompressedLogo } from '../utils/pdfGenerator';
 
 const Invoices = () => {
   const [activeTab, setActiveTab] = useState('bills'); // 'bills' | 'quotations'
+  
+  // PDF Preview Refs & State
+  const quotationRef = useRef(null);
+  const [previewItem, setPreviewItem] = useState(null);
+  const [previewType, setPreviewType] = useState(''); // 'Bill' | 'Quotation'
+  const [previewAction, setPreviewAction] = useState('download');
+  const [logoData, setLogoData] = useState(null);
   
   // Global settings context
   const { settings } = useSettings();
@@ -65,6 +72,36 @@ const Invoices = () => {
 
   // Manual grand total state (Used by Quotations)
   const [manualGrandTotal, setManualGrandTotal] = useState('');
+
+  // Compress company logo on settings load
+  useEffect(() => {
+    if (settings && settings.companyLogo) {
+      getCompressedLogo(settings.companyLogo)
+        .then(data => setLogoData(data))
+        .catch(err => console.error('Error pre-compressing logo:', err));
+    }
+  }, [settings]);
+
+  // Auto-generate PDF once preview element renders in active DOM
+  useEffect(() => {
+    if (previewItem && quotationRef.current) {
+      const timer = setTimeout(async () => {
+        try {
+          const docNumber = previewItem.billNumber || previewItem.quotationNumber || 'document';
+          const filename = `${previewType.toLowerCase()}_${docNumber}.pdf`;
+          
+          console.log(`E2E Rendering visible ${previewType} preview for ${docNumber}...`);
+          await generatePdf(quotationRef.current, filename, previewAction);
+        } catch (err) {
+          console.error('PDF Action failed:', err);
+          alert('PDF Generation failed: ' + err.message);
+        } finally {
+          setPreviewItem(null); // Clean up / close preview
+        }
+      }, 500); // 500ms delay to ensure styles and font paint completely
+      return () => clearTimeout(timer);
+    }
+  }, [previewItem]);
 
   useEffect(() => {
     fetchData();
@@ -265,10 +302,12 @@ const Invoices = () => {
       }
 
       const type = activeTab === 'bills' ? 'Bill' : 'Quotation';
-      await generatePdf(type, item, settings, action);
+      setPreviewType(type);
+      setPreviewAction(action);
+      setPreviewItem(item);
     } catch (err) {
-      console.error('Error generating PDF on client:', err);
-      alert('Failed to generate PDF. Please try again.');
+      console.error('Error starting PDF action:', err);
+      alert('Failed to initialize PDF preview.');
     } finally {
       setPdfLoading(false);
     }
@@ -744,6 +783,35 @@ const Invoices = () => {
           <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-xl flex flex-col items-center gap-4 border border-slate-100 dark:border-slate-800">
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
             <p className="text-sm font-bold text-slate-800 dark:text-white">Generating PDF...</p>
+          </div>
+        </div>
+      )}
+
+      {/* VISIBLE PDF PREVIEW PORTAL (Rendered inside React DOM to ensure correct layouts/Tailwind compilation) */}
+      {previewItem && (
+        <div 
+          id="pdf-preview-portal"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-start bg-slate-900/40 backdrop-blur-sm p-4 overflow-y-auto"
+        >
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl max-w-4xl w-full flex flex-col items-center gap-4 my-8 animate-in zoom-in-95 duration-200">
+            <div className="w-full flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h4 className="font-bold text-lg text-slate-850 dark:text-white">Generating PDF (Visible Preview)...</h4>
+              <span className="text-xs text-slate-400 font-medium">Please wait, compiling canvas layout...</span>
+            </div>
+            
+            {/* The actual target element referenced for PDF capture */}
+            <div className="w-full overflow-x-auto flex justify-center py-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800">
+              <div 
+                ref={quotationRef}
+                style={{ width: '210mm', minHeight: '297mm', boxSizing: 'border-box' }}
+                className="bg-white text-slate-900 p-12 relative shadow-md"
+                dangerouslySetInnerHTML={{ 
+                  __html: previewType === 'Bill' 
+                    ? getBillHtml(previewItem, settings, logoData) 
+                    : getQuotationHtml(previewItem, settings, logoData) 
+                }}
+              />
+            </div>
           </div>
         </div>
       )}

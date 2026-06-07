@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import apiClient from '../services/api';
 import { 
   Receipt, 
@@ -11,10 +11,15 @@ import {
   Download
 } from 'lucide-react';
 import { useSettings } from '../services/SettingsContext';
-import { generatePdf } from '../utils/pdfGenerator';
+import { generatePdf, getExpenseReportHtml, getCompressedLogo } from '../utils/pdfGenerator';
 
 const Expenses = () => {
   const { settings } = useSettings();
+  
+  // PDF Preview Refs & State
+  const expenseReportRef = useRef(null);
+  const [previewData, setPreviewData] = useState(null);
+  const [logoData, setLogoData] = useState(null);
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -42,6 +47,34 @@ const Expenses = () => {
       setLoading(false);
     }
   };
+
+  // Compress company logo on settings load
+  useEffect(() => {
+    if (settings && settings.companyLogo) {
+      getCompressedLogo(settings.companyLogo)
+        .then(data => setLogoData(data))
+        .catch(err => console.error('Error pre-compressing logo:', err));
+    }
+  }, [settings]);
+
+  // Auto-generate PDF once preview element renders in active DOM
+  useEffect(() => {
+    if (previewData && expenseReportRef.current) {
+      const timer = setTimeout(async () => {
+        try {
+          const filename = `expense_report_${new Date().toISOString().split('T')[0]}.pdf`;
+          console.log('E2E Rendering visible Expense Report preview...');
+          await generatePdf(expenseReportRef.current, filename, 'download');
+        } catch (err) {
+          console.error('PDF Action failed:', err);
+          alert('PDF Generation failed: ' + err.message);
+        } finally {
+          setPreviewData(null); // Clean up / close preview
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [previewData]);
 
   useEffect(() => {
     fetchExpenses();
@@ -91,15 +124,7 @@ const Expenses = () => {
   });
 
   const downloadPdf = async () => {
-    try {
-      setPdfLoading(true);
-      await generatePdf('Expense_Report', filteredExpenses, settings, 'download');
-    } catch (error) {
-      console.error('Download PDF error', error);
-      alert('Failed to generate PDF report');
-    } finally {
-      setPdfLoading(false);
-    }
+    setPreviewData(filteredExpenses);
   };
 
   const totalFilteredAmount = filteredExpenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
@@ -348,6 +373,33 @@ const Expenses = () => {
           <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-xl flex flex-col items-center gap-4 border border-slate-100 dark:border-slate-800">
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-rose-500"></div>
             <p className="text-sm font-bold text-slate-800 dark:text-white">Generating PDF...</p>
+          </div>
+        </div>
+      )}
+
+      {/* VISIBLE PDF PREVIEW PORTAL (Rendered inside React DOM to ensure correct layouts/Tailwind compilation) */}
+      {previewData && (
+        <div 
+          id="pdf-preview-portal"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-start bg-slate-900/40 backdrop-blur-sm p-4 overflow-y-auto"
+        >
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl max-w-4xl w-full flex flex-col items-center gap-4 my-8 animate-in zoom-in-95 duration-200">
+            <div className="w-full flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h4 className="font-bold text-lg text-slate-850 dark:text-white">Generating PDF (Visible Preview)...</h4>
+              <span className="text-xs text-slate-400 font-medium">Please wait, compiling canvas layout...</span>
+            </div>
+            
+            {/* The actual target element referenced for PDF capture */}
+            <div className="w-full overflow-x-auto flex justify-center py-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800">
+              <div 
+                ref={expenseReportRef}
+                style={{ width: '210mm', minHeight: '297mm', boxSizing: 'border-box' }}
+                className="bg-white text-slate-900 p-12 relative shadow-md"
+                dangerouslySetInnerHTML={{ 
+                  __html: getExpenseReportHtml(previewData, settings, logoData)
+                }}
+              />
+            </div>
           </div>
         </div>
       )}

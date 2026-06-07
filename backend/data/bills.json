@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "_id": "60odeddmq3to2sa",
+    "clientName": "",
+    "mobileNumber": "",
+    "billGenerateDate": "2026-06-07",
+    "billDate": "2026-06-07",
+    "eventName": "",
+    "eventDate": "",
+    "eventLocation": "",
+    "services": [
+      {
+        "serviceName": "",
+        "quantity": 1,
+        "price": 0,
+        "total": 0
+      }
+    ],
+    "subtotal": 0,
+    "discount": 0,
+    "grandTotal": 0,
+    "advanceReceived": 0,
+    "remainingAmount": 0,
+    "notes": "",
+    "billNumber": "INV-0001",
+    "createdAt": "2026-06-07T13:33:01.594Z",
+    "updatedAt": "2026-06-07T13:33:01.594Z"
+  }
+]
