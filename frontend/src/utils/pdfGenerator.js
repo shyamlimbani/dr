@@ -99,7 +99,7 @@ export const getBillHtml = (data, settings, logoData) => {
   });
 
   return `
-    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box; position: relative;">
+    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box; position: relative; padding-bottom: 30px; border: 2px solid red;">
       <!-- HEADER -->
       <div class="flex justify-between items-start mb-4" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
@@ -272,7 +272,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
 
   const coverPageHtml = `
     <!-- PAGE 1: COVER -->
-    <div class="page-break animate-in fade-in duration-500" style="width: 100%; height: 250mm; padding: 40px; box-sizing: border-box; background-color: #0b0f19; color: white; display: flex; flex-direction: column; justify-content: space-between; position: relative; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page; border-radius: 16px;">
+    <div class="page-break animate-in fade-in duration-500" style="width: 100%; height: 250mm; padding: 40px; box-sizing: border-box; background-color: #0b0f19; color: white; display: flex; flex-direction: column; justify-content: space-between; position: relative; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page; border-radius: 16px; border: 2px solid red;">
       <!-- Subtle luxury border overlay -->
       <div style="position: absolute; inset: 15px; border: 1px solid rgba(217, 119, 6, 0.2); border-radius: 12px; pointer-events: none;"></div>
       
@@ -322,7 +322,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
 
   const page2Html = `
     <!-- PAGE 2: ABOUT US & PHILOSOPHY -->
-    <div class="page-break" style="width: 100%; height: 250mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page;">
+    <div class="page-break" style="width: 100%; height: 250mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page; border: 2px solid red;">
       
       <!-- Top Nav -->
       <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; break-inside: avoid; page-break-inside: avoid;">
@@ -384,7 +384,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
 
   const page3Html = `
     <!-- PAGE 3: BESPOKE PACKAGE SUMMARY -->
-    <div class="page-break" style="width: 100%; height: 250mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page;">
+    <div class="page-break" style="width: 100%; height: 250mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page; border: 2px solid red;">
       
       <!-- Top Nav -->
       <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; break-inside: avoid; page-break-inside: avoid;">
@@ -414,7 +414,7 @@ export const getQuotationHtml = (data, settings, logoData) => {
 
   const page4Html = `
     <!-- PAGE 4: INVESTMENT & TERMS -->
-    <div style="width: 100%; height: 250mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif;">
+    <div style="width: 100%; height: 250mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; border: 2px solid red;">
       
       <!-- Top Nav -->
       <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; break-inside: avoid; page-break-inside: avoid;">
@@ -535,7 +535,7 @@ export const getPaymentReportHtml = (ledgers, settings, logoData) => {
   });
 
   return `
-    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box;">
+    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box; padding-bottom: 30px; border: 2px solid red;">
       <!-- HEADER -->
       <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
@@ -607,7 +607,7 @@ export const getExpenseReportHtml = (expenses, settings, logoData) => {
   });
 
   return `
-    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box;">
+    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box; padding-bottom: 30px; border: 2px solid red;">
       <!-- HEADER -->
       <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
@@ -677,7 +677,7 @@ export const getRevenueReportHtml = (bills, settings, logoData) => {
   });
 
   return `
-    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box;">
+    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box; padding-bottom: 30px; border: 2px solid red;">
       <!-- HEADER -->
       <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
@@ -753,11 +753,59 @@ export const generatePdf = async (element, filename, action) => {
 
   // Explicitly set scrollX and scrollY to 0 to capture from the top of the document,
   // preventing blank/cropped canvas issues when page is scrolled down.
+  const actualHeight = element.scrollHeight;
+  const actualWidth = element.scrollWidth;
+  console.log('Actual content height:', actualHeight);
+  console.log('Actual content width:', actualWidth);
+
+  // Height calculations for audit
+  const pdfPageHeightMm = 297; // A4 Portrait height
+  const pdfPageWidthMm = 210;  // A4 Portrait width
+  const marginTopMm = 15;
+  const marginBottomMm = 25;
+  const marginLeftMm = 15;
+  const marginRightMm = 15;
+  
+  const printableWidthMm = pdfPageWidthMm - marginLeftMm - marginRightMm; // 180mm
+  const printableHeightMm = pdfPageHeightMm - marginTopMm - marginBottomMm; // 257mm
+  
+  // Calculate scaling factor from element pixels to PDF mm
+  const scaleFactorMmPerPx = printableWidthMm / (actualWidth || 680);
+  const contentHeightMm = actualHeight * scaleFactorMmPerPx;
+  
+  // Remaining page space on the final page
+  const pageCountEstimated = Math.ceil(contentHeightMm / printableHeightMm);
+  const remainingPageSpaceMm = (pageCountEstimated * printableHeightMm) - contentHeightMm;
+  
+  // Find footer position in mm
+  const footerElement = element.querySelector('.border-t') || element.lastElementChild;
+  const footerPosPx = footerElement ? footerElement.offsetTop : 0;
+  const footerPosMm = footerPosPx * scaleFactorMmPerPx;
+  const canvasHeight = actualHeight + 10;
+
+  console.log('PDF page height (mm):', pdfPageHeightMm);
+  console.log('Printable area height (mm):', printableHeightMm);
+  console.log('Content height scaled to PDF (mm):', contentHeightMm);
+  console.log('Estimated PDF page count:', pageCountEstimated);
+  console.log('Remaining page space (mm):', remainingPageSpaceMm);
+  console.log('Footer element top offset (px):', footerPosPx);
+  console.log('Footer position scaled to PDF (mm):', footerPosMm);
+  console.log('Canvas height (px):', canvasHeight);
+
   const opt = {
     margin:       [15, 15, 25, 15],
     filename:     filename || 'report.pdf',
     image:        { type: 'jpeg', quality: 0.95 },
-    html2canvas:  { scale: 2, useCORS: true, logging: true, scrollX: 0, scrollY: 0 },
+    html2canvas:  { 
+      scale: 2, 
+      useCORS: true, 
+      logging: true, 
+      scrollX: 0, 
+      scrollY: 0,
+      windowWidth: actualWidth || 1000,
+      windowHeight: Math.max(actualHeight + 200, 2000),
+      height: canvasHeight
+    },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
     pagebreak:    { mode: ['css', 'legacy'] }
   };
