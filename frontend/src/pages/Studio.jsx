@@ -16,8 +16,6 @@ const SERVICES_LIST = [
 const Studio = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
   
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,60 +46,13 @@ const Studio = () => {
     }
   };
 
-  // Monthly Calendar Calculations
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-
-  const getDaysInMonth = (m, y) => new Date(y, m + 1, 0).getDate();
-  const getFirstDayOfMonth = (m, y) => new Date(y, m, 1).getDay();
-
-  const numDays = getDaysInMonth(month, year);
-  const firstDay = getFirstDayOfMonth(month, year);
-
-  const prevMonthNumDays = getDaysInMonth(month - 1 < 0 ? 11 : month - 1, month - 1 < 0 ? year - 1 : year);
-
-  const calendarDays = [];
-
-  // Previous month padding days
-  for (let i = firstDay - 1; i >= 0; i--) {
-    const d = new Date(month - 1 < 0 ? year - 1 : year, month - 1 < 0 ? 11 : month - 1, prevMonthNumDays - i);
-    calendarDays.push({ date: d, isCurrentMonth: false });
-  }
-
-  // Current month days
-  for (let i = 1; i <= numDays; i++) {
-    const d = new Date(year, month, i);
-    calendarDays.push({ date: d, isCurrentMonth: true });
-  }
-
-  // Next month padding days to make grid complete (multiple of 7)
-  const remaining = 42 - calendarDays.length;
-  for (let i = 1; i <= remaining; i++) {
-    const d = new Date(month + 1 > 11 ? year + 1 : year, month + 1 > 11 ? 0 : month + 1, i);
-    calendarDays.push({ date: d, isCurrentMonth: false });
-  }
-
-  const navigateMonth = (direction) => {
-    if (direction === 'prev') {
-      setCurrentDate(new Date(year, month - 1, 1));
-    } else {
-      setCurrentDate(new Date(year, month + 1, 1));
-    }
-  };
-
-  const handleDayClick = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    setSelectedDate(dateStr);
-    openAddModal(dateStr);
-  };
-
-  const openAddModal = (dateStr = '') => {
+  const openAddModal = () => {
     setEditingId(null);
     setClientName('');
     setMobileNumber('');
     setService('Photo Shoot');
     setAmount('');
-    setBookingDate(dateStr || new Date().toISOString().split('T')[0]);
+    setBookingDate(new Date().toISOString().split('T')[0]);
     setNotes('');
     setShowModal(true);
   };
@@ -152,200 +103,139 @@ const Studio = () => {
     }
   };
 
-  // Get bookings for a specific calendar day
-  const getBookingsForDate = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    return bookings.filter(b => b.bookingDate === dateStr);
-  };
-
   // Filtered bookings for the search/list view
   const filteredBookings = bookings.filter(b => {
     const term = searchQuery.toLowerCase();
     return (
       b.clientName.toLowerCase().includes(term) ||
       b.service.toLowerCase().includes(term) ||
-      b.mobileNumber.includes(term)
+      b.mobileNumber.includes(term) ||
+      (b.notes || '').toLowerCase().includes(term)
     );
   });
 
-  const formatMonthName = (m) => {
-    return new Date(2000, m, 1).toLocaleString('default', { month: 'long' });
-  };
+  // Calculate Summary metrics
+  const totalBookingsCount = bookings.length;
+  const totalBookingsAmount = bookings.reduce((sum, b) => sum + (b.amount || 0), 0);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto px-4 md:px-0">
       
       {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 to-emerald-400 bg-clip-text text-transparent">
             Studio Bookings
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Isolated management of studio sessions, prints, and packages.
+            Studio booking management only. Studio data is completely isolated.
           </p>
         </div>
         <button
-          onClick={() => openAddModal()}
+          onClick={openAddModal}
           className="bg-teal-500 hover:bg-teal-400 text-white font-bold px-5 py-3 rounded-2xl flex items-center gap-2 shadow-lg shadow-teal-500/20 transition-all text-sm shrink-0"
         >
           <Plus size={18} /> Add Studio Booking
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* CALENDAR VIEW */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col h-fit">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <CalendarIcon size={20} className="text-teal-500" />
-              {formatMonthName(month)} {year}
-            </h2>
-            <div className="flex gap-2">
-              <button 
-                onClick={() => navigateMonth('prev')}
-                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors text-slate-600 dark:text-slate-350"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <button 
-                onClick={() => navigateMonth('next')}
-                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors text-slate-600 dark:text-slate-350"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-
-          {/* Weekday headers */}
-          <div className="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-400 uppercase mb-2">
-            <div>Sun</div>
-            <div>Mon</div>
-            <div>Tue</div>
-            <div>Wed</div>
-            <div>Thu</div>
-            <div>Fri</div>
-            <div>Sat</div>
-          </div>
-
-          {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-2">
-            {calendarDays.map((dayObj, index) => {
-              const dayBookings = getBookingsForDate(dayObj.date);
-              const isToday = new Date().toISOString().split('T')[0] === dayObj.date.toISOString().split('T')[0];
-              
-              return (
-                <div
-                  key={index}
-                  onClick={() => handleDayClick(dayObj.date)}
-                  className={`min-h-[85px] p-2 border border-slate-100 dark:border-slate-800/60 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors flex flex-col gap-1 relative ${
-                    dayObj.isCurrentMonth ? 'bg-white dark:bg-slate-900/30' : 'bg-slate-50/50 dark:bg-slate-950/20 opacity-40'
-                  } ${
-                    isToday ? 'ring-2 ring-teal-500 ring-offset-2 dark:ring-offset-slate-950' : ''
-                  }`}
-                >
-                  <span className={`text-xs font-extrabold block text-left ${dayObj.isCurrentMonth ? 'text-slate-800 dark:text-slate-300' : 'text-slate-400'}`}>
-                    {dayObj.date.getDate()}
-                  </span>
-                  
-                  {/* Bookings on this day */}
-                  <div className="flex flex-col gap-0.5 mt-auto overflow-y-auto max-h-[50px] scrollbar-none">
-                    {dayBookings.slice(0, 3).map((b, bIdx) => (
-                      <span 
-                        key={bIdx}
-                        className="text-[9px] px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-600 dark:bg-teal-400/10 dark:text-teal-350 font-bold truncate block border border-teal-500/20"
-                        title={`${b.clientName} - ${b.service}`}
-                      >
-                        {b.clientName}
-                      </span>
-                    ))}
-                    {dayBookings.length > 3 && (
-                      <span className="text-[8px] font-bold text-slate-400 block text-center mt-0.5">
-                        +{dayBookings.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+      {/* SUMMARY STATISTICS CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1.5 h-full bg-teal-500"></div>
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Bookings</span>
+          <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-2">
+            {totalBookingsCount}
+          </h2>
         </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Amount</span>
+          <h2 className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-2">
+            ₹{totalBookingsAmount.toLocaleString('en-IN')}
+          </h2>
+        </div>
+      </div>
 
-        {/* BOOKINGS LIST VIEW */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col h-[600px]">
-          <div className="flex justify-between items-center mb-6 shrink-0">
-            <h2 className="text-lg font-bold text-slate-850 dark:text-white">All Bookings</h2>
-            <div className="relative w-44">
-              <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-250 dark:border-slate-850 rounded-xl py-1.5 pl-9 pr-3 text-xs focus:outline-none focus:border-teal-500"
-              />
-            </div>
+      {/* SEARCH BAR */}
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="relative w-full sm:w-80">
+          <Search size={18} className="absolute left-4 top-3 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search client, service or notes..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl py-2.5 pl-11 pr-4 text-sm focus:outline-none focus:border-teal-500 transition-colors"
+          />
+        </div>
+      </div>
+
+      {/* DATA TABLE VIEW */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-500"></div>
           </div>
-
-          <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-teal-500"></div>
-              </div>
-            ) : filteredBookings.length === 0 ? (
-              <div className="text-center py-12 text-slate-400 text-xs">
-                No bookings found.
-              </div>
-            ) : (
-              filteredBookings.map((b) => (
-                <div 
-                  key={b._id}
-                  className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-2xl hover:border-slate-200 dark:hover:border-slate-750 transition-all flex justify-between items-start gap-3"
-                >
-                  <div className="space-y-1.5 min-w-0">
-                    <div className="flex items-center gap-2">
+        ) : filteredBookings.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-slate-500 font-medium">No studio bookings found.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left whitespace-nowrap">
+              <thead className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
+                <tr>
+                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Client Name</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Mobile Number</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Service</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Booking Date</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Amount</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {filteredBookings.map(b => (
+                  <tr key={b._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">
+                      {b.clientName}
+                    </td>
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-350">
+                      {b.mobileNumber}
+                    </td>
+                    <td className="px-6 py-4">
                       <span className="text-xs font-black px-2 py-0.5 rounded bg-teal-500/10 text-teal-600 dark:bg-teal-400/15 dark:text-teal-350 tracking-wide">
                         {b.service}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-bold">
-                        {new Date(b.bookingDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
-                      </span>
-                    </div>
-                    <h3 className="font-extrabold text-slate-850 dark:text-white truncate">{b.clientName}</h3>
-                    <p className="text-xs text-slate-500 flex items-center gap-1">
-                      <Phone size={12} /> {b.mobileNumber}
-                    </p>
-                    {b.notes && (
-                      <p className="text-[11px] text-slate-400 dark:text-slate-500 italic truncate max-w-[200px]">
-                        "{b.notes}"
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-end gap-3 shrink-0">
-                    <span className="font-black text-slate-850 dark:text-white text-sm">
+                    </td>
+                    <td className="px-6 py-4 text-slate-550">
+                      {b.bookingDate}
+                    </td>
+                    <td className="px-6 py-4 font-black text-slate-800 dark:text-white text-right">
                       ₹{b.amount?.toLocaleString('en-IN')}
-                    </span>
-                    <div className="flex gap-1">
+                    </td>
+                    <td className="px-6 py-4 flex items-center justify-center gap-2">
                       <button 
                         onClick={() => openEditModal(b)}
-                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
+                        className="p-2 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-350 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                        title="Edit"
                       >
-                        <Edit2 size={13} />
+                        <Edit2 size={14} />
                       </button>
                       <button 
                         onClick={() => handleDelete(b._id)}
-                        className="p-1.5 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg text-rose-400 hover:text-rose-600 transition-colors"
+                        className="p-2 bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 rounded-lg transition-colors"
+                        title="Delete"
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={14} />
                       </button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
+        )}
       </div>
 
       {/* FORM MODAL */}

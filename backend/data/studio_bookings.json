@@ -53,5 +53,27 @@
     "notes": "Audit Studio photoshoot notes.",
     "createdAt": "2026-06-08T06:02:15.159Z",
     "updatedAt": "2026-06-08T06:02:15.159Z"
+  },
+  {
+    "_id": "srbou91mq4t7ksr",
+    "clientName": "E2E Studio Guest",
+    "mobileNumber": "9998887777",
+    "service": "Photo Shoot",
+    "amount": 7500,
+    "bookingDate": "2026-06-08",
+    "notes": "Audit Studio photoshoot notes.",
+    "createdAt": "2026-06-08T06:07:57.963Z",
+    "updatedAt": "2026-06-08T06:07:57.963Z"
+  },
+  {
+    "_id": "9v3tgimmq4t8lc4",
+    "clientName": "E2E Studio Guest",
+    "mobileNumber": "9998887777",
+    "service": "Photo Shoot",
+    "amount": 7500,
+    "bookingDate": "2026-06-08",
+    "notes": "Audit Studio photoshoot notes.",
+    "createdAt": "2026-06-08T06:08:45.316Z",
+    "updatedAt": "2026-06-08T06:08:45.316Z"
   }
 ]
