@@ -27,48 +27,51 @@ seedDefaultAdmin();
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body; // 'email' field here acts as the generic loginId from the frontend
+    const { email, password, userType } = req.body; 
     
-    // Check if it is an existing Admin in db.User (usually has @ in email, but we'll just check)
-    const adminUser = await db.User.findOne({ email: email.toLowerCase() });
-    
-    if (adminUser) {
+    if (userType === 'Admin') {
+      const adminUser = await db.User.findOne({ email: email.toLowerCase() });
+      if (!adminUser) return res.status(400).json({ message: 'Invalid Admin email or password' });
+      
       const isMatch = await bcrypt.compare(password, adminUser.password);
-      if (isMatch) {
-        const token = jwt.sign({ id: adminUser._id, role: 'Admin' }, JWT_SECRET, { expiresIn: '7d' });
-        return res.json({
-          token,
-          user: {
-            id: adminUser._id,
-            name: adminUser.name,
-            email: adminUser.email,
-            role: 'Admin'
-          }
-        });
-      }
+      if (!isMatch) return res.status(400).json({ message: 'Invalid Admin email or password' });
+      
+      const token = jwt.sign({ id: adminUser._id, role: 'Admin' }, JWT_SECRET, { expiresIn: '7d' });
+      return res.json({
+        token,
+        user: {
+          id: adminUser._id,
+          name: adminUser.name,
+          email: adminUser.email,
+          role: 'Admin'
+        }
+      });
     }
 
-    // If not found in db.User or password didn't match, check db.Employee (Staff or newly created Admins)
-    const employee = await db.Employee.findOne({ mobileNumber: email });
-    if (employee && employee.password === password) {
+    if (userType === 'Staff') {
+      const employee = await db.Employee.findOne({ mobileNumber: email });
+      if (!employee || employee.password !== password) {
+        return res.status(400).json({ message: 'Invalid Staff mobile number or password' });
+      }
+
       if (employee.loginAccess === false) {
         return res.status(403).json({ message: 'Login disabled by admin' });
       }
 
-      const token = jwt.sign({ id: employee._id, role: employee.role || 'Staff' }, JWT_SECRET, { expiresIn: '7d' });
+      const token = jwt.sign({ id: employee._id, role: 'Staff' }, JWT_SECRET, { expiresIn: '7d' });
       return res.json({
         token,
         user: {
           id: employee._id,
           name: employee.fullName,
           email: employee.mobileNumber,
-          role: employee.role || 'Staff',
+          role: 'Staff',
           employeeId: employee.employeeId
         }
       });
     }
 
-    return res.status(400).json({ message: 'Invalid credentials' });
+    return res.status(400).json({ message: 'Invalid user type' });
 
   } catch (error) {
     console.error('Login error:', error);
