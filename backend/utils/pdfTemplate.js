@@ -342,12 +342,12 @@ const generateHtmlTemplate = (type, data, settings) => {
           </p>
         </div>
 
-        <!-- EVENT DETAILS -->
+        <!-- BOOKING DETAILS -->
         <div class="p-5 rounded-2xl border border-slate-200 bg-sky-50/50 shadow-sm">
-          <p class="text-xs font-bold text-sky-600/80 uppercase tracking-wider mb-3">Event Details</p>
+          <p class="text-xs font-bold text-sky-600/80 uppercase tracking-wider mb-3">Booking Details</p>
           <div class="space-y-1.5 text-sm">
             <p class="text-slate-700"><span class="font-bold text-slate-400">Event:</span> ${data.eventName}</p>
-            <p class="text-slate-700"><span class="font-bold text-slate-400">Date:</span> ${new Date(data.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+            <p class="text-slate-700"><span class="font-bold text-slate-400">Booking Date:</span> ${new Date(data.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
             <p class="text-slate-700"><span class="font-bold text-slate-400">Location:</span> ${data.eventLocation || 'Not Specified'}</p>
           </div>
         </div>

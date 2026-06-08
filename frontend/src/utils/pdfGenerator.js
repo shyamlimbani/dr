@@ -78,11 +78,11 @@ export const getBillHtml = (data, settings, logoData) => {
 
   let statusBadge = '';
   if (data.remainingAmount <= 0) {
-    statusBadge = '<span style="padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;">PAID</span>';
+    statusBadge = '<span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; line-height: 1;">PAID</span>';
   } else if (data.advanceReceived > 0) {
-    statusBadge = '<span style="padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a;">PARTIAL</span>';
+    statusBadge = '<span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; line-height: 1;">PARTIAL</span>';
   } else {
-    statusBadge = '<span style="padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;">PENDING</span>';
+    statusBadge = '<span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; line-height: 1;">PENDING</span>';
   }
 
   let servicesHtml = '';
@@ -104,20 +104,20 @@ export const getBillHtml = (data, settings, logoData) => {
       <div class="flex justify-between items-start mb-4" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
           ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 12px;"/>` : `<h1 class="text-3xl font-extrabold text-teal-700 tracking-tight mb-1">${settings.studioName}</h1>`}
+          ${!logoData && settings.ownerName ? `<p class="text-xs font-bold text-slate-700 mb-2">Owner: ${settings.ownerName}</p>` : ''}
           <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">INVOICE</h2>
-          <p class="text-xs font-semibold text-slate-500 tracking-wider uppercase">${docNumber}</p>
-          <div class="mt-2">
+          <p class="text-xs font-semibold text-slate-500 tracking-wider uppercase mb-1.5">${docNumber}</p>
+          <div style="margin-top: 6px; display: inline-block;">
             ${statusBadge}
           </div>
         </div>
         <div class="text-right">
-          ${logoData ? `<h2 class="text-lg font-bold text-teal-700 mb-1">${settings.studioName}</h2>` : ''}
-          <p class="text-xs text-slate-600 max-w-[240px] ml-auto leading-relaxed">${settings.address || ''}</p>
-          <p class="text-xs text-slate-600 mt-1">
-            <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''} <br/>
-            ${settings.whatsappNumber ? `<span class="font-semibold text-slate-400">W:</span> ${settings.whatsappNumber} <br/>` : ''}
-            <span class="font-semibold text-slate-400">E:</span> ${settings.email || ''} <br/>
-            ${settings.gstNumber ? `<span class="font-semibold text-slate-400">GST:</span> ${settings.gstNumber}` : ''}
+          ${logoData ? `<h2 class="text-lg font-bold text-teal-700 mb-0.5">${settings.studioName}</h2>` : ''}
+          ${logoData && settings.ownerName ? `<p class="text-xs font-bold text-slate-750 mb-1">Owner: ${settings.ownerName}</p>` : ''}
+          <p class="text-xs text-slate-600 max-w-[240px] ml-auto leading-relaxed mb-1">${settings.address || ''}</p>
+          <p class="text-xs text-slate-600">
+            <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''}
+            ${settings.gstNumber ? `<br/><span class="font-semibold text-slate-400">GST:</span> ${settings.gstNumber}` : ''}
           </p>
         </div>
       </div>
@@ -221,13 +221,13 @@ export const getBillHtml = (data, settings, logoData) => {
       </div>
 
       <!-- FOOTER -->
-      <div class="mt-4 border-t border-slate-200 pt-4 flex justify-between items-end text-xs" style="break-inside: avoid; page-break-inside: avoid;">
+      <div class="mt-8 border-t border-slate-200 pt-4 flex justify-between items-start text-xs" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
           <p class="font-semibold text-slate-800 mb-1">Thank you for choosing our services!</p>
           <p class="text-[10px] text-slate-500">Payment is due within 15 days of issue.</p>
         </div>
         <div class="text-center w-48">
-          <div class="border-b border-slate-300 pb-4 mb-2"></div>
+          <div style="border-bottom: 1px solid #cbd5e1; margin-bottom: 8px;"></div>
           <p class="text-[10px] font-bold text-slate-500 uppercase">Authorized Signature</p>
           <p class="text-xs font-bold text-slate-800 mt-1">${settings.studioName}</p>
         </div>
@@ -237,272 +237,214 @@ export const getBillHtml = (data, settings, logoData) => {
 };
 
 export const getQuotationHtml = (data, settings, logoData) => {
-  const docNumber = data.quotationNumber || 'QTN-0000';
-  const docDate = data.quotationDate || new Date().toISOString().split('T')[0];
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3 && parts[0].length === 4) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    return dateStr;
+  };
 
-  let sectionsHtml = '';
-  (data.sections || []).forEach((sec) => {
+  const daySections = [];
+  let videoOutputSection = null;
+  let photoOutputSection = null;
+
+  (data.sections || []).forEach(sec => {
+    const titleUpper = (sec.title || '').toUpperCase().trim();
+    if (titleUpper === 'VIDEO OUTPUT') {
+      videoOutputSection = sec;
+    } else if (titleUpper === 'PHOTO OUTPUT') {
+      photoOutputSection = sec;
+    } else {
+      daySections.push(sec);
+    }
+  });
+
+  let daySectionsHtml = '';
+  daySections.forEach(sec => {
     let itemsHtml = '';
-    (sec.items || []).forEach((item) => {
+    (sec.items || []).forEach(item => {
       if (item.trim()) {
-        itemsHtml += `
-          <li style="display: flex; align-items: flex-start; gap: 8px; font-size: 11px; color: #475569; margin-bottom: 6px;">
-            <span style="color: #b45309; font-weight: bold; font-size: 12px; line-height: 1;">✓</span>
-            <span>${item}</span>
-          </li>
-        `;
+        itemsHtml += `<li style="margin-bottom: 5px; font-size: 12px; color: #111111; list-style-type: square; margin-left: 16px;">${item}</li>`;
       }
     });
-
+    
     if (itemsHtml) {
-      sectionsHtml += `
-        <div style="border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; overflow: hidden; break-inside: avoid; page-break-inside: avoid;">
-          <div style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 12px 20px;">
-            <h3 style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #0f172a; margin: 0;">${sec.title}</h3>
-          </div>
-          <div style="padding: 20px;">
-            <ul style="margin: 0; padding: 0; list-style: none;">
-              ${itemsHtml}
-            </ul>
-          </div>
+      daySectionsHtml += `
+        <div style="border: 1px solid #000000; border-radius: 8px; margin-bottom: 15px; padding: 12px; background-color: #ffffff; break-inside: avoid; page-break-inside: avoid;">
+          <h3 style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #000000; margin: 0 0 8px 0; border-bottom: 2px solid #000000; padding-bottom: 4px; display: inline-block;">
+            ${sec.title}
+          </h3>
+          <ul style="margin: 0; padding: 0;">
+            ${itemsHtml}
+          </ul>
         </div>
       `;
     }
   });
 
-  const coverPageHtml = `
-    <!-- PAGE 1: COVER -->
-    <div class="page-break animate-in fade-in duration-500" style="width: 100%; height: 250mm; padding: 40px; box-sizing: border-box; background-color: #0b0f19; color: white; display: flex; flex-direction: column; justify-content: space-between; position: relative; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page; border-radius: 16px;">
-      <!-- Subtle luxury border overlay -->
-      <div style="position: absolute; inset: 15px; border: 1px solid rgba(217, 119, 6, 0.2); border-radius: 12px; pointer-events: none;"></div>
-      
-      <!-- Top Section -->
-      <div class="flex justify-between items-center relative z-10" style="break-inside: avoid; page-break-inside: avoid;">
-        <div>
-          ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 48px; max-width: 180px; object-fit: contain; filter: brightness(0) invert(1);"/>` : `<h2 style="font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #d97706; margin: 0;">${settings.studioName.toUpperCase()}</h2>`}
+  let outputsHtml = '';
+  if (videoOutputSection || photoOutputSection) {
+    let videoItemsHtml = '';
+    if (videoOutputSection) {
+      (videoOutputSection.items || []).forEach(item => {
+        if (item.trim()) {
+          videoItemsHtml += `<li style="margin-bottom: 4px; font-size: 11px; color: #111111; list-style-type: disc; margin-left: 12px;">${item}</li>`;
+        }
+      });
+    }
+
+    let photoItemsHtml = '';
+    if (photoOutputSection) {
+      (photoOutputSection.items || []).forEach(item => {
+        if (item.trim()) {
+          photoItemsHtml += `<li style="margin-bottom: 4px; font-size: 11px; color: #111111; list-style-type: disc; margin-left: 12px;">${item}</li>`;
+        }
+      });
+    }
+
+    outputsHtml = `
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 15px; margin-bottom: 15px; break-inside: avoid; page-break-inside: avoid;">
+        <!-- VIDEO OUTPUT -->
+        <div style="border: 1px solid #000000; border-radius: 8px; padding: 12px; background-color: #ffffff;">
+          <h4 style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #000000; margin: 0 0 8px 0; border-bottom: 1px solid #000000; padding-bottom: 2px; display: inline-block;">
+            ${videoOutputSection ? videoOutputSection.title : 'VIDEO OUTPUT'}
+          </h4>
+          <ul style="margin: 0; padding: 0;">
+            ${videoItemsHtml || '<li style="font-style: italic; font-size: 11px; list-style: none;">No deliverables</li>'}
+          </ul>
         </div>
+
+        <!-- PHOTO OUTPUT -->
+        <div style="border: 1px solid #000000; border-radius: 8px; padding: 12px; background-color: #ffffff;">
+          <h4 style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #000000; margin: 0 0 8px 0; border-bottom: 1px solid #000000; padding-bottom: 2px; display: inline-block;">
+            ${photoOutputSection ? photoOutputSection.title : 'PHOTO OUTPUT'}
+          </h4>
+          <ul style="margin: 0; padding: 0;">
+            ${photoItemsHtml || '<li style="font-style: italic; font-size: 11px; list-style: none;">No deliverables</li>'}
+          </ul>
+        </div>
+      </div>
+    `;
+  }
+
+  const headerHtml = `
+    <!-- HEADER -->
+    <div style="border: 2px solid #000000; padding: 15px; margin-bottom: 15px; background-color: #ffffff; break-inside: avoid; page-break-inside: avoid; position: relative;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <!-- Left Side: Owner details -->
+        <div style="font-size: 11px; line-height: 1.4; color: #000000;">
+          <p style="margin: 0; font-weight: bold;">Owner: ${settings.ownerName || 'Owner Name'}</p>
+          <p style="margin: 0;">Mobile: ${settings.mobileNumber || ''}</p>
+        </div>
+
+        <!-- Right Side: Company Logo / Studio Name -->
         <div style="text-align: right;">
-          <p style="font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255, 255, 255, 0.4); margin: 0;">Exclusive Proposal</p>
-          <p style="font-size: 11px; font-weight: 700; color: #d97706; margin: 2px 0 0 0;">${docNumber}</p>
+          ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 48px; max-width: 180px; object-fit: contain;"/>` : `<h2 style="font-size: 16px; font-weight: 800; letter-spacing: 1px; color: #000000; margin: 0;">${(settings.studioName || 'Studio Name').toUpperCase()}</h2>`}
         </div>
       </div>
 
-      <!-- Middle/Title Section -->
-      <div class="my-auto relative z-10" style="padding-top: 20px; padding-bottom: 20px; break-inside: avoid; page-break-inside: avoid;">
-        <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; color: #d97706; display: block; margin-bottom: 16px;">Fine Art Photography & Film</span>
-        <h1 style="font-family: 'Georgia', serif; font-size: 38px; font-weight: 400; line-height: 1.25; margin: 0 0 24px 0; letter-spacing: -0.5px;">
-          Capturing the <br/>
-          <span style="font-style: italic; color: #d97706;">Art of Your Story</span>
+      <!-- Center: Title and Address -->
+      <div style="text-align: center; margin-top: 10px; border-top: 1px solid #000000; padding-top: 10px;">
+        <h1 style="font-size: 20px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 4px 0; color: #000000;">
+          QUOTATION RECEIPT
         </h1>
-        <div style="width: 60px; height: 2px; background-color: #d97706; margin-bottom: 32px;"></div>
-        
-        <p style="font-size: 13px; color: rgba(255, 255, 255, 0.6); max-width: 420px; line-height: 1.7; margin: 0;">
-          A bespoke visual services proposal customized for your upcoming event, balancing raw candid emotion with timeless editorial elegance.
+        <p style="font-size: 10px; color: #333333; margin: 0; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.3;">
+          ${settings.address || ''}
         </p>
       </div>
+    </div>
+  `;
 
-      <!-- Bottom Metadata Section -->
-      <div class="grid grid-cols-2 gap-8 relative z-10 border-t border-white/10 pt-8" style="font-size: 11px; break-inside: avoid; page-break-inside: avoid;">
+  const clientInfoHtml = `
+    <!-- CLIENT & EVENT INFO -->
+    <div style="border: 1px solid #000000; padding: 12px; margin-bottom: 15px; background-color: #ffffff; font-size: 11px; break-inside: avoid; page-break-inside: avoid;">
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px;">
         <div>
-          <span style="color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px;">Prepared For</span>
-          <span style="font-size: 14px; font-weight: 700; color: white; display: block;">${data.clientName}</span>
-          <span style="color: rgba(255,255,255,0.6); display: block; margin-top: 2px;">${data.mobileNumber}</span>
+          <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <tr>
+              <td style="padding: 2px 0; font-weight: bold; width: 90px; color: #000000;">Client Name:</td>
+              <td style="padding: 2px 0; color: #333333;">${data.clientName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 2px 0; font-weight: bold; color: #000000;">Mobile:</td>
+              <td style="padding: 2px 0; color: #333333;">${data.mobileNumber}</td>
+            </tr>
+            <tr>
+              <td style="padding: 2px 0; font-weight: bold; color: #000000;">Event Name:</td>
+              <td style="padding: 2px 0; color: #333333;">${data.eventName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 2px 0; font-weight: bold; color: #000000;">Event Location:</td>
+              <td style="padding: 2px 0; color: #333333;">${data.eventLocation || 'N/A'}</td>
+            </tr>
+          </table>
+        </div>
+        <div>
+          <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <tr>
+              <td style="padding: 2px 0; font-weight: bold; width: 90px; color: #000000;">Quotation No:</td>
+              <td style="padding: 2px 0; color: #333333; font-family: monospace; font-weight: bold;">${data.quotationNumber}</td>
+            </tr>
+            <tr>
+              <td style="padding: 2px 0; font-weight: bold; color: #000000;">Date of Issue:</td>
+              <td style="padding: 2px 0; color: #333333;">${formatDate(data.quotationDate)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 2px 0; font-weight: bold; color: #000000;">Booking Date:</td>
+              <td style="padding: 2px 0; color: #333333;">${formatDate(data.eventDate)}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const totalAmountHtml = `
+    <!-- TOTAL AMOUNT -->
+    <div style="border: 2px solid #000000; padding: 15px; margin-top: 15px; margin-bottom: 20px; text-align: center; background-color: #fafafa; break-inside: avoid; page-break-inside: avoid;">
+      <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #000000; display: block; margin-bottom: 4px;">
+        Total Package Value
+      </span>
+      <span style="font-size: 28px; font-weight: 900; color: #000000; display: block; letter-spacing: 1px;">
+        ₹${(data.grandTotal || 0).toLocaleString('en-IN')}/-
+      </span>
+    </div>
+  `;
+
+  const signatureHtml = `
+    <!-- SIGNATURES & TERMS -->
+    <div style="margin-top: 20px; font-size: 11px; break-inside: avoid; page-break-inside: avoid;">
+      <p style="font-size: 10px; color: #666666; line-height: 1.4; margin: 0 0 20px 0; border-top: 1px dashed #000000; padding-top: 8px;">
+        Terms: To lock the booking, a 50% reservation advance is required. Quotation validity is 30 days from issued date.
+      </p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 10px;">
+        <div>
+          <div style="border-bottom: 1px solid #000000; margin-bottom: 6px;"></div>
+          <span style="font-weight: bold; color: #000000; display: block;">Client Acceptance Signature</span>
+          <span style="font-size: 10px; color: #666666; display: block; margin-top: 2px;">Date: ____ / ____ / ________</span>
         </div>
         <div style="text-align: right;">
-          <span style="color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px;">Event Details</span>
-          <span style="font-size: 13px; font-weight: 700; color: white; display: block;">${data.eventName}</span>
-          <span style="color: rgba(255,255,255,0.6); display: block; margin-top: 2px;">
-            ${new Date(data.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
-            ${data.eventLocation ? ` • ${data.eventLocation}` : ''}
-          </span>
+          <div style="border-bottom: 1px solid #000000; margin-bottom: 6px;"></div>
+          <span style="font-weight: bold; color: #000000; display: block;">Authorized Studio Representative</span>
+          <span style="font-size: 10px; color: #000000; display: block; margin-top: 2px;">For: ${settings.studioName}</span>
         </div>
       </div>
     </div>
   `;
 
-  const page2Html = `
-    <!-- PAGE 2: ABOUT US & PHILOSOPHY -->
-    <div class="page-break" style="width: 100%; height: 250mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page;">
-      
-      <!-- Top Nav -->
-      <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; break-inside: avoid; page-break-inside: avoid;">
-        <span style="color: #64748b;">01 / Vision & Offerings</span>
-        <span style="color: #b45309;">${settings.studioName}</span>
-      </div>
-
-      <!-- Body Section -->
-      <div style="margin-top: 20px; margin-bottom: auto; display: flex; flex-direction: column; gap: 24px;">
-        <div style="max-width: 580px; break-inside: avoid; page-break-inside: avoid;">
-          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #b45309; display: block; margin-bottom: 12px;">Our Philosophy</span>
-          <h2 style="font-family: 'Georgia', serif; font-size: 24px; font-weight: 400; line-height: 1.35; margin: 0 0 16px 0; color: #0f172a;">
-            Crafting visual stories that stand the test of time.
-          </h2>
-          <p style="font-size: 12px; color: #475569; line-height: 1.7; margin: 0;">
-            Our mission is simple: to capture your most significant moments in their truest and most aesthetic light. We blend classic editorial portraiture with raw, candid photojournalism and cinematic storytelling, ensuring that every frame we capture remains a family heirloom.
-          </p>
-        </div>
-
-        <!-- Editorial Grid representing Portfolio Categories -->
-        <div style="break-inside: avoid; page-break-inside: avoid;">
-          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #b45309; display: block; margin-bottom: 16px;">Core Expertise</span>
-          <div class="grid grid-cols-2 gap-4">
-            
-            <div style="border: 1px solid #f1f5f9; padding: 16px; border-radius: 16px; background-color: #fafafa;">
-              <div style="width: 8px; height: 8px; border-radius: 50%; background-color: #b45309; margin-bottom: 12px;"></div>
-              <h4 style="font-size: 13px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">Fine-Art Photography</h4>
-              <p style="font-size: 11px; color: #64748b; margin: 0; line-height: 1.6;">Luminous editorial portraiture, capturing the depth of emotions, gestures, and details with cinematic lighting.</p>
-            </div>
-
-            <div style="border: 1px solid #f1f5f9; padding: 16px; border-radius: 16px; background-color: #fafafa;">
-              <div style="width: 8px; height: 8px; border-radius: 50%; background-color: #b45309; margin-bottom: 12px;"></div>
-              <h4 style="font-size: 13px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">4K Cinematography</h4>
-              <p style="font-size: 11px; color: #64748b; margin: 0; line-height: 1.6;">High-definition wedding films, reels, highlights, and cinematic sound designs tailored for digital screens and theater scopes.</p>
-            </div>
-
-            <div style="border: 1px solid #f1f5f9; padding: 16px; border-radius: 16px; background-color: #fafafa;">
-              <div style="width: 8px; height: 8px; border-radius: 50%; background-color: #b45309; margin-bottom: 12px;"></div>
-              <h4 style="font-size: 13px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">Pre-Wedding Editorial</h4>
-              <p style="font-size: 11px; color: #64748b; margin: 0; line-height: 1.6;">Stylized editorial concepts, multi-location coverage, aerial drone filming, and bespoke style consulting.</p>
-            </div>
-
-            <div style="border: 1px solid #f1f5f9; padding: 16px; border-radius: 16px; background-color: #fafafa;">
-              <div style="width: 8px; height: 8px; border-radius: 50%; background-color: #b45309; margin-bottom: 12px;"></div>
-              <h4 style="font-size: 13px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">High-End Post Production</h4>
-              <p style="font-size: 11px; color: #64748b; margin: 0; line-height: 1.6;">Bespoke color grading, professional retouching, signature layouts, and premium physical leather-bound albums.</p>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- Page Footer -->
-      <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; font-size: 9px; color: #94a3b8; text-align: right; break-inside: avoid; page-break-inside: avoid;">
-        Creative Proposal • Confidential Information
-      </div>
+  return `
+    <div class="bg-white text-black font-sans" style="width: 100%; box-sizing: border-box; padding: 20px; border: 3px double #000000; padding-bottom: 40px; background-color: #ffffff;">
+      ${headerHtml}
+      ${clientInfoHtml}
+      ${daySectionsHtml}
+      ${outputsHtml}
+      ${totalAmountHtml}
+      ${signatureHtml}
     </div>
   `;
-
-  const page3Html = `
-    <!-- PAGE 3: BESPOKE PACKAGE SUMMARY -->
-    <div class="page-break" style="width: 100%; height: 250mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif; page-break-after: always; break-after: page;">
-      
-      <!-- Top Nav -->
-      <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; break-inside: avoid; page-break-inside: avoid;">
-        <span style="color: #64748b;">02 / Customized Package</span>
-        <span style="color: #b45309;">Prepared For: ${data.clientName}</span>
-      </div>
-
-      <!-- Dynamic Sections Grid -->
-      <div style="margin-top: 20px; margin-bottom: auto; display: flex; flex-direction: column; gap: 16px;">
-        <div style="break-inside: avoid; page-break-inside: avoid;">
-          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #b45309; display: block; margin-bottom: 6px;">Your Visual Roster</span>
-          <h2 style="font-family: 'Georgia', serif; font-size: 20px; font-weight: 400; margin: 0 0 10px 0; color: #0f172a;">Custom Package Inclusions</h2>
-          <p style="font-size: 11px; color: #64748b; margin: 0;">Each service group has been designed to align with your personal vision and event itinerary.</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4" style="align-items: start;">
-          ${sectionsHtml || '<div class="col-span-2 text-center py-12 text-slate-400 text-xs">No customized service sections created.</div>'}
-        </div>
-      </div>
-
-      <!-- Page Footer -->
-      <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; font-size: 9px; color: #94a3b8; text-align: right; break-inside: avoid; page-break-inside: avoid;">
-        Custom Inclusions Summary • Section 02
-      </div>
-    </div>
-  `;
-
-  const page4Html = `
-    <!-- PAGE 4: INVESTMENT & TERMS -->
-    <div style="width: 100%; height: 250mm; padding: 25px; box-sizing: border-box; background-color: #ffffff; color: #1e293b; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Poppins', sans-serif;">
-      
-      <!-- Top Nav -->
-      <div class="flex justify-between items-center" style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; break-inside: avoid; page-break-inside: avoid;">
-        <span style="color: #64748b;">03 / Pricing & Engagement</span>
-        <span style="color: #b45309;">Investment Summary</span>
-      </div>
-
-      <!-- Content -->
-      <div style="margin-top: 20px; margin-bottom: auto; display: flex; flex-direction: column; gap: 24px;">
-        
-        <!-- Timeline Section -->
-        <div style="break-inside: avoid; page-break-inside: avoid;">
-          <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #b45309; display: block; margin-bottom: 12px;">The Creative Journey</span>
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; border-left: 0;">
-            
-            <div style="position: relative; padding-top: 8px;">
-              <span style="font-family: 'Georgia', serif; font-size: 24px; font-weight: 700; color: rgba(180, 83, 9, 0.15); display: block; line-height: 1;">01</span>
-              <span style="font-size: 11px; font-weight: 700; color: #0f172a; display: block; margin-top: 4px;">Consultation</span>
-              <span style="font-size: 10px; color: #64748b; display: block; margin-top: 2px;">Conceptualizing style preferences.</span>
-            </div>
-
-            <div style="position: relative; padding-top: 8px;">
-              <span style="font-family: 'Georgia', serif; font-size: 24px; font-weight: 700; color: rgba(180, 83, 9, 0.15); display: block; line-height: 1;">02</span>
-              <span style="font-size: 11px; font-weight: 700; color: #0f172a; display: block; margin-top: 4px;">Production</span>
-              <span style="font-size: 10px; color: #64748b; display: block; margin-top: 2px;">Candid and fine-art shooting.</span>
-            </div>
-
-            <div style="position: relative; padding-top: 8px;">
-              <span style="font-family: 'Georgia', serif; font-size: 24px; font-weight: 700; color: rgba(180, 83, 9, 0.15); display: block; line-height: 1;">03</span>
-              <span style="font-size: 11px; font-weight: 700; color: #0f172a; display: block; margin-top: 4px;">Curation</span>
-              <span style="font-size: 10px; color: #64748b; display: block; margin-top: 2px;">Color grading & professional retouching.</span>
-            </div>
-
-            <div style="position: relative; padding-top: 8px;">
-              <span style="font-family: 'Georgia', serif; font-size: 24px; font-weight: 700; color: rgba(180, 83, 9, 0.15); display: block; line-height: 1;">04</span>
-              <span style="font-size: 11px; font-weight: 700; color: #0f172a; display: block; margin-top: 4px;">Delivery</span>
-              <span style="font-size: 10px; color: #64748b; display: block; margin-top: 2px;">Online portal and custom hand-made album.</span>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Testimonial Block -->
-        <div style="border-left: 2px solid #b45309; padding: 4px 0 4px 20px; background-color: #fffbeb; break-inside: avoid; page-break-inside: avoid;">
-          <p style="font-family: 'Georgia', serif; font-style: italic; font-size: 12px; color: #b45309; margin: 0 0 6px 0; line-height: 1.6;">
-            "An absolute dream to work with. They captured the light, the energy, and the quiet intimate details in a way that felt completely natural and cinematic. Timeless."
-          </p>
-          <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #78350f;">— ARJUN & MEERA, WEDDING PORTFOLIO</span>
-        </div>
-
-        <!-- Grand Total Block Card -->
-        <div style="border: 2px solid #b45309; border-radius: 20px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; background-color: #fafafa; box-shadow: 0 4px 12px rgba(180, 83, 9, 0.05); break-inside: avoid; page-break-inside: avoid;">
-          <div>
-            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #b45309; display: block;">Total Package Investment</span>
-            <span style="font-size: 9px; color: #94a3b8; display: block; margin-top: 2px;">Inclusive of all crew, equipment, conceptual consulting, and post production.</span>
-          </div>
-          <div style="text-align: right;">
-            <span style="font-size: 30px; font-weight: 900; color: #b45309; display: block; line-height: 1;">₹${(data.grandTotal || 0).toLocaleString('en-IN')}</span>
-            <span style="font-size: 9px; color: #64748b; display: block; margin-top: 4px;">All inclusive package rate</span>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Signatures & Footer -->
-      <div style="margin-top: 20px; break-inside: avoid; page-break-inside: avoid;">
-        <p style="font-size: 10px; color: #94a3b8; line-height: 1.5; margin: 0 0 20px 0;">
-          Terms: To lock the booking, a 50% reservation advance is required. Quotation validity is 30 days from issued date.
-        </p>
-
-        <div class="grid grid-cols-2 gap-12" style="font-size: 11px;">
-          <div>
-            <div style="border-bottom: 1px solid #cbd5e1; padding-bottom: 16px; margin-bottom: 8px;"></div>
-            <span style="font-weight: 700; color: #0f172a; display: block;">Client Acceptance Signature</span>
-            <span style="font-size: 10px; color: #64748b; display: block; margin-top: 2px;">Date: ____ / ____ / ________</span>
-          </div>
-          <div>
-            <div style="border-bottom: 1px solid #cbd5e1; padding-bottom: 16px; margin-bottom: 8px;"></div>
-            <span style="font-weight: 700; color: #0f172a; display: block;">Authorized Studio Representative</span>
-            <span style="font-size: 10px; color: #b45309; display: block; margin-top: 2px;">${settings.studioName}</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  `;
-
-  return `${coverPageHtml}${page2Html}${page3Html}${page4Html}`;
 };
 
 export const getPaymentReportHtml = (ledgers, settings, logoData) => {
@@ -547,8 +489,7 @@ export const getPaymentReportHtml = (ledgers, settings, logoData) => {
           ${logoData ? `<h2 class="text-lg font-bold text-indigo-700 mb-1">${settings.studioName}</h2>` : ''}
           <p class="text-xs text-slate-600 max-w-[240px] ml-auto leading-relaxed">${settings.address || ''}</p>
           <p class="text-xs text-slate-600 mt-2">
-            <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''} <br/>
-            <span class="font-semibold text-slate-400">E:</span> ${settings.email || ''}
+            <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''}
           </p>
         </div>
       </div>
@@ -619,8 +560,7 @@ export const getExpenseReportHtml = (expenses, settings, logoData) => {
           ${logoData ? `<h2 class="text-lg font-bold text-rose-700 mb-1">${settings.studioName}</h2>` : ''}
           <p class="text-xs text-slate-600 max-w-[240px] ml-auto leading-relaxed">${settings.address || ''}</p>
           <p class="text-xs text-slate-600 mt-2">
-            <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''} <br/>
-            <span class="font-semibold text-slate-400">E:</span> ${settings.email || ''}
+            <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''}
           </p>
         </div>
       </div>
@@ -689,8 +629,7 @@ export const getRevenueReportHtml = (bills, settings, logoData) => {
           ${logoData ? `<h2 class="text-lg font-bold text-teal-700 mb-1">${settings.studioName}</h2>` : ''}
           <p class="text-xs text-slate-600 max-w-[240px] ml-auto leading-relaxed">${settings.address || ''}</p>
           <p class="text-xs text-slate-600 mt-2">
-            <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''} <br/>
-            <span class="font-semibold text-slate-400">E:</span> ${settings.email || ''}
+            <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''}
           </p>
         </div>
       </div>

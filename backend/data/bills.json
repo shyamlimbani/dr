@@ -187,5 +187,32 @@
     "billNumber": "INV-0007",
     "createdAt": "2026-06-08T05:04:37.947Z",
     "updatedAt": "2026-06-08T05:04:37.947Z"
+  },
+  {
+    "_id": "0higkw9mq4s1f4j",
+    "clientName": "E2E Audit Client",
+    "mobileNumber": "9876543210",
+    "billGenerateDate": "2026-06-07",
+    "billDate": "2026-06-07",
+    "eventName": "Audit Wedding Gala",
+    "eventDate": "2026-06-15",
+    "eventLocation": "Taj Hotel, Palace Room",
+    "services": [
+      {
+        "serviceName": "Cinematic Wedding Film",
+        "quantity": 1,
+        "price": "15000",
+        "total": 15000
+      }
+    ],
+    "subtotal": 15000,
+    "discount": 0,
+    "grandTotal": 15000,
+    "advanceReceived": 0,
+    "remainingAmount": 15000,
+    "notes": "",
+    "billNumber": "INV-0008",
+    "createdAt": "2026-06-08T05:35:11.059Z",
+    "updatedAt": "2026-06-08T05:35:11.059Z"
   }
 ]
