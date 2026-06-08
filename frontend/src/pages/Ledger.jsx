@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useSettings } from '../services/SettingsContext';
 import { generatePdf, getPaymentReportHtml, getCompressedLogo } from '../utils/pdfGenerator';
+import { getWhatsAppUrl } from '../utils/whatsapp';
 
 const Ledger = () => {
   const { settings } = useSettings();
@@ -192,9 +193,7 @@ Payment Method: ${payment.paymentMethod}
 
 Thank You.`;
     
-    const encoded = encodeURIComponent(message);
-    const cleanNumber = (payment.mobileNumber || '').replace(/[^\d+]/g, '');
-    const url = `https://wa.me/${cleanNumber}?text=${encoded}`;
+    const url = getWhatsAppUrl(payment.mobileNumber, message);
     window.open(url, '_blank');
   };
 

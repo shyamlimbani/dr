@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, Calendar as CalendarIcon, Phone, User, DollarSign, FileText, ChevronLeft, ChevronRight, X, Search } from 'lucide-react';
+import { Plus, Trash2, Edit2, Calendar as CalendarIcon, Phone, User, DollarSign, FileText, ChevronLeft, ChevronRight, X, Search, MessageCircle } from 'lucide-react';
 import apiClient from '../services/api';
+import { getWhatsAppUrl } from '../utils/whatsapp';
 
 const SERVICES_LIST = [
   'Photo Shoot',
@@ -215,6 +216,15 @@ const Studio = () => {
                       ₹{b.amount?.toLocaleString('en-IN')}
                     </td>
                     <td className="px-6 py-4 flex items-center justify-center gap-2">
+                      <button 
+                        onClick={() => window.open(getWhatsAppUrl(b.mobileNumber), '_blank')}
+                        className="p-2 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 rounded-lg transition-colors"
+                        title="WhatsApp"
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                        </svg>
+                      </button>
                       <button 
                         onClick={() => openEditModal(b)}
                         className="p-2 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-350 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
