@@ -87,6 +87,12 @@ const Invoices = () => {
     if (previewItem && quotationRef.current) {
       const timer = setTimeout(async () => {
         try {
+          // Ensure the element has actual content before generating PDF
+          const content = quotationRef.current.innerHTML;
+          if (!content || content.trim() === '') {
+             throw new Error('Container is empty');
+          }
+          
           const docNumber = previewItem.billNumber || previewItem.quotationNumber || 'document';
           const filename = `${previewType.toLowerCase()}_${docNumber}.pdf`;
           

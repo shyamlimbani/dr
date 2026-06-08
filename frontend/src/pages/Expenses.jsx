@@ -62,6 +62,11 @@ const Expenses = () => {
     if (previewData && expenseReportRef.current) {
       const timer = setTimeout(async () => {
         try {
+          // Ensure the element has actual content before generating PDF
+          const content = expenseReportRef.current.innerHTML;
+          if (!content || content.trim() === '') {
+             throw new Error('Container is empty');
+          }
           const filename = `expense_report_${new Date().toISOString().split('T')[0]}.pdf`;
           console.log('E2E Rendering visible Expense Report preview...');
           await generatePdf(expenseReportRef.current, filename, 'download');
