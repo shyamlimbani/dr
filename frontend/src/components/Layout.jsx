@@ -41,7 +41,7 @@ const Layout = () => {
   }, []);
 
   const adminMenuItems = [
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Events', path: '/events', icon: Calendar },
     { name: 'Payments', path: '/payments', icon: CreditCard },
     { name: 'Bill & Quotation', path: '/billing', icon: FileText },

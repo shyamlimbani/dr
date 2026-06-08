@@ -22,9 +22,12 @@ const Login = () => {
     try {
       setError('');
       setLoading(true);
-      await login(mobileNumber, password);
-      // ProtectedRoute will redirect based on role, so just redirect to root
-      navigate('/');
+      const loggedInUser = await login(mobileNumber, password);
+      if (loggedInUser?.role === 'Admin') {
+        navigate('/dashboard');
+      } else {
+        navigate('/employee-dashboard');
+      }
     } catch (err) {
       setError(err || 'Authentication failed. Please verify credentials.');
     } finally {
@@ -69,7 +72,7 @@ const Login = () => {
                 <Phone size={16} />
               </span>
               <input
-                type="tel"
+                type="text"
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"

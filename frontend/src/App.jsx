@@ -82,7 +82,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   if (!user) return <Navigate to="/login" replace />;
   
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to={user.role === 'Staff' ? '/employee-dashboard' : '/'} replace />;
+    return <Navigate to={user.role === 'Staff' ? '/employee-dashboard' : '/dashboard'} replace />;
   }
   
   return children;
@@ -104,8 +104,11 @@ const App = () => {
                       <Layout />
                     </ProtectedRoute>
                   }>
+                    {/* Role-Based Index Redirect */}
+                    <Route index element={<Navigate to="/dashboard" replace />} />
+                    
                     {/* Admin Only Routes */}
-                    <Route index element={<ProtectedRoute allowedRoles={['Admin']}><Dashboard /></ProtectedRoute>} />
+                    <Route path="dashboard" element={<ProtectedRoute allowedRoles={['Admin']}><Dashboard /></ProtectedRoute>} />
                     <Route path="events" element={<ProtectedRoute allowedRoles={['Admin']}><Events /></ProtectedRoute>} />
                     <Route path="payments" element={<ProtectedRoute allowedRoles={['Admin']}><Ledger /></ProtectedRoute>} />
                     <Route path="billing" element={<ProtectedRoute allowedRoles={['Admin']}><Invoices /></ProtectedRoute>} />
