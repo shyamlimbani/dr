@@ -28,10 +28,37 @@ seedDefaultAdmin();
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+    
+    // Check if it's an employee login (mobile number instead of email)
+    // Mobile numbers usually don't have '@'
+    const isEmployeeLogin = !email.includes('@');
+
+    if (isEmployeeLogin) {
+      // Employee Login
+      const employee = await db.Employee.findOne({ mobileNumber: email });
+      if (!employee || employee.password !== password) {
+        return res.status(400).json({ message: 'Invalid mobile number or password' });
+      }
+
+      if (employee.loginAccess === false) {
+        return res.status(403).json({ message: 'Login disabled by admin' });
+      }
+
+      const token = jwt.sign({ id: employee._id, role: 'Employee' }, JWT_SECRET, { expiresIn: '7d' });
+
+      return res.json({
+        token,
+        user: {
+          id: employee._id,
+          name: employee.fullName,
+          email: employee.mobileNumber,
+          role: 'Employee',
+          employeeId: employee.employeeId
+        }
+      });
     }
 
+    // Admin Login
     const user = await db.User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
@@ -42,14 +69,15 @@ const login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id, role: 'Admin' }, JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
       token,
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: 'Admin'
       }
     });
   } catch (error) {
@@ -60,13 +88,31 @@ const login = async (req, res) => {
 
 const getMe = async (req, res) => {
   try {
+    if (req.user.role === 'Employee') {
+      const emp = await db.Employee.findById(req.user.id);
+      if (!emp) return res.status(404).json({ message: 'Employee not found' });
+      return res.json({
+        id: emp._id,
+        name: emp.fullName,
+        email: emp.mobileNumber,
+        role: 'Employee',
+        employeeId: emp.employeeId
+      });
+    }
+
+    const user = await db.User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
     res.json({
-      id: req.user._id,
-      name: req.user.name,
-      email: req.user.email
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: 'Admin'
     });
   } catch (error) {
-    console.error('GetMe error:', error);
+    console.error('Get me error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

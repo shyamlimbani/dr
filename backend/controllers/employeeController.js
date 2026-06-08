@@ -34,7 +34,14 @@ const getEmployees = async (req, res) => {
 const getEmployeeById = async (req, res) => {
   try {
     const { id } = req.params;
-    const employee = await db.Employee.findById(id);
+
+    // Security check: Employees can only view their own profile
+    if (req.user && req.user.role === 'Employee' && req.user.id !== id) {
+      return res.status(403).json({ message: 'Forbidden: You can only access your own profile' });
+    }
+
+    // 1. Basic details & Payment History
+    const employee = await db.Employee.findById(id).select('-password');
     if (!employee) {
       return res.status(404).json({ message: 'Employee not found' });
     }
@@ -93,12 +100,17 @@ const createEmployee = async (req, res) => {
       role, 
       perDayCharge, 
       joiningDate, 
-      notes 
+      notes,
+      password
     } = req.body;
 
     if (!fullName || !mobileNumber) {
       return res.status(400).json({ message: 'Full name and mobile number are required' });
     }
+
+    // Generate unique employee ID
+    const count = await db.Employee.countDocuments();
+    const employeeId = `EMP-${String(count + 1).padStart(3, '0')}`;
 
     // Profile photo upload configuration
     let profilePhoto = '';
@@ -116,10 +128,17 @@ const createEmployee = async (req, res) => {
       joiningDate: joiningDate || new Date().toISOString().split('T')[0],
       notes: notes || '',
       profilePhoto,
-      status: 'Active'
+      status: 'Active',
+      employeeId,
+      password: password || '123456', // default fallback, though frontend requires it
+      loginAccess: true
     });
 
-    res.status(201).json(employee);
+    // Don't send back the password in plain text typically, but since it's manual, we can omit it
+    const returnEmployee = employee.toObject();
+    delete returnEmployee.password;
+
+    res.status(201).json(returnEmployee);
   } catch (error) {
     console.error('Create employee error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -170,10 +189,48 @@ const deleteEmployee = async (req, res) => {
   }
 };
 
+const toggleLoginAccess = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const employee = await db.Employee.findById(id);
+    if (!employee) return res.status(404).json({ message: 'Employee not found' });
+    
+    employee.loginAccess = employee.loginAccess === false ? true : false;
+    await employee.save();
+    
+    res.json({ message: 'Access toggled successfully', loginAccess: employee.loginAccess });
+  } catch (error) {
+    console.error('Toggle access error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const resetEmployeePassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+    
+    if (!newPassword) return res.status(400).json({ message: 'New password is required' });
+    
+    const employee = await db.Employee.findById(id);
+    if (!employee) return res.status(404).json({ message: 'Employee not found' });
+    
+    employee.password = newPassword;
+    await employee.save();
+    
+    res.json({ message: 'Password reset successful', newPassword });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   getEmployees,
   getEmployeeById,
   createEmployee,
   updateEmployee,
-  deleteEmployee
+  deleteEmployee,
+  toggleLoginAccess,
+  resetEmployeePassword
 };

@@ -674,6 +674,142 @@ export const getRevenueReportHtml = (revenues, settings, logoData) => {
   `;
 };
 
+export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
+  const { employee, reportMonth, stats, events, payments } = data;
+
+  let eventRows = '';
+  events.forEach((ev, index) => {
+    const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
+    let displayDate = ev.eventDate || '';
+    if (displayDate.includes('-')) {
+      const parts = displayDate.split('-');
+      if (parts.length === 3 && parts[0].length === 4) {
+        displayDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+    eventRows += `
+      <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
+        <td class="py-3 px-4 text-slate-700">${displayDate}</td>
+        <td class="py-3 px-4 text-slate-700 font-medium">${ev.eventType}</td>
+        <td class="py-3 px-4 text-right font-semibold text-slate-800">₹${(ev.employeeCharge || 0).toLocaleString('en-IN')}</td>
+      </tr>
+    `;
+  });
+
+  let paymentRows = '';
+  payments.forEach((p, index) => {
+    const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
+    let displayDate = p.paymentDate || '';
+    if (displayDate.includes('-')) {
+      const parts = displayDate.split('-');
+      if (parts.length === 3 && parts[0].length === 4) {
+        displayDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+    paymentRows += `
+      <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
+        <td class="py-3 px-4 text-slate-700">${displayDate}</td>
+        <td class="py-3 px-4 text-right font-semibold text-slate-800">₹${(p.amountGiven || 0).toLocaleString('en-IN')}</td>
+        <td class="py-3 px-4 text-center text-slate-650">${p.paymentMethod || '-'}</td>
+      </tr>
+    `;
+  });
+
+  return `
+    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box; padding-bottom: 30px;">
+      <!-- HEADER -->
+      <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
+        <div>
+          ${logoData ? \`<img src="\${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>\` : \`<h1 class="text-3xl font-extrabold text-indigo-700 tracking-tight mb-1">\${settings.studioName}</h1>\`}
+          <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">EMPLOYEE MONTHLY REPORT</h2>
+          <p class="text-xs font-semibold text-slate-500 tracking-wider">Report Month: \${reportMonth}</p>
+        </div>
+        <div class="text-right">
+          ${logoData ? \`<h2 class="text-lg font-bold text-indigo-700 mb-1">\${settings.studioName}</h2>\` : ''}
+          <p class="text-xs text-slate-600 max-w-[240px] ml-auto leading-relaxed">\${settings.address || ''}</p>
+          <p class="text-xs text-slate-600 mt-2">
+            <span class="font-semibold text-slate-400">P:</span> \${settings.mobileNumber || ''}
+          </p>
+        </div>
+      </div>
+
+      <div class="w-full h-1 rounded-full bg-slate-100 mb-6 overflow-hidden" style="break-inside: avoid; page-break-inside: avoid;">
+        <div class="h-full w-1/3 bg-indigo-600"></div>
+      </div>
+
+      <!-- EMPLOYEE INFO -->
+      <div class="grid grid-cols-2 gap-4 mb-8" style="break-inside: avoid; page-break-inside: avoid;">
+        <div class="p-4 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Employee Details</p>
+          <h3 class="text-base font-bold text-slate-800">\${employee.fullName}</h3>
+          <p class="text-xs text-slate-600 mt-1">
+            <span class="font-semibold text-slate-400">Mobile:</span> \${employee.mobileNumber}
+          </p>
+        </div>
+      </div>
+
+      <!-- SUMMARY SECTION -->
+      <div class="grid grid-cols-4 gap-4 mb-8" style="break-inside: avoid; page-break-inside: avoid;">
+        <div class="p-4 rounded-2xl border border-slate-200 bg-indigo-50/50 shadow-sm text-center">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Events</p>
+          <p class="text-xl font-black text-slate-800">\${stats.totalEvents}</p>
+        </div>
+        <div class="p-4 rounded-2xl border border-slate-200 bg-blue-50/50 shadow-sm text-center">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Earnings</p>
+          <p class="text-xl font-black text-blue-600">₹\${stats.totalEarnings.toLocaleString('en-IN')}</p>
+        </div>
+        <div class="p-4 rounded-2xl border border-slate-200 bg-emerald-50/50 shadow-sm text-center">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Payments</p>
+          <p class="text-xl font-black text-emerald-600">₹\${stats.totalPaymentsGiven.toLocaleString('en-IN')}</p>
+        </div>
+        <div class="p-4 rounded-2xl border border-rose-100 bg-rose-50 shadow-sm text-center">
+          <p class="text-[10px] font-bold text-rose-500 uppercase tracking-wider mb-1">Pending Amount</p>
+          <p class="text-xl font-black text-rose-600">₹\${stats.pendingAmount.toLocaleString('en-IN')}</p>
+        </div>
+      </div>
+
+      <!-- EVENT HISTORY -->
+      <h3 class="text-sm font-bold text-slate-800 mb-3" style="break-inside: avoid; page-break-inside: avoid;">Event History</h3>
+      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8 shadow-sm" style="break-inside: avoid; page-break-inside: avoid;">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead style="display: table-header-group;">
+            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold" style="break-inside: avoid; page-break-inside: avoid;">
+              <th class="py-3 px-4">Event Date</th>
+              <th class="py-3 px-4">Event Type</th>
+              <th class="py-3 px-4 text-right">Employee Charge</th>
+            </tr>
+          </thead>
+          <tbody>
+            \${eventRows || '<tr><td colspan="3" class="text-center py-4 text-slate-500">No events found for this month.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAYMENT HISTORY -->
+      <h3 class="text-sm font-bold text-slate-800 mb-3" style="break-inside: avoid; page-break-inside: avoid;">Payment History</h3>
+      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8 shadow-sm" style="break-inside: avoid; page-break-inside: avoid;">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead style="display: table-header-group;">
+            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold" style="break-inside: avoid; page-break-inside: avoid;">
+              <th class="py-3 px-4">Payment Date</th>
+              <th class="py-3 px-4 text-right">Amount Given</th>
+              <th class="py-3 px-4 text-center">Payment Method</th>
+            </tr>
+          </thead>
+          <tbody>
+            \${paymentRows || '<tr><td colspan="3" class="text-center py-4 text-slate-500">No payments found for this month.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="mt-8 border-t border-slate-200 pt-4 text-center text-xs text-slate-500" style="break-inside: avoid; page-break-inside: avoid;">
+        <p>Generated By: Dreams Video Studio Management System</p>
+      </div>
+    </div>
+  \`;
+};
+
 // ==========================================
 // CORE GENERATOR ENTRYPOINT
 // ==========================================

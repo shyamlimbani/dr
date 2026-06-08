@@ -40,7 +40,7 @@ const Layout = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const menuItems = [
+  const adminMenuItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Events', path: '/events', icon: Calendar },
     { name: 'Payments', path: '/payments', icon: CreditCard },
@@ -50,6 +50,12 @@ const Layout = () => {
     { name: 'Revenue', path: '/revenue', icon: TrendingUp },
     { name: 'Settings', path: '/settings', icon: SettingsIcon },
   ];
+
+  const employeeMenuItems = [
+    { name: 'My Portal', path: '/portal', icon: LayoutDashboard },
+  ];
+
+  const menuItems = user?.role === 'Employee' ? employeeMenuItems : adminMenuItems;
 
   const handleLogout = () => {
     logout();

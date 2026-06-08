@@ -15,6 +15,7 @@ const Expenses = lazy(() => import('./pages/Expenses'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Studio = lazy(() => import('./pages/Studio'));
 const Revenue = lazy(() => import('./pages/Revenue'));
+const EmployeePortal = lazy(() => import('./pages/EmployeePortal'));
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
@@ -67,7 +68,7 @@ const PageLoader = () => (
   </div>
 );
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
   
   if (loading) {
@@ -79,6 +80,11 @@ const ProtectedRoute = ({ children }) => {
   }
   
   if (!user) return <Navigate to="/login" replace />;
+  
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to={user.role === 'Employee' ? '/portal' : '/'} replace />;
+  }
+  
   return children;
 };
 
@@ -98,14 +104,19 @@ const App = () => {
                       <Layout />
                     </ProtectedRoute>
                   }>
-                    <Route index element={<Dashboard />} />
-                    <Route path="events" element={<Events />} />
-                    <Route path="payments" element={<Ledger />} />
-                    <Route path="billing" element={<Invoices />} />
-                    <Route path="expenses" element={<Expenses />} />
-                    <Route path="settings" element={<Settings />} />
-                    <Route path="studio" element={<Studio />} />
-                    <Route path="revenue" element={<Revenue />} />
+                    {/* Admin Only Routes */}
+                    <Route index element={<ProtectedRoute allowedRoles={['Admin']}><Dashboard /></ProtectedRoute>} />
+                    <Route path="events" element={<ProtectedRoute allowedRoles={['Admin']}><Events /></ProtectedRoute>} />
+                    <Route path="payments" element={<ProtectedRoute allowedRoles={['Admin']}><Ledger /></ProtectedRoute>} />
+                    <Route path="billing" element={<ProtectedRoute allowedRoles={['Admin']}><Invoices /></ProtectedRoute>} />
+                    <Route path="expenses" element={<ProtectedRoute allowedRoles={['Admin']}><Expenses /></ProtectedRoute>} />
+                    <Route path="settings" element={<ProtectedRoute allowedRoles={['Admin']}><Settings /></ProtectedRoute>} />
+                    <Route path="studio" element={<ProtectedRoute allowedRoles={['Admin']}><Studio /></ProtectedRoute>} />
+                    <Route path="revenue" element={<ProtectedRoute allowedRoles={['Admin']}><Revenue /></ProtectedRoute>} />
+                    
+                    {/* Employee Only Routes */}
+                    <Route path="portal" element={<ProtectedRoute allowedRoles={['Employee']}><EmployeePortal /></ProtectedRoute>} />
+
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Route>
                 </Routes>

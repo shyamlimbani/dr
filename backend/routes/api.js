@@ -60,6 +60,8 @@ router.get('/employees/:id', employeeController.getEmployeeById);
 router.post('/employees', upload.single('profilePhoto'), employeeController.createEmployee);
 router.put('/employees/:id', upload.single('profilePhoto'), employeeController.updateEmployee);
 router.delete('/employees/:id', employeeController.deleteEmployee);
+router.put('/employees/:id/toggle-access', employeeController.toggleLoginAccess);
+router.post('/employees/:id/reset-password', employeeController.resetEmployeePassword);
 
 // Event Management
 router.get('/events', eventController.getEvents);

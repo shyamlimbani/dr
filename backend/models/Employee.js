@@ -10,7 +10,10 @@ const employeeSchema = new mongoose.Schema({
   joiningDate: { type: String },
   notes: { type: String, default: '' },
   profilePhoto: { type: String, default: '' },
-  status: { type: String, default: 'Active' }
+  status: { type: String, default: 'Active' },
+  employeeId: { type: String, unique: true, sparse: true },
+  password: { type: String },
+  loginAccess: { type: Boolean, default: true }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Employee', employeeSchema);
