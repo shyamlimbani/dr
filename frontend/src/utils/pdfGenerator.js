@@ -20,34 +20,19 @@ export const getCompressedLogo = (logoPath) => {
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      const maxW = 240;
-      const maxH = 80;
-      let width = img.width;
-      let height = img.height;
-
-      // Scale keeping aspect ratio
-      if (width > maxW) {
-        height *= maxW / width;
-        width = maxW;
-      }
-      if (height > maxH) {
-        width *= maxH / height;
-        height = maxH;
-      }
-
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = img.width;
+      canvas.height = img.height;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
+      ctx.drawImage(img, 0, 0, img.width, img.height);
 
       try {
-        // Compress as JPEG at 80% quality
-        const compressed = canvas.toDataURL('image/jpeg', 0.8);
+        // Render as lossless PNG to avoid compression artifacts
+        const compressed = canvas.toDataURL('image/png');
         cachedCompressedLogo = compressed;
         cachedLogoSrc = logoUrl;
         resolve(compressed);
       } catch (err) {
-        console.error('Error compressing logo canvas:', err);
+        console.error('Error drawing logo canvas:', err);
         resolve(logoUrl); // Fallback to raw URL if canvas tainted
       }
     };
@@ -1062,14 +1047,14 @@ export const generatePdf = async (element, filename, action) => {
   const opt = {
     margin:       [15, 15, 15, 15], // 15mm Top, Bottom, Left, Right
     filename:     filename || 'report.pdf',
-    image:        { type: 'jpeg', quality: 0.95 },
+    image:        { type: 'jpeg', quality: 1.0 },
     html2canvas:  { 
-      scale: 1, // Force scale to 1
+      scale: 3, // Set scale to 3 for high-resolution DPI
       useCORS: true, 
       logging: true, 
       scrollX: 0, 
-      scrollY: 0
-      // Removed viewport-based sizing (windowWidth/windowHeight/height) to prevent scaling issues
+      scrollY: 0,
+      backgroundColor: "#ffffff"
     },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
     pagebreak:    { mode: ['css', 'legacy'] }
