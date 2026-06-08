@@ -42,6 +42,7 @@ const createEvent = async (req, res) => {
       eventDate,
       eventType,
       employeeCharge,
+      location,
       notes
     } = req.body;
 
@@ -54,6 +55,7 @@ const createEvent = async (req, res) => {
       eventDate,
       eventType,
       employeeCharge: Number(employeeCharge) || 0,
+      location: location || '',
       notes: notes || ''
     });
 

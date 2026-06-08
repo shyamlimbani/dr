@@ -13,7 +13,8 @@ import {
   User,
   Smartphone,
   CalendarDays,
-  Key
+  Key,
+  MapPin
 } from 'lucide-react';
 
 const EmployeeDashboard = () => {
@@ -251,6 +252,12 @@ const EmployeeDashboard = () => {
                         <CalendarIcon size={14} className="text-slate-400" />
                         {formatDate(ev.eventDate)}
                       </span>
+                      {ev.location && (
+                        <span className="text-sm font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1.5">
+                          <MapPin size={14} className="text-slate-405 dark:text-slate-500" />
+                          {ev.location}
+                        </span>
+                      )}
                     </div>
                   </div>
 

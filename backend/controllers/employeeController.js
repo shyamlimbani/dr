@@ -80,7 +80,9 @@ const getEmployeeById = async (req, res) => {
         _id: ev._id,
         eventDate: ev.eventDate,
         eventType: ev.eventType,
-        employeeCharge: ev.employeeCharge
+        employeeCharge: ev.employeeCharge,
+        location: ev.location || '',
+        notes: ev.notes || ''
       })),
       paymentHistory
     });

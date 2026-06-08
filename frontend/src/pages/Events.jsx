@@ -76,7 +76,12 @@ const Events = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [eventType, setEventType] = useState('Regular Photography');
   const [employeeCharge, setEmployeeCharge] = useState('');
+  const [eventLocation, setEventLocation] = useState('');
   const [eventNotes, setEventNotes] = useState('');
+
+  // Delete Confirmation State
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteEventId, setDeleteEventId] = useState(null);
 
   const fetchEmployees = async () => {
     try {
@@ -149,6 +154,7 @@ const Events = () => {
     setSelectedDate(new Date().toISOString().split('T')[0]);
     setEventType('Regular Photography');
     setEmployeeCharge('');
+    setEventLocation('');
     setEventNotes('');
     setEditingEventId(null);
     setShowEventModal(true);
@@ -159,7 +165,8 @@ const Events = () => {
     setSelectedDate(new Date(ev.eventDate).toISOString().split('T')[0]);
     setEventType(ev.eventType);
     setEmployeeCharge(ev.employeeCharge);
-    setEventNotes(ev.notes);
+    setEventLocation(ev.location || '');
+    setEventNotes(ev.notes || '');
     setShowEventModal(true);
   };
 
@@ -195,14 +202,19 @@ const Events = () => {
     window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const handleDeleteEvent = async (id) => {
-    if (window.confirm('Are you sure you want to delete this booking?')) {
-      try {
-        await apiClient.delete(`/events/${id}`);
-        fetchEmployeeEvents(activeEmployee._id);
-      } catch (err) {
-        alert('Error deleting event');
-      }
+  const handleDeleteEventClick = (id) => {
+    setDeleteEventId(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteEventConfirm = async () => {
+    try {
+      await apiClient.delete(`/events/${deleteEventId}`);
+      setShowDeleteModal(false);
+      setDeleteEventId(null);
+      fetchEmployeeEvents(activeEmployee._id);
+    } catch (err) {
+      alert('Error deleting event');
     }
   };
 
@@ -214,6 +226,7 @@ const Events = () => {
         eventDate: selectedDate,
         eventType,
         employeeCharge,
+        location: eventLocation,
         notes: eventNotes
       };
       
@@ -514,6 +527,12 @@ const Events = () => {
                             <CalendarIcon size={14} className="text-slate-400" />
                             {formatDate(ev.eventDate)}
                           </span>
+                          {ev.location && (
+                            <span className="text-sm font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1.5">
+                              <MapPin size={14} className="text-slate-405 dark:text-slate-500" />
+                              {ev.location}
+                            </span>
+                          )}
                         </div>
                         
                         {/* Actions */}
@@ -526,7 +545,7 @@ const Events = () => {
                             <Edit2 size={16} />
                           </button>
                           <button 
-                            onClick={() => handleDeleteEvent(ev._id)} 
+                            onClick={() => handleDeleteEventClick(ev._id)} 
                             title="Delete Booking"
                             className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl border border-slate-100 dark:border-slate-800/80 transition-colors"
                           >
@@ -658,6 +677,10 @@ const Events = () => {
                 <input type="number" required value={employeeCharge} onChange={e => setEmployeeCharge(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="e.g. 5000" />
               </div>
               <div>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Location</label>
+                <input type="text" value={eventLocation} onChange={e => setEventLocation(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="e.g. Grand Palace Hotel" />
+              </div>
+              <div>
                 <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Notes</label>
                 <textarea rows={3} value={eventNotes} onChange={e => setEventNotes(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="Any special instructions..."></textarea>
               </div>
@@ -668,6 +691,39 @@ const Events = () => {
               </button>
               <button type="submit" onClick={handleEventSubmit} className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all text-sm">
                 {editingEventId ? 'Update Booking' : 'Save Event'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+              <h3 className="font-bold text-lg text-slate-800 dark:text-white">Delete Event</h3>
+              <button onClick={() => setShowDeleteModal(false)} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 text-slate-650 dark:text-slate-300 text-sm font-semibold">
+              Are you sure you want to delete this event?
+            </div>
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 bg-slate-50 dark:bg-slate-950">
+              <button 
+                type="button" 
+                onClick={() => setShowDeleteModal(false)} 
+                className="flex-1 py-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm"
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                onClick={handleDeleteEventConfirm} 
+                className="flex-1 py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 transition-colors text-sm"
+              >
+                Delete
               </button>
             </div>
           </div>

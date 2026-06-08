@@ -5,6 +5,7 @@ const eventSchema = new mongoose.Schema({
   eventDate: { type: String, required: true },
   eventType: { type: String, required: true },
   employeeCharge: { type: Number, default: 0 },
+  location: { type: String, default: '' },
   notes: { type: String, default: '' }
 }, { timestamps: true });
 

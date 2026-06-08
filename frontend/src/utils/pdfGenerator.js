@@ -643,7 +643,11 @@ export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
       eventRows += `
         <tr style="border-bottom: 1px solid #cbd5e1; break-inside: avoid; page-break-inside: avoid;">
           <td style="padding: 6px 10px; border-right: 1px solid #cbd5e1;">${formatDate(ev.eventDate)}</td>
-          <td style="padding: 6px 10px; border-right: 1px solid #cbd5e1; font-weight: 600;">${ev.eventType}</td>
+          <td style="padding: 6px 10px; border-right: 1px solid #cbd5e1; font-weight: 600;">
+            ${ev.eventType}
+            ${ev.location ? `<br/><span style="font-size: 9px; font-weight: normal; color: #475569;">📍 ${ev.location}</span>` : ''}
+            ${ev.notes ? `<br/><span style="font-size: 9px; font-weight: normal; color: #64748b; font-style: italic;">Note: ${ev.notes}</span>` : ''}
+          </td>
           <td style="padding: 6px 10px; text-align: right; font-weight: 700;">₹${(ev.employeeCharge || 0).toLocaleString('en-IN')}</td>
         </tr>
       `;
