@@ -688,116 +688,355 @@ export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
     return dateStr;
   };
 
+  const currentDate = new Date().toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+
   let eventRows = '';
   events.forEach((ev, index) => {
-    const bg = index % 2 === 0 ? '#ffffff' : '#f9fafb';
     eventRows += `
-      <tr style="background-color: ${bg}; break-inside: avoid; page-break-inside: avoid;">
-        <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155;">${formatDate(ev.eventDate)}</td>
-        <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155; font-weight: 600;">${ev.eventType}</td>
-        <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155; text-align: right; font-weight: bold;">₹${(ev.employeeCharge || 0).toLocaleString('en-IN')}</td>
+      <tr style="break-inside: avoid; page-break-inside: avoid;">
+        <td style="padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155;">${formatDate(ev.eventDate)}</td>
+        <td style="padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 600;">${ev.eventType}</td>
+        <td style="padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #0f172a; text-align: right; font-weight: 700;">₹${(ev.employeeCharge || 0).toLocaleString('en-IN')}</td>
       </tr>
     `;
   });
 
   let paymentRows = '';
   payments.forEach((p, index) => {
-    const bg = index % 2 === 0 ? '#ffffff' : '#f9fafb';
     paymentRows += `
-      <tr style="background-color: ${bg}; break-inside: avoid; page-break-inside: avoid;">
-        <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155;">${formatDate(p.paymentDate)}</td>
-        <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155; text-align: right; font-weight: bold;">₹${(p.amountGiven || 0).toLocaleString('en-IN')}</td>
-        <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155; text-align: center;">${p.paymentMethod || '-'}</td>
+      <tr style="break-inside: avoid; page-break-inside: avoid;">
+        <td style="padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155;">${formatDate(p.paymentDate)}</td>
+        <td style="padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #059669; text-align: right; font-weight: 700;">₹${(p.amountGiven || 0).toLocaleString('en-IN')}</td>
+        <td style="padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; text-align: center;">
+          <span style="display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; background-color: #dbeafe; color: #1e40af;">
+            ${p.paymentMethod || 'Cash'}
+          </span>
+        </td>
       </tr>
     `;
   });
 
   return `
-    <div style="width: 100%; max-width: 190mm; margin: 0 auto; box-sizing: border-box; font-family: 'Arial', sans-serif; padding-bottom: 20px; background-color: #ffffff;">
-      <!-- HEADER -->
-      <table style="width: 100%; margin-bottom: 20px; border-bottom: 2px solid #4f46e5; padding-bottom: 10px;">
-        <tr>
-          <td style="vertical-align: top;">
-            ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 50px; object-fit: contain; margin-bottom: 8px;"/>` : `<h1 style="margin: 0; font-size: 24px; font-weight: bold; color: #4338ca;">${settings.studioName || 'Dreams Video'}</h1>`}
-            <h2 style="margin: 4px 0 0 0; font-size: 16px; font-weight: bold; color: #1e293b; text-transform: uppercase;">Employee Monthly Report</h2>
-            <p style="margin: 4px 0 0 0; font-size: 11px; font-weight: bold; color: #64748b;">Report Month: ${reportMonth}</p>
-          </td>
-          <td style="text-align: right; vertical-align: top;">
-            ${logoData ? `<h2 style="margin: 0 0 4px 0; font-size: 14px; font-weight: bold; color: #4338ca;">${settings.studioName || 'Dreams Video'}</h2>` : ''}
-            <p style="margin: 0; font-size: 11px; color: #475569; max-width: 200px; line-height: 1.4;">${settings.address || ''}</p>
-            <p style="margin: 4px 0 0 0; font-size: 11px; color: #475569;"><strong style="color: #94a3b8;">Mobile:</strong> ${settings.mobileNumber || ''}</p>
-          </td>
-        </tr>
-      </table>
-
-      <!-- EMPLOYEE INFO -->
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-        <tr>
-          <td style="border: 1px solid #cbd5e1; padding: 10px; background-color: #f8fafc; border-radius: 4px;">
-            <p style="margin: 0 0 4px 0; font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase;">Employee Details</p>
-            <h3 style="margin: 0; font-size: 14px; font-weight: bold; color: #1e293b;">${employee.fullName}</h3>
-            <p style="margin: 4px 0 0 0; font-size: 11px; color: #475569;"><strong style="color: #94a3b8;">Mobile:</strong> ${employee.mobileNumber}</p>
-          </td>
-        </tr>
-      </table>
-
-      <!-- SUMMARY GRID (2x2) -->
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed;">
-        <tr>
-          <td style="border: 1px solid #cbd5e1; padding: 15px; text-align: center; background-color: #eef2ff;">
-            <p style="margin: 0 0 5px 0; font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase;">Total Events</p>
-            <p style="margin: 0; font-size: 18px; font-weight: 900; color: #1e293b;">${stats.totalEvents}</p>
-          </td>
-          <td style="border: 1px solid #cbd5e1; padding: 15px; text-align: center; background-color: #eff6ff;">
-            <p style="margin: 0 0 5px 0; font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase;">Total Earnings</p>
-            <p style="margin: 0; font-size: 18px; font-weight: 900; color: #2563eb;">₹${stats.totalEarnings.toLocaleString('en-IN')}</p>
-          </td>
-        </tr>
-        <tr>
-          <td style="border: 1px solid #cbd5e1; padding: 15px; text-align: center; background-color: #ecfdf5;">
-            <p style="margin: 0 0 5px 0; font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase;">Total Payments Given</p>
-            <p style="margin: 0; font-size: 18px; font-weight: 900; color: #059669;">₹${stats.totalPaymentsGiven.toLocaleString('en-IN')}</p>
-          </td>
-          <td style="border: 1px solid #fecaca; padding: 15px; text-align: center; background-color: #fef2f2;">
-            <p style="margin: 0 0 5px 0; font-size: 10px; font-weight: bold; color: #ef4444; text-transform: uppercase;">Pending Amount</p>
-            <p style="margin: 0; font-size: 18px; font-weight: 900; color: #dc2626;">₹${stats.pendingAmount.toLocaleString('en-IN')}</p>
-          </td>
-        </tr>
-      </table>
-
-      <!-- EVENT HISTORY -->
-      <h3 style="margin: 0 0 10px 0; font-size: 12px; font-weight: bold; color: #1e293b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; break-inside: avoid; page-break-inside: avoid;">Event History</h3>
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 11px;">
-        <thead>
-          <tr style="background-color: #f1f5f9;">
-            <th style="padding: 8px 12px; border: 1px solid #cbd5e1; text-align: left; font-weight: bold; color: #64748b; text-transform: uppercase;">Event Date</th>
-            <th style="padding: 8px 12px; border: 1px solid #cbd5e1; text-align: left; font-weight: bold; color: #64748b; text-transform: uppercase;">Event Type</th>
-            <th style="padding: 8px 12px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold; color: #64748b; text-transform: uppercase;">Charge</th>
+    <div style="width: 100%; max-width: 190mm; margin: 0 auto; box-sizing: border-box; padding-bottom: 20px; background-color: #ffffff;">
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        .report-container {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          color: #1e293b;
+          background-color: #ffffff;
+          font-size: 12px;
+          line-height: 1.5;
+        }
+        
+        .header-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 25px;
+        }
+        
+        .header-logo-cell {
+          vertical-align: middle;
+        }
+        
+        .header-title-cell {
+          text-align: right;
+          vertical-align: middle;
+        }
+        
+        .company-title {
+          margin: 0;
+          font-size: 24px;
+          font-weight: 800;
+          color: #1e1b4b;
+          letter-spacing: 1px;
+          line-height: 1.2;
+        }
+        
+        .report-subtitle {
+          margin: 0;
+          font-size: 14px;
+          font-weight: 700;
+          color: #4f46e5;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .divider {
+          height: 1px;
+          background-color: #e2e8f0;
+          margin: 20px 0;
+          border: none;
+        }
+        
+        .meta-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 25px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+        }
+        
+        .meta-cell {
+          padding: 12px 16px;
+          width: 50%;
+          vertical-align: top;
+        }
+        
+        .meta-label {
+          font-size: 10px;
+          font-weight: 700;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 4px;
+          display: block;
+        }
+        
+        .meta-value {
+          font-size: 13px;
+          font-weight: 600;
+          color: #0f172a;
+        }
+        
+        .meta-value-sub {
+          font-size: 12px;
+          color: #475569;
+          margin-top: 2px;
+        }
+        
+        .summary-table {
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 12px;
+          margin: -12px -12px 15px -12px;
+          table-layout: fixed;
+        }
+        
+        .summary-card-cell {
+          width: 50%;
+          padding: 0;
+        }
+        
+        .summary-card {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-left: 4px solid #4f46e5;
+          border-radius: 8px;
+          padding: 16px;
+          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        .summary-card.events {
+          border-left-color: #6366f1;
+        }
+        
+        .summary-card.earnings {
+          border-left-color: #10b981;
+        }
+        
+        .summary-card.payments {
+          border-left-color: #3b82f6;
+        }
+        
+        .summary-card.pending {
+          border-left-color: #ef4444;
+        }
+        
+        .card-label {
+          font-size: 10px;
+          font-weight: 700;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.7px;
+          margin-bottom: 6px;
+        }
+        
+        .card-value {
+          font-size: 22px;
+          font-weight: 850;
+          color: #0f172a;
+          line-height: 1;
+        }
+        
+        .section-title {
+          font-size: 12px;
+          font-weight: 700;
+          color: #1e1b4b;
+          text-transform: uppercase;
+          letter-spacing: 0.8px;
+          margin: 25px 0 10px 0;
+          padding-bottom: 6px;
+          border-bottom: 2px solid #e2e8f0;
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        
+        .data-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 20px;
+          font-size: 11px;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          overflow: hidden;
+        }
+        
+        .data-table th {
+          background-color: #f8fafc;
+          color: #475569;
+          font-weight: 700;
+          text-transform: uppercase;
+          font-size: 9px;
+          letter-spacing: 0.5px;
+          padding: 10px 14px;
+          border-bottom: 1px solid #e2e8f0;
+          text-align: left;
+        }
+        
+        .footer {
+          margin-top: 35px;
+          border-top: 1px solid #e2e8f0;
+          padding-top: 12px;
+          font-size: 9px;
+          color: #94a3b8;
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        
+        .footer-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        
+        .footer-left {
+          text-align: left;
+        }
+        
+        .footer-right {
+          text-align: right;
+          font-weight: 500;
+        }
+      </style>
+      
+      <div class="report-container">
+        <!-- HEADER -->
+        <table class="header-table">
+          <tr>
+            <td class="header-logo-cell">
+              <table style="border-collapse: collapse; border: none; padding: 0;">
+                <tr>
+                  ${logoData ? `<td style="padding-right: 12px; vertical-align: middle;"><img src="${logoData}" alt="Company Logo" style="max-height: 45px; max-width: 150px; object-fit: contain;"/></td>` : ''}
+                  <td style="vertical-align: middle; padding: 0;">
+                    <h1 class="company-title">${settings.studioName ? settings.studioName.toUpperCase() : 'DREAMS VIDEO'}</h1>
+                    <span style="font-size: 8px; font-weight: 700; color: #64748b; letter-spacing: 2px; text-transform: uppercase; display: block; margin-top: 1px;">Studio Management System</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td class="header-title-cell">
+              <div class="report-subtitle">Employee Performance Report</div>
+              <div style="font-size: 11px; color: #64748b; margin-top: 4px; font-weight: 500;">Month: <span style="color: #0f172a; font-weight: 700;">${reportMonth}</span></div>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          ${eventRows || '<tr><td colspan="3" style="padding: 12px; border: 1px solid #e2e8f0; text-align: center; color: #64748b;">No events found for this month.</td></tr>'}
-        </tbody>
-      </table>
-
-      <!-- PAYMENT HISTORY -->
-      <h3 style="margin: 0 0 10px 0; font-size: 12px; font-weight: bold; color: #1e293b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; break-inside: avoid; page-break-inside: avoid;">Payment History</h3>
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px;">
-        <thead>
-          <tr style="background-color: #f1f5f9;">
-            <th style="padding: 8px 12px; border: 1px solid #cbd5e1; text-align: left; font-weight: bold; color: #64748b; text-transform: uppercase;">Date</th>
-            <th style="padding: 8px 12px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold; color: #64748b; text-transform: uppercase;">Amount</th>
-            <th style="padding: 8px 12px; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; color: #64748b; text-transform: uppercase;">Method</th>
+        </table>
+        
+        <!-- EMPLOYEE INFO -->
+        <table class="meta-table">
+          <tr>
+            <td class="meta-cell" style="border-right: 1px solid #e2e8f0; width: 50%;">
+              <span class="meta-label">Employee Details</span>
+              <div class="meta-value" style="font-size: 14px; color: #4f46e5;">${employee.fullName}</div>
+              <div class="meta-value-sub"><strong style="color: #64748b;">Mobile:</strong> ${employee.mobileNumber}</div>
+            </td>
+            <td class="meta-cell" style="width: 50%;">
+              <span class="meta-label">Studio Reference</span>
+              <div class="meta-value">${settings.studioName || 'Dreams Video Studio'}</div>
+              <div class="meta-value-sub">${settings.address || ''}</div>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          ${paymentRows || '<tr><td colspan="3" style="padding: 12px; border: 1px solid #e2e8f0; text-align: center; color: #64748b;">No payments found for this month.</td></tr>'}
-        </tbody>
-      </table>
+        </table>
 
-      <!-- FOOTER -->
-      <div style="margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 10px; text-align: center; font-size: 9px; color: #94a3b8; break-inside: avoid; page-break-inside: avoid;">
-        <p style="margin: 0;">Generated By: Dreams Video Studio Management System</p>
+        <!-- SUMMARY GRID -->
+        <table class="summary-table">
+          <tr>
+            <td class="summary-card-cell">
+              <div class="summary-card events">
+                <div class="card-label">Total Events</div>
+                <div class="card-value">${stats.totalEvents}</div>
+              </div>
+            </td>
+            <td class="summary-card-cell">
+              <div class="summary-card earnings">
+                <div class="card-label">Total Earnings</div>
+                <div class="card-value" style="color: #059669;">₹${stats.totalEarnings.toLocaleString('en-IN')}</div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="summary-card-cell">
+              <div class="summary-card payments">
+                <div class="card-label">Total Payments Given</div>
+                <div class="card-value" style="color: #2563eb;">₹${stats.totalPaymentsGiven.toLocaleString('en-IN')}</div>
+              </div>
+            </td>
+            <td class="summary-card-cell">
+              <div class="summary-card pending">
+                <div class="card-label">Pending Amount</div>
+                <div class="card-value" style="color: #ef4444;">₹${stats.pendingAmount.toLocaleString('en-IN')}</div>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- EVENT HISTORY -->
+        <h3 class="section-title">Event History</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 30%;">Date</th>
+              <th style="width: 45%;">Event Type</th>
+              <th style="width: 25%; text-align: right;">Employee Charge</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${eventRows || '<tr><td colspan="3" class="text-center" style="color: #64748b; padding: 16px;">No events found for this month.</td></tr>'}
+          </tbody>
+        </table>
+
+        <!-- PAYMENT HISTORY -->
+        <h3 class="section-title">Payment History</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 30%;">Date</th>
+              <th style="width: 40%; text-align: right;">Amount</th>
+              <th style="width: 30%; text-align: center;">Payment Method</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${paymentRows || '<tr><td colspan="3" class="text-center" style="color: #64748b; padding: 16px;">No payments found for this month.</td></tr>'}
+          </tbody>
+        </table>
+
+        <!-- FOOTER -->
+        <div class="footer">
+          <table class="footer-table">
+            <tr>
+              <td class="footer-left">Dreams Video Studio Management System</td>
+              <td class="footer-right">Generated On: ${currentDate}</td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
   `;

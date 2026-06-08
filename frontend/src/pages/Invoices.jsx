@@ -315,6 +315,10 @@ const Invoices = () => {
     }
   };
 
+  const getQuotationWhatsAppMessage = (item) => {
+    return `Hello ${item.clientName},\n\nThank you for choosing Dreams Video.\n\nQuotation Details:\nClient Name: ${item.clientName}\nMobile Number: ${item.mobileNumber}\nEvent Name: ${item.eventName}\nBooking Date: ${item.eventDate || formatDate(item.quotationDate)}\nLocation: ${settings?.address || 'Studio'}\nQuotation Amount: ₹${(item.grandTotal || 0).toLocaleString('en-IN')}\n\nPlease find the generated Quotation PDF attached.`;
+  };
+
   const filteredData = (activeTab === 'bills' ? bills : quotations).filter(item => 
     (item.clientName || '').toLowerCase().includes(search.toLowerCase()) ||
     (item.billNumber || item.quotationNumber || '').toLowerCase().includes(search.toLowerCase())
@@ -425,11 +429,21 @@ const Invoices = () => {
                       <button onClick={() => handlePdfAction(item._id, 'print')} title="Print PDF" className="p-2 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
                         <Printer size={16} />
                       </button>
-                      <button onClick={() => window.open(getWhatsAppUrl(item.mobileNumber), '_blank')} title="WhatsApp" className="p-2 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 rounded-lg transition-colors">
-                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                        </svg>
-                      </button>
+                      {activeTab === 'quotations' ? (
+                        <button 
+                          onClick={() => window.open(getWhatsAppUrl(item.mobileNumber, getQuotationWhatsAppMessage(item)), '_blank')} 
+                          title="Send Quotation on WhatsApp" 
+                          className="px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 rounded-lg transition-colors"
+                        >
+                          📱 Send Quotation
+                        </button>
+                      ) : (
+                        <button onClick={() => window.open(getWhatsAppUrl(item.mobileNumber), '_blank')} title="WhatsApp" className="p-2 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 rounded-lg transition-colors">
+                          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                          </svg>
+                        </button>
+                      )}
                       <button onClick={() => openEditModal(item)} title="Edit" className="p-2 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
                         <Edit2 size={16} />
                       </button>
@@ -489,11 +503,20 @@ const Invoices = () => {
                     <button onClick={() => openEditModal(item)} className="w-12 h-12 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
                       <Edit2 size={18} />
                     </button>
-                    <button onClick={() => window.open(getWhatsAppUrl(item.mobileNumber), '_blank')} className="w-12 h-12 flex items-center justify-center bg-emerald-500/10 text-emerald-600 rounded-xl hover:bg-emerald-500/20 transition-colors">
-                      <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-4.5 h-4.5">
-                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                      </svg>
-                    </button>
+                    {activeTab === 'quotations' ? (
+                      <button 
+                        onClick={() => window.open(getWhatsAppUrl(item.mobileNumber, getQuotationWhatsAppMessage(item)), '_blank')} 
+                        className="h-12 px-3 flex items-center justify-center gap-1.5 bg-[#25D366]/10 text-[#25D366] font-bold text-xs rounded-xl hover:bg-[#25D366]/20 transition-colors"
+                      >
+                        📱 WhatsApp
+                      </button>
+                    ) : (
+                      <button onClick={() => window.open(getWhatsAppUrl(item.mobileNumber), '_blank')} className="w-12 h-12 flex items-center justify-center bg-emerald-500/10 text-emerald-600 rounded-xl hover:bg-emerald-500/20 transition-colors">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-4.5 h-4.5">
+                          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                        </svg>
+                      </button>
+                    )}
                     <button onClick={() => handleDelete(item._id)} className="w-12 h-12 flex items-center justify-center bg-rose-500/10 text-rose-600 rounded-xl hover:bg-rose-500/20 transition-colors">
                       <Trash2 size={18} />
                     </button>
@@ -773,10 +796,22 @@ const Invoices = () => {
               </form>
             </div>
 
-            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 shrink-0 bg-slate-50 dark:bg-slate-950">
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 shrink-0 bg-slate-50 dark:bg-slate-950 flex-wrap">
               <button type="button" onClick={() => setShowModal(false)} className="flex-1 h-12 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm">
                 Cancel
               </button>
+              {editingId && activeTab === 'quotations' && (
+                <button 
+                  type="button"
+                  onClick={() => {
+                    const item = quotations.find(q => q._id === editingId);
+                    if(item) window.open(getWhatsAppUrl(item.mobileNumber, getQuotationWhatsAppMessage(item)), '_blank');
+                  }}
+                  className="flex-1 h-12 bg-[#25D366]/10 text-[#25D366] font-bold rounded-xl hover:bg-[#25D366]/20 transition-all text-sm flex items-center justify-center gap-2"
+                >
+                  📱 Send Quotation
+                </button>
+              )}
               <button type="submit" form="docForm" className="flex-1 h-12 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all text-sm">
                 {editingId ? 'Update' : 'Save'} Document
               </button>
