@@ -117,16 +117,22 @@ const generateExpensePdf = async (req, res) => {
     }
     
     if (settings.companyLogo) {
-      try {
-        const fs = require('fs');
-        const path = require('path');
-        const logoPath = path.join(__dirname, '..', settings.companyLogo);
-        if (fs.existsSync(logoPath)) {
-          const logoBuffer = fs.readFileSync(logoPath);
-          const ext = path.extname(logoPath).replace('.', '');
-          settings.logoData = `data:image/${ext};base64,${logoBuffer.toString('base64')}`;
+      if (settings.companyLogo.startsWith('data:image')) {
+        settings.logoData = settings.companyLogo;
+      } else {
+        try {
+          const fs = require('fs');
+          const path = require('path');
+          const logoPath = path.join(__dirname, '..', settings.companyLogo);
+          if (fs.existsSync(logoPath)) {
+            const logoBuffer = fs.readFileSync(logoPath);
+            const ext = path.extname(logoPath).replace('.', '');
+            settings.logoData = `data:image/${ext};base64,${logoBuffer.toString('base64')}`;
+          }
+        } catch (err) {
+          console.error('Error loading logo for PDF:', err);
         }
-      } catch (err) {}
+      }
     }
 
     const expenses = await db.Expense.find().sort({ date: -1 });

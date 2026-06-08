@@ -20,11 +20,20 @@ const getSettings = async (req, res) => {
   }
 };
 
+const fs = require('fs');
+
 const updateSettings = async (req, res) => {
   try {
     const updateData = req.body;
     if (req.file) {
-      updateData.companyLogo = '/uploads/' + req.file.filename;
+      try {
+        const fileData = fs.readFileSync(req.file.path);
+        const base64Str = fileData.toString('base64');
+        updateData.companyLogo = `data:${req.file.mimetype};base64,${base64Str}`;
+        fs.unlinkSync(req.file.path); // remove temp file
+      } catch (err) {
+        console.error('Error converting file to base64:', err);
+      }
     }
     let settings = await db.Settings.findOne();
     if (!settings) {
