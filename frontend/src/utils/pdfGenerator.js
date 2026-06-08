@@ -677,134 +677,127 @@ export const getRevenueReportHtml = (revenues, settings, logoData) => {
 export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
   const { employee, reportMonth, stats, events, payments } = data;
 
-  let eventRows = '';
-  events.forEach((ev, index) => {
-    const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
-    let displayDate = ev.eventDate || '';
-    if (displayDate.includes('-')) {
-      const parts = displayDate.split('-');
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    if (dateStr.includes('-')) {
+      const parts = dateStr.split('-');
       if (parts.length === 3 && parts[0].length === 4) {
-        displayDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
       }
     }
+    return dateStr;
+  };
+
+  let eventRows = '';
+  events.forEach((ev, index) => {
+    const bg = index % 2 === 0 ? '#ffffff' : '#f9fafb';
     eventRows += `
-      <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
-        <td class="py-3 px-4 text-slate-700">${displayDate}</td>
-        <td class="py-3 px-4 text-slate-700 font-medium">${ev.eventType}</td>
-        <td class="py-3 px-4 text-right font-semibold text-slate-800">₹${(ev.employeeCharge || 0).toLocaleString('en-IN')}</td>
+      <tr style="background-color: ${bg}; break-inside: avoid; page-break-inside: avoid;">
+        <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155;">${formatDate(ev.eventDate)}</td>
+        <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155; font-weight: 600;">${ev.eventType}</td>
+        <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155; text-align: right; font-weight: bold;">₹${(ev.employeeCharge || 0).toLocaleString('en-IN')}</td>
       </tr>
     `;
   });
 
   let paymentRows = '';
   payments.forEach((p, index) => {
-    const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
-    let displayDate = p.paymentDate || '';
-    if (displayDate.includes('-')) {
-      const parts = displayDate.split('-');
-      if (parts.length === 3 && parts[0].length === 4) {
-        displayDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-      }
-    }
+    const bg = index % 2 === 0 ? '#ffffff' : '#f9fafb';
     paymentRows += `
-      <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
-        <td class="py-3 px-4 text-slate-700">${displayDate}</td>
-        <td class="py-3 px-4 text-right font-semibold text-slate-800">₹${(p.amountGiven || 0).toLocaleString('en-IN')}</td>
-        <td class="py-3 px-4 text-center text-slate-650">${p.paymentMethod || '-'}</td>
+      <tr style="background-color: ${bg}; break-inside: avoid; page-break-inside: avoid;">
+        <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155;">${formatDate(p.paymentDate)}</td>
+        <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155; text-align: right; font-weight: bold;">₹${(p.amountGiven || 0).toLocaleString('en-IN')}</td>
+        <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155; text-align: center;">${p.paymentMethod || '-'}</td>
       </tr>
     `;
   });
 
   return `
-    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box; padding-bottom: 30px;">
+    <div style="width: 100%; max-width: 190mm; margin: 0 auto; box-sizing: border-box; font-family: 'Arial', sans-serif; padding-bottom: 20px; background-color: #ffffff;">
       <!-- HEADER -->
-      <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
-        <div>
-          ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>` : `<h1 class="text-3xl font-extrabold text-indigo-700 tracking-tight mb-1">${settings.studioName}</h1>`}
-          <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">EMPLOYEE MONTHLY REPORT</h2>
-          <p class="text-xs font-semibold text-slate-500 tracking-wider">Report Month: ${reportMonth}</p>
-        </div>
-        <div class="text-right">
-          ${logoData ? `<h2 class="text-lg font-bold text-indigo-700 mb-1">${settings.studioName}</h2>` : ''}
-          <p class="text-xs text-slate-600 max-w-[240px] ml-auto leading-relaxed">${settings.address || ''}</p>
-          <p class="text-xs text-slate-600 mt-2">
-            <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''}
-          </p>
-        </div>
-      </div>
-
-      <div class="w-full h-1 rounded-full bg-slate-100 mb-6 overflow-hidden" style="break-inside: avoid; page-break-inside: avoid;">
-        <div class="h-full w-1/3 bg-indigo-600"></div>
-      </div>
+      <table style="width: 100%; margin-bottom: 20px; border-bottom: 2px solid #4f46e5; padding-bottom: 10px;">
+        <tr>
+          <td style="vertical-align: top;">
+            ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 50px; object-fit: contain; margin-bottom: 8px;"/>` : `<h1 style="margin: 0; font-size: 24px; font-weight: bold; color: #4338ca;">${settings.studioName || 'Dreams Video'}</h1>`}
+            <h2 style="margin: 4px 0 0 0; font-size: 16px; font-weight: bold; color: #1e293b; text-transform: uppercase;">Employee Monthly Report</h2>
+            <p style="margin: 4px 0 0 0; font-size: 11px; font-weight: bold; color: #64748b;">Report Month: ${reportMonth}</p>
+          </td>
+          <td style="text-align: right; vertical-align: top;">
+            ${logoData ? `<h2 style="margin: 0 0 4px 0; font-size: 14px; font-weight: bold; color: #4338ca;">${settings.studioName || 'Dreams Video'}</h2>` : ''}
+            <p style="margin: 0; font-size: 11px; color: #475569; max-width: 200px; line-height: 1.4;">${settings.address || ''}</p>
+            <p style="margin: 4px 0 0 0; font-size: 11px; color: #475569;"><strong style="color: #94a3b8;">Mobile:</strong> ${settings.mobileNumber || ''}</p>
+          </td>
+        </tr>
+      </table>
 
       <!-- EMPLOYEE INFO -->
-      <div class="grid grid-cols-2 gap-4 mb-8" style="break-inside: avoid; page-break-inside: avoid;">
-        <div class="p-4 rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Employee Details</p>
-          <h3 class="text-base font-bold text-slate-800">${employee.fullName}</h3>
-          <p class="text-xs text-slate-600 mt-1">
-            <span class="font-semibold text-slate-400">Mobile:</span> ${employee.mobileNumber}
-          </p>
-        </div>
-      </div>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <tr>
+          <td style="border: 1px solid #cbd5e1; padding: 10px; background-color: #f8fafc; border-radius: 4px;">
+            <p style="margin: 0 0 4px 0; font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase;">Employee Details</p>
+            <h3 style="margin: 0; font-size: 14px; font-weight: bold; color: #1e293b;">${employee.fullName}</h3>
+            <p style="margin: 4px 0 0 0; font-size: 11px; color: #475569;"><strong style="color: #94a3b8;">Mobile:</strong> ${employee.mobileNumber}</p>
+          </td>
+        </tr>
+      </table>
 
-      <!-- SUMMARY SECTION -->
-      <div class="grid grid-cols-4 gap-4 mb-8" style="break-inside: avoid; page-break-inside: avoid;">
-        <div class="p-4 rounded-2xl border border-slate-200 bg-indigo-50/50 shadow-sm text-center">
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Events</p>
-          <p class="text-xl font-black text-slate-800">${stats.totalEvents}</p>
-        </div>
-        <div class="p-4 rounded-2xl border border-slate-200 bg-blue-50/50 shadow-sm text-center">
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Earnings</p>
-          <p class="text-xl font-black text-blue-600">₹${stats.totalEarnings.toLocaleString('en-IN')}</p>
-        </div>
-        <div class="p-4 rounded-2xl border border-slate-200 bg-emerald-50/50 shadow-sm text-center">
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Payments</p>
-          <p class="text-xl font-black text-emerald-600">₹${stats.totalPaymentsGiven.toLocaleString('en-IN')}</p>
-        </div>
-        <div class="p-4 rounded-2xl border border-rose-100 bg-rose-50 shadow-sm text-center">
-          <p class="text-[10px] font-bold text-rose-500 uppercase tracking-wider mb-1">Pending Amount</p>
-          <p class="text-xl font-black text-rose-600">₹${stats.pendingAmount.toLocaleString('en-IN')}</p>
-        </div>
-      </div>
+      <!-- SUMMARY GRID (2x2) -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed;">
+        <tr>
+          <td style="border: 1px solid #cbd5e1; padding: 15px; text-align: center; background-color: #eef2ff;">
+            <p style="margin: 0 0 5px 0; font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase;">Total Events</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 900; color: #1e293b;">${stats.totalEvents}</p>
+          </td>
+          <td style="border: 1px solid #cbd5e1; padding: 15px; text-align: center; background-color: #eff6ff;">
+            <p style="margin: 0 0 5px 0; font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase;">Total Earnings</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 900; color: #2563eb;">₹${stats.totalEarnings.toLocaleString('en-IN')}</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #cbd5e1; padding: 15px; text-align: center; background-color: #ecfdf5;">
+            <p style="margin: 0 0 5px 0; font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase;">Total Payments Given</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 900; color: #059669;">₹${stats.totalPaymentsGiven.toLocaleString('en-IN')}</p>
+          </td>
+          <td style="border: 1px solid #fecaca; padding: 15px; text-align: center; background-color: #fef2f2;">
+            <p style="margin: 0 0 5px 0; font-size: 10px; font-weight: bold; color: #ef4444; text-transform: uppercase;">Pending Amount</p>
+            <p style="margin: 0; font-size: 18px; font-weight: 900; color: #dc2626;">₹${stats.pendingAmount.toLocaleString('en-IN')}</p>
+          </td>
+        </tr>
+      </table>
 
       <!-- EVENT HISTORY -->
-      <h3 class="text-sm font-bold text-slate-800 mb-3" style="break-inside: avoid; page-break-inside: avoid;">Event History</h3>
-      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8 shadow-sm" style="break-inside: avoid; page-break-inside: avoid;">
-        <table class="w-full text-left border-collapse text-xs">
-          <thead style="display: table-header-group;">
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold" style="break-inside: avoid; page-break-inside: avoid;">
-              <th class="py-3 px-4">Event Date</th>
-              <th class="py-3 px-4">Event Type</th>
-              <th class="py-3 px-4 text-right">Employee Charge</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${eventRows || '<tr><td colspan="3" class="text-center py-4 text-slate-500">No events found for this month.</td></tr>'}
-          </tbody>
-        </table>
-      </div>
+      <h3 style="margin: 0 0 10px 0; font-size: 12px; font-weight: bold; color: #1e293b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; break-inside: avoid; page-break-inside: avoid;">Event History</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 11px;">
+        <thead>
+          <tr style="background-color: #f1f5f9;">
+            <th style="padding: 8px 12px; border: 1px solid #cbd5e1; text-align: left; font-weight: bold; color: #64748b; text-transform: uppercase;">Event Date</th>
+            <th style="padding: 8px 12px; border: 1px solid #cbd5e1; text-align: left; font-weight: bold; color: #64748b; text-transform: uppercase;">Event Type</th>
+            <th style="padding: 8px 12px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold; color: #64748b; text-transform: uppercase;">Charge</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${eventRows || '<tr><td colspan="3" style="padding: 12px; border: 1px solid #e2e8f0; text-align: center; color: #64748b;">No events found for this month.</td></tr>'}
+        </tbody>
+      </table>
 
       <!-- PAYMENT HISTORY -->
-      <h3 class="text-sm font-bold text-slate-800 mb-3" style="break-inside: avoid; page-break-inside: avoid;">Payment History</h3>
-      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8 shadow-sm" style="break-inside: avoid; page-break-inside: avoid;">
-        <table class="w-full text-left border-collapse text-xs">
-          <thead style="display: table-header-group;">
-            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold" style="break-inside: avoid; page-break-inside: avoid;">
-              <th class="py-3 px-4">Payment Date</th>
-              <th class="py-3 px-4 text-right">Amount Given</th>
-              <th class="py-3 px-4 text-center">Payment Method</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${paymentRows || '<tr><td colspan="3" class="text-center py-4 text-slate-500">No payments found for this month.</td></tr>'}
-          </tbody>
-        </table>
-      </div>
+      <h3 style="margin: 0 0 10px 0; font-size: 12px; font-weight: bold; color: #1e293b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; break-inside: avoid; page-break-inside: avoid;">Payment History</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px;">
+        <thead>
+          <tr style="background-color: #f1f5f9;">
+            <th style="padding: 8px 12px; border: 1px solid #cbd5e1; text-align: left; font-weight: bold; color: #64748b; text-transform: uppercase;">Date</th>
+            <th style="padding: 8px 12px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold; color: #64748b; text-transform: uppercase;">Amount</th>
+            <th style="padding: 8px 12px; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; color: #64748b; text-transform: uppercase;">Method</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${paymentRows || '<tr><td colspan="3" style="padding: 12px; border: 1px solid #e2e8f0; text-align: center; color: #64748b;">No payments found for this month.</td></tr>'}
+        </tbody>
+      </table>
 
       <!-- FOOTER -->
-      <div class="mt-8 border-t border-slate-200 pt-4 text-center text-xs text-slate-500" style="break-inside: avoid; page-break-inside: avoid;">
-        <p>Generated By: Dreams Video Studio Management System</p>
+      <div style="margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 10px; text-align: center; font-size: 9px; color: #94a3b8; break-inside: avoid; page-break-inside: avoid;">
+        <p style="margin: 0;">Generated By: Dreams Video Studio Management System</p>
       </div>
     </div>
   `;
@@ -874,18 +867,16 @@ export const generatePdf = async (element, filename, action) => {
   console.log('Canvas height (px):', canvasHeight);
 
   const opt = {
-    margin:       [15, 15, 25, 15],
+    margin:       [15, 15, 15, 15], // 15mm Top, Bottom, Left, Right
     filename:     filename || 'report.pdf',
     image:        { type: 'jpeg', quality: 0.95 },
     html2canvas:  { 
-      scale: 2, 
+      scale: 1, // Force scale to 1
       useCORS: true, 
       logging: true, 
       scrollX: 0, 
-      scrollY: 0,
-      windowWidth: actualWidth || 1000,
-      windowHeight: Math.max(actualHeight + 200, 2000),
-      height: canvasHeight
+      scrollY: 0
+      // Removed viewport-based sizing (windowWidth/windowHeight/height) to prevent scaling issues
     },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
     pagebreak:    { mode: ['css', 'legacy'] }

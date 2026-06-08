@@ -676,7 +676,7 @@ const Events = () => {
       {/* PDF Generation Portal */}
       {pdfLoading && activeEmployee && (
         <div style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-          <div ref={pdfPreviewRef} style={{ width: '800px', backgroundColor: '#fff', padding: '20px' }}>
+          <div ref={pdfPreviewRef} style={{ width: '180mm', backgroundColor: '#fff' }}>
             <div dangerouslySetInnerHTML={{ 
               __html: getEmployeeMonthlyReportHtml({
                 employee: activeEmployee,
