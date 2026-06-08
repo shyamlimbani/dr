@@ -12,7 +12,6 @@ const quotationSchema = new mongoose.Schema({
   mobileNumber: { type: String, required: true },
   eventName: { type: String, required: true },
   eventDate: { type: String, required: true },
-  eventLocation: { type: String, default: '' },
   sections: [quotationSectionSchema],
   grandTotal: { type: Number, required: true }
 }, { timestamps: true });

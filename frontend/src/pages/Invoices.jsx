@@ -47,7 +47,6 @@ const Invoices = () => {
   const [billGenerateDate, setBillGenerateDate] = useState(new Date().toISOString().split('T')[0]);
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
-  const [eventLocation, setEventLocation] = useState('');
   const [discount, setDiscount] = useState(0);
   const [advanceReceived, setAdvanceReceived] = useState(0);
   const [notes, setNotes] = useState('');
@@ -138,7 +137,6 @@ const Invoices = () => {
     setBillGenerateDate(new Date().toISOString().split('T')[0]);
     setEventName('');
     setEventDate('');
-    setEventLocation('');
     setDiscount(0);
     setAdvanceReceived(0);
     setNotes('');
@@ -163,7 +161,6 @@ const Invoices = () => {
     setBillGenerateDate(item.billGenerateDate || item.billDate || new Date().toISOString().split('T')[0]);
     setEventName(item.eventName);
     setEventDate(item.eventDate);
-    setEventLocation(item.eventLocation || '');
     setDiscount(item.discount || 0);
     setAdvanceReceived(item.advanceReceived || 0);
     setNotes(item.notes || '');
@@ -244,7 +241,6 @@ const Invoices = () => {
       billDate: billGenerateDate,
       eventName,
       eventDate,
-      eventLocation,
       services,
       subtotal,
       discount: Number(discount),
@@ -257,7 +253,6 @@ const Invoices = () => {
       mobileNumber,
       eventName,
       eventDate,
-      eventLocation,
       sections,
       grandTotal: Number(manualGrandTotal) || 0
     };
@@ -569,10 +564,6 @@ const Invoices = () => {
                     <div>
                       <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">{activeTab === 'bills' ? 'Event Date' : 'Booking Date'}</label>
                       <input required type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-400 mb-1.5">Event Location</label>
-                      <input type="text" value={eventLocation} onChange={e => setEventLocation(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500" />
                     </div>
                   </div>
                 </div>

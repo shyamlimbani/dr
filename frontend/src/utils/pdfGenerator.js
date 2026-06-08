@@ -153,10 +153,6 @@ export const getBillHtml = (data, settings, logoData) => {
               <span class="text-[10px] font-bold text-slate-400 uppercase block">Event Date</span>
               <span class="font-semibold text-slate-800">${data.eventDate}</span>
             </div>
-            <div class="col-span-2">
-              <span class="text-[10px] font-bold text-slate-400 uppercase block">Location</span>
-              <span class="font-semibold text-slate-800">${data.eventLocation || 'N/A'}</span>
-            </div>
           </div>
         </div>
       </div>
@@ -376,10 +372,6 @@ export const getQuotationHtml = (data, settings, logoData) => {
             <tr>
               <td style="padding: 2px 0; font-weight: bold; color: #000000;">Event Name:</td>
               <td style="padding: 2px 0; color: #333333;">${data.eventName}</td>
-            </tr>
-            <tr>
-              <td style="padding: 2px 0; font-weight: bold; color: #000000;">Event Location:</td>
-              <td style="padding: 2px 0; color: #333333;">${data.eventLocation || 'N/A'}</td>
             </tr>
           </table>
         </div>

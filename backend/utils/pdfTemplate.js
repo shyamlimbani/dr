@@ -136,13 +136,6 @@ const generateHtmlTemplate = (type, data, settings) => {
               <p class="text-xs font-semibold ${textAccent} opacity-80 uppercase tracking-wider mb-1">Event Date</p>
               <p class="text-sm font-semibold text-slate-800">${data.eventDate}</p>
             </div>
-            <div class="col-span-2">
-              <p class="text-xs font-semibold ${textAccent} opacity-80 uppercase tracking-wider mb-1">Location</p>
-              <p class="text-sm font-semibold text-slate-800 flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                ${data.eventLocation || 'N/A'}
-              </p>
-            </div>
           </div>
         </div>
       </div>
@@ -344,11 +337,10 @@ const generateHtmlTemplate = (type, data, settings) => {
 
         <!-- BOOKING DETAILS -->
         <div class="p-5 rounded-2xl border border-slate-200 bg-sky-50/50 shadow-sm">
-          <p class="text-xs font-bold text-sky-600/80 uppercase tracking-wider mb-3">Booking Details</p>
-          <div class="space-y-1.5 text-sm">
-            <p class="text-slate-700"><span class="font-bold text-slate-400">Event:</span> ${data.eventName}</p>
-            <p class="text-slate-700"><span class="font-bold text-slate-400">Booking Date:</span> ${new Date(data.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-            <p class="text-slate-700"><span class="font-bold text-slate-400">Location:</span> ${data.eventLocation || 'Not Specified'}</p>
+          <div class="w-2/3">
+            <h3 class="font-bold text-slate-800 mb-2">Event Details</h3>
+            <p class="text-slate-700 mb-1"><span class="font-bold text-slate-400">Name:</span> ${data.eventName}</p>
+            <p class="text-slate-700"><span class="font-bold text-slate-400">Date:</span> ${new Date(data.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
           </div>
         </div>
       </div>

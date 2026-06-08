@@ -15,7 +15,6 @@ const billSchema = new mongoose.Schema({
   billGenerateDate: { type: String, required: true },
   eventName: { type: String, required: true },
   eventDate: { type: String, required: true },
-  eventLocation: { type: String, default: '' },
   services: [serviceSchema],
   subtotal: { type: Number, required: true },
   discount: { type: Number, default: 0 },

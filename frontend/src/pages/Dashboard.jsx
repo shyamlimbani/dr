@@ -61,27 +61,6 @@ const Dashboard = () => {
     }
   ];
 
-  const downloadRevenuePdf = async () => {
-    try {
-      setPdfLoading(true);
-      const res = await apiClient.get('/revenues/pdf', { responseType: 'blob' });
-      const blob = new Blob([res.data], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `revenue_report_${new Date().toISOString().split('T')[0]}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Download PDF error', error);
-      alert('Failed to generate revenue report');
-    } finally {
-      setPdfLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-[85vh] flex flex-col justify-center animate-in fade-in duration-500 relative py-12">
       {/* Background decoration */}
@@ -93,21 +72,13 @@ const Dashboard = () => {
       <div className="max-w-6xl w-full mx-auto space-y-12">
         <div className="text-center space-y-6">
           <div className="space-y-3">
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-800 dark:text-white">
-              Welcome to <span className="bg-gradient-to-r from-teal-500 to-emerald-400 bg-clip-text text-transparent">Vivid Admin</span>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-800 dark:text-white uppercase">
+              <span className="bg-gradient-to-r from-teal-500 to-emerald-400 bg-clip-text text-transparent">Dreams Video</span>
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-lg max-w-2xl mx-auto">
-              Select a module below to manage your operations, team rosters, and finances.
+              Manage Events, Payments, Quotations, Revenue and Studio Operations.
             </p>
           </div>
-          
-          <button 
-            onClick={downloadRevenuePdf}
-            className="inline-flex items-center justify-center gap-2 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30 px-6 py-3 rounded-full font-bold transition-all shadow-sm text-sm"
-          >
-            <Download size={18} />
-            Download Revenue Report
-          </button>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 px-1.5 md:px-4">

@@ -73,7 +73,6 @@ const getEmployeeById = async (req, res) => {
         _id: ev._id,
         eventDate: ev.eventDate,
         eventType: ev.eventType,
-        eventLocation: ev.eventLocation,
         employeeCharge: ev.employeeCharge
       })),
       paymentHistory

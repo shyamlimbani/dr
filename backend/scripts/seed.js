@@ -115,7 +115,7 @@ const seed = async () => {
         clientMobileNumber: '+91 91234 56789',
         eventType: 'Wedding',
         eventDate: formatDate(-15),
-        eventLocation: 'The Leela Grand Ballroom, Mumbai',
+
         description: 'Grand wedding coverage. 500 guests.',
         eventBudget: 150000,
         advanceReceived: 80000,
@@ -133,7 +133,7 @@ const seed = async () => {
         clientMobileNumber: '+91 99998 88888',
         eventType: 'Corporate',
         eventDate: formatDate(-5),
-        eventLocation: 'Nesco Center, Goregaon, Mumbai',
+
         description: 'Keynote shoots, group photo, highlights video.',
         eventBudget: 95000,
         advanceReceived: 95000,
@@ -150,7 +150,7 @@ const seed = async () => {
         clientMobileNumber: '+91 88888 77777',
         eventType: 'Pre-Wedding',
         eventDate: formatDate(2),
-        eventLocation: 'Marine Drive & Gateway of India',
+
         description: 'Outdoor sunrise couple shoot.',
         eventBudget: 50000,
         advanceReceived: 20000,
@@ -167,7 +167,7 @@ const seed = async () => {
         clientMobileNumber: '+91 77777 66666',
         eventType: 'Birthday',
         eventDate: formatDate(5),
-        eventLocation: 'Glocal Junction, Worli, Mumbai',
+
         description: '1st Birthday coverage and photobooth.',
         eventBudget: 35000,
         advanceReceived: 10000,

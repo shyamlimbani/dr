@@ -31,8 +31,7 @@ const Events = () => {
   const [showEventModal, setShowEventModal] = useState(false);
   const [editingEventId, setEditingEventId] = useState(null);
   const [selectedDate, setSelectedDate] = useState('');
-  const [eventType, setEventType] = useState('Photography');
-  const [eventLocation, setEventLocation] = useState('');
+  const [eventType, setEventType] = useState('Regular Photography');
   const [employeeCharge, setEmployeeCharge] = useState('');
   const [eventNotes, setEventNotes] = useState('');
 
@@ -101,8 +100,7 @@ const Events = () => {
 
   const openAddEventModal = () => {
     setSelectedDate(new Date().toISOString().split('T')[0]);
-    setEventType('Photography');
-    setEventLocation('');
+    setEventType('Regular Photography');
     setEmployeeCharge('');
     setEventNotes('');
     setEditingEventId(null);
@@ -113,7 +111,6 @@ const Events = () => {
     setEditingEventId(ev._id);
     setSelectedDate(new Date(ev.eventDate).toISOString().split('T')[0]);
     setEventType(ev.eventType);
-    setEventLocation(ev.eventLocation);
     setEmployeeCharge(ev.employeeCharge);
     setEventNotes(ev.notes);
     setShowEventModal(true);
@@ -137,7 +134,6 @@ const Events = () => {
         employeeId: activeEmployee._id,
         eventDate: selectedDate,
         eventType,
-        eventLocation,
         employeeCharge,
         notes: eventNotes
       };
@@ -155,7 +151,19 @@ const Events = () => {
     }
   };
 
-  const eventTypeOptions = ['Photography', 'Videography', 'Drone Shoot', 'Reels Shoot', 'Editing', 'Wedding', 'Other'];
+  const eventTypeOptions = [
+    'Regular Photography', 
+    'Regular DSLR Video', 
+    'Candid Photography', 
+    'Candid DSLR Video', 
+    'Drone', 
+    'Plasma TV', 
+    'Mixer Live', 
+    'Pre Wedding Shoot', 
+    'LED Screen', 
+    'Reels Shoot', 
+    'Other'
+  ];
 
   // Calculations for Summary Cards
   const employeeLedgers = payments.filter(p => p.employeeId === activeEmployee?._id);
@@ -330,14 +338,7 @@ const Events = () => {
 
                       <div className="flex justify-between items-end border-t border-slate-100 dark:border-slate-800/60 pt-4 mt-2">
                         <div className="space-y-1">
-                          <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Location</span>
-                          <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1">
-                            <MapPin size={14} className="text-slate-400" />
-                            {ev.eventLocation || 'Not Specified'}
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Charge</span>
+                          <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Charge</span>
                           <span className="text-xl font-black text-slate-800 dark:text-white">₹{ev.employeeCharge?.toLocaleString('en-IN')}</span>
                         </div>
                       </div>
@@ -413,10 +414,6 @@ const Events = () => {
                 <select value={eventType} onChange={e => setEventType(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
                   {eventTypeOptions.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Event Location</label>
-                <input type="text" value={eventLocation} onChange={e => setEventLocation(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="e.g. The Grand Hotel, City Center" />
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Employee Charge (₹)</label>
