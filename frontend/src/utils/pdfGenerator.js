@@ -720,15 +720,15 @@ export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
       <!-- HEADER -->
       <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
         <div>
-          ${logoData ? \`<img src="\${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>\` : \`<h1 class="text-3xl font-extrabold text-indigo-700 tracking-tight mb-1">\${settings.studioName}</h1>\`}
+          ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>` : `<h1 class="text-3xl font-extrabold text-indigo-700 tracking-tight mb-1">${settings.studioName}</h1>`}
           <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">EMPLOYEE MONTHLY REPORT</h2>
-          <p class="text-xs font-semibold text-slate-500 tracking-wider">Report Month: \${reportMonth}</p>
+          <p class="text-xs font-semibold text-slate-500 tracking-wider">Report Month: ${reportMonth}</p>
         </div>
         <div class="text-right">
-          ${logoData ? \`<h2 class="text-lg font-bold text-indigo-700 mb-1">\${settings.studioName}</h2>\` : ''}
-          <p class="text-xs text-slate-600 max-w-[240px] ml-auto leading-relaxed">\${settings.address || ''}</p>
+          ${logoData ? `<h2 class="text-lg font-bold text-indigo-700 mb-1">${settings.studioName}</h2>` : ''}
+          <p class="text-xs text-slate-600 max-w-[240px] ml-auto leading-relaxed">${settings.address || ''}</p>
           <p class="text-xs text-slate-600 mt-2">
-            <span class="font-semibold text-slate-400">P:</span> \${settings.mobileNumber || ''}
+            <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''}
           </p>
         </div>
       </div>
@@ -741,9 +741,9 @@ export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
       <div class="grid grid-cols-2 gap-4 mb-8" style="break-inside: avoid; page-break-inside: avoid;">
         <div class="p-4 rounded-2xl border border-slate-200 bg-white shadow-sm">
           <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Employee Details</p>
-          <h3 class="text-base font-bold text-slate-800">\${employee.fullName}</h3>
+          <h3 class="text-base font-bold text-slate-800">${employee.fullName}</h3>
           <p class="text-xs text-slate-600 mt-1">
-            <span class="font-semibold text-slate-400">Mobile:</span> \${employee.mobileNumber}
+            <span class="font-semibold text-slate-400">Mobile:</span> ${employee.mobileNumber}
           </p>
         </div>
       </div>
@@ -752,19 +752,19 @@ export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
       <div class="grid grid-cols-4 gap-4 mb-8" style="break-inside: avoid; page-break-inside: avoid;">
         <div class="p-4 rounded-2xl border border-slate-200 bg-indigo-50/50 shadow-sm text-center">
           <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Events</p>
-          <p class="text-xl font-black text-slate-800">\${stats.totalEvents}</p>
+          <p class="text-xl font-black text-slate-800">${stats.totalEvents}</p>
         </div>
         <div class="p-4 rounded-2xl border border-slate-200 bg-blue-50/50 shadow-sm text-center">
           <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Earnings</p>
-          <p class="text-xl font-black text-blue-600">₹\${stats.totalEarnings.toLocaleString('en-IN')}</p>
+          <p class="text-xl font-black text-blue-600">₹${stats.totalEarnings.toLocaleString('en-IN')}</p>
         </div>
         <div class="p-4 rounded-2xl border border-slate-200 bg-emerald-50/50 shadow-sm text-center">
           <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Payments</p>
-          <p class="text-xl font-black text-emerald-600">₹\${stats.totalPaymentsGiven.toLocaleString('en-IN')}</p>
+          <p class="text-xl font-black text-emerald-600">₹${stats.totalPaymentsGiven.toLocaleString('en-IN')}</p>
         </div>
         <div class="p-4 rounded-2xl border border-rose-100 bg-rose-50 shadow-sm text-center">
           <p class="text-[10px] font-bold text-rose-500 uppercase tracking-wider mb-1">Pending Amount</p>
-          <p class="text-xl font-black text-rose-600">₹\${stats.pendingAmount.toLocaleString('en-IN')}</p>
+          <p class="text-xl font-black text-rose-600">₹${stats.pendingAmount.toLocaleString('en-IN')}</p>
         </div>
       </div>
 
@@ -780,7 +780,7 @@ export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
             </tr>
           </thead>
           <tbody>
-            \${eventRows || '<tr><td colspan="3" class="text-center py-4 text-slate-500">No events found for this month.</td></tr>'}
+            ${eventRows || '<tr><td colspan="3" class="text-center py-4 text-slate-500">No events found for this month.</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -797,7 +797,7 @@ export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
             </tr>
           </thead>
           <tbody>
-            \${paymentRows || '<tr><td colspan="3" class="text-center py-4 text-slate-500">No payments found for this month.</td></tr>'}
+            ${paymentRows || '<tr><td colspan="3" class="text-center py-4 text-slate-500">No payments found for this month.</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -807,7 +807,7 @@ export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
         <p>Generated By: Dreams Video Studio Management System</p>
       </div>
     </div>
-  \`;
+  `;
 };
 
 // ==========================================

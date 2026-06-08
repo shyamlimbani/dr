@@ -39,7 +39,7 @@ const Events = () => {
       if (pdfLoading && pdfPreviewRef.current) {
         try {
           const monthName = new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long' });
-          const filename = \`employee_monthly_report_\${activeEmployee?.fullName.replace(/\\s+/g, '_')}_\${monthName}_\${selectedYear}.pdf\`;
+          const filename = `employee_monthly_report_${activeEmployee?.fullName.replace(/[^a-zA-Z0-9]/g, '_')}_${monthName}_${selectedYear}.pdf`;
           await generatePdf(pdfPreviewRef.current, filename, 'download');
         } catch (err) {
           console.error('PDF Action failed:', err);
@@ -667,7 +667,7 @@ const Events = () => {
             <div dangerouslySetInnerHTML={{ 
               __html: getEmployeeMonthlyReportHtml({
                 employee: activeEmployee,
-                reportMonth: \`\${new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long' })} \${selectedYear}\`,
+                reportMonth: `${new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long' })} ${selectedYear}`,
                 stats: { totalEvents, totalEarnings, totalPaymentsGiven, pendingAmount },
                 events: filteredEvents,
                 payments: filteredPayments
