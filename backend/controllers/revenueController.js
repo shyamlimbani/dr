@@ -44,19 +44,19 @@ const getRevenues = async (req, res) => {
 
 const createRevenue = async (req, res) => {
   try {
-    const { clientName, mobileNumber, totalAmount, revenueDate, notes, status } = req.body;
+    const { clientName, mobileNumber, totalAmount, pendingAmount, revenueDate, notes } = req.body;
 
-    if (!clientName || !mobileNumber || totalAmount === undefined || !revenueDate) {
-      return res.status(400).json({ message: 'Client Name, Mobile Number, Total Amount, and Revenue Date are required' });
+    if (!clientName || !mobileNumber || totalAmount === undefined || pendingAmount === undefined || !revenueDate) {
+      return res.status(400).json({ message: 'Client Name, Mobile Number, Total Amount, Pending Amount, and Revenue Date are required' });
     }
 
     const revenue = await db.Revenue.create({
       clientName,
       mobileNumber,
       totalAmount: Number(totalAmount),
+      pendingAmount: Number(pendingAmount),
       revenueDate,
-      notes: notes || '',
-      status: status || 'Pending'
+      notes: notes || ''
     });
 
     res.status(201).json(revenue);
@@ -73,6 +73,9 @@ const updateRevenue = async (req, res) => {
 
     if (updateData.totalAmount !== undefined) {
       updateData.totalAmount = Number(updateData.totalAmount);
+    }
+    if (updateData.pendingAmount !== undefined) {
+      updateData.pendingAmount = Number(updateData.pendingAmount);
     }
 
     const updated = await db.Revenue.findByIdAndUpdate(id, updateData, { new: true });
@@ -132,29 +135,21 @@ const generateRevenuePdf = async (req, res) => {
 
     const revenues = await db.Revenue.find().sort({ revenueDate: -1 });
     let totalRevenue = 0;
-    let paidRevenue = 0;
     let pendingRevenue = 0;
     
     let tableRows = '';
     revenues.forEach((rev, index) => {
-      totalRevenue += rev.totalAmount;
-      if (rev.status === 'Paid') {
-        paidRevenue += rev.totalAmount;
-      } else {
-        pendingRevenue += rev.totalAmount;
-      }
+      totalRevenue += (rev.totalAmount || 0);
+      pendingRevenue += (rev.pendingAmount || 0);
       const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
-      const statusBadge = rev.status === 'Paid' 
-        ? `<span style="padding: 2px 8px; border-radius: 9999px; background-color: #d1fae5; color: #065f46; font-size: 10px; font-weight: bold;">PAID</span>`
-        : `<span style="padding: 2px 8px; border-radius: 9999px; background-color: #fee2e2; color: #991b1b; font-size: 10px; font-weight: bold;">PENDING</span>`;
 
       tableRows += `
         <tr class="${bgClass} border-b border-slate-100">
           <td class="py-3 px-4 text-slate-700 font-medium">${rev.clientName}</td>
           <td class="py-3 px-4 text-slate-600">${rev.mobileNumber}</td>
           <td class="py-3 px-4 text-slate-600">${rev.revenueDate}</td>
-          <td class="py-3 px-4 text-center">${statusBadge}</td>
-          <td class="py-3 px-4 text-right font-medium text-slate-800">&#8377;${rev.totalAmount.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-4 text-right font-medium text-rose-600">&#8377;${(rev.pendingAmount || 0).toLocaleString('en-IN')}</td>
+          <td class="py-3 px-4 text-right font-medium text-slate-800">&#8377;${(rev.totalAmount || 0).toLocaleString('en-IN')}</td>
         </tr>
       `;
     });
@@ -197,17 +192,13 @@ const generateRevenuePdf = async (req, res) => {
         </div>
 
         <!-- SUMMARY CARDS -->
-        <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="grid grid-cols-2 gap-4 mb-8">
           <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
             <span class="text-xs font-bold text-slate-400 uppercase">Total Revenue</span>
             <h3 class="text-lg font-black text-slate-800 mt-1">&#8377;${totalRevenue.toLocaleString('en-IN')}</h3>
           </div>
-          <div class="p-4 bg-emerald-50/50 rounded-xl border border-emerald-100">
-            <span class="text-xs font-bold text-emerald-600/80 uppercase">Paid Revenue</span>
-            <h3 class="text-lg font-black text-emerald-700 mt-1">&#8377;${paidRevenue.toLocaleString('en-IN')}</h3>
-          </div>
           <div class="p-4 bg-rose-50/50 rounded-xl border border-rose-100">
-            <span class="text-xs font-bold text-rose-600/80 uppercase">Pending Revenue</span>
+            <span class="text-xs font-bold text-rose-600/80 uppercase">Total Pending</span>
             <h3 class="text-lg font-black text-rose-700 mt-1">&#8377;${pendingRevenue.toLocaleString('en-IN')}</h3>
           </div>
         </div>
@@ -220,8 +211,8 @@ const generateRevenuePdf = async (req, res) => {
                 <th class="py-4 px-4">Client Name</th>
                 <th class="py-4 px-4">Mobile</th>
                 <th class="py-4 px-4">Revenue Date</th>
-                <th class="py-4 px-4 text-center">Status</th>
-                <th class="py-4 px-4 text-right">Amount</th>
+                <th class="py-4 px-4 text-right">Pending Amount</th>
+                <th class="py-4 px-4 text-right">Total Amount</th>
               </tr>
             </thead>
             <tbody class="text-sm">

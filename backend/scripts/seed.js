@@ -313,25 +313,25 @@ const seed = async () => {
         clientName: 'Rajesh Mehta',
         mobileNumber: '9876500444',
         totalAmount: 25000,
+        pendingAmount: 0,
         revenueDate: formatDate(0),
-        notes: 'Commercial corporate product shoot payout',
-        status: 'Paid'
+        notes: 'Commercial corporate product shoot payout'
       },
       {
         clientName: 'Anjali Desai',
         mobileNumber: '9876500555',
         totalAmount: 12000,
+        pendingAmount: 4000,
         revenueDate: formatDate(-1),
-        notes: 'Album design print charge',
-        status: 'Pending'
+        notes: 'Album design print charge'
       },
       {
         clientName: 'Karan Malhotra',
         mobileNumber: '9876500666',
         totalAmount: 35000,
+        pendingAmount: 0,
         revenueDate: formatDate(-4),
-        notes: 'Brand video production invoice payment',
-        status: 'Paid'
+        notes: 'Brand video production invoice payment'
       }
     ];
 

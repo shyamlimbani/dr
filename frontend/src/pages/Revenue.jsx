@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, Phone, User, DollarSign, Calendar, FileText, CheckCircle, X, Download, AlertCircle, Search } from 'lucide-react';
+import { Plus, Trash2, Edit2, Phone, User, Calendar, X, Download, Search, Users, DollarSign, Activity } from 'lucide-react';
 import apiClient from '../services/api';
 
 const Revenue = () => {
@@ -9,7 +9,6 @@ const Revenue = () => {
 
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -17,9 +16,9 @@ const Revenue = () => {
   const [clientName, setClientName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
+  const [pendingAmount, setPendingAmount] = useState('');
   const [revenueDate, setRevenueDate] = useState('');
   const [notes, setNotes] = useState('');
-  const [status, setStatus] = useState('Pending');
 
   useEffect(() => {
     fetchRevenues();
@@ -28,9 +27,7 @@ const Revenue = () => {
   const fetchRevenues = async () => {
     try {
       setLoading(true);
-      const params = {};
-      if (statusFilter) params.status = statusFilter;
-      const res = await apiClient.get('/revenues', { params });
+      const res = await apiClient.get('/revenues');
       setRevenues(res.data || []);
     } catch (err) {
       console.error('Error fetching revenues:', err);
@@ -39,18 +36,14 @@ const Revenue = () => {
     }
   };
 
-  useEffect(() => {
-    fetchRevenues();
-  }, [statusFilter]);
-
   const openAddModal = () => {
     setEditingId(null);
     setClientName('');
     setMobileNumber('');
     setTotalAmount('');
+    setPendingAmount('');
     setRevenueDate(new Date().toISOString().split('T')[0]);
     setNotes('');
-    setStatus('Pending');
     setShowModal(true);
   };
 
@@ -59,9 +52,9 @@ const Revenue = () => {
     setClientName(rev.clientName);
     setMobileNumber(rev.mobileNumber);
     setTotalAmount(rev.totalAmount);
+    setPendingAmount(rev.pendingAmount);
     setRevenueDate(rev.revenueDate);
     setNotes(rev.notes || '');
-    setStatus(rev.status);
     setShowModal(true);
   };
 
@@ -71,9 +64,9 @@ const Revenue = () => {
       clientName,
       mobileNumber,
       totalAmount: Number(totalAmount),
+      pendingAmount: Number(pendingAmount),
       revenueDate,
-      notes,
-      status
+      notes
     };
 
     try {
@@ -100,16 +93,6 @@ const Revenue = () => {
     }
   };
 
-  const toggleStatus = async (rev) => {
-    try {
-      const nextStatus = rev.status === 'Paid' ? 'Pending' : 'Paid';
-      await apiClient.put(`/revenues/${rev._id}`, { status: nextStatus });
-      fetchRevenues();
-    } catch (err) {
-      alert('Failed to update status');
-    }
-  };
-
   const downloadPdf = async () => {
     try {
       setPdfLoading(true);
@@ -133,8 +116,8 @@ const Revenue = () => {
 
   // Summaries
   const totalRevenueSum = revenues.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
-  const paidRevenueSum = revenues.reduce((sum, r) => r.status === 'Paid' ? sum + (r.totalAmount || 0) : sum, 0);
-  const pendingRevenueSum = revenues.reduce((sum, r) => r.status === 'Pending' ? sum + (r.totalAmount || 0) : sum, 0);
+  const pendingRevenueSum = revenues.reduce((sum, r) => sum + (r.pendingAmount || 0), 0);
+  const totalClients = [...new Set(revenues.map(r => r.mobileNumber))].length;
 
   // Client Search filtering
   const filteredRevenues = revenues.filter(r => {
@@ -178,25 +161,46 @@ const Revenue = () => {
       {/* SUMMARY DASHBOARD CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Revenue</span>
-          <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-2">
-            ₹{totalRevenueSum.toLocaleString('en-IN')}
-          </h2>
-        </div>
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Paid Revenue</span>
-          <h2 className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-2">
-            ₹{paidRevenueSum.toLocaleString('en-IN')}
-          </h2>
+          <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Revenue</span>
+              <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-2">
+                ₹{totalRevenueSum.toLocaleString('en-IN')}
+              </h2>
+            </div>
+            <div className="p-3 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl">
+              <DollarSign size={24} className="text-indigo-500" />
+            </div>
+          </div>
         </div>
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-500"></div>
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Pending Revenue</span>
-          <h2 className="text-3xl font-black text-rose-600 dark:text-rose-400 mt-2">
-            ₹{pendingRevenueSum.toLocaleString('en-IN')}
-          </h2>
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Pending Amount</span>
+              <h2 className="text-3xl font-black text-rose-600 dark:text-rose-400 mt-2">
+                ₹{pendingRevenueSum.toLocaleString('en-IN')}
+              </h2>
+            </div>
+            <div className="p-3 bg-rose-50 dark:bg-rose-500/10 rounded-2xl">
+              <Activity size={24} className="text-rose-500" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Clients</span>
+              <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-2">
+                {totalClients}
+              </h2>
+            </div>
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl">
+              <Users size={24} className="text-emerald-500" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -211,18 +215,6 @@ const Revenue = () => {
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl py-2.5 pl-11 pr-4 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
           />
-        </div>
-        
-        <div className="flex gap-2 w-full sm:w-auto">
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className="w-full sm:w-44 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
-          >
-            <option value="">All Statuses</option>
-            <option value="Paid">Paid</option>
-            <option value="Pending">Pending</option>
-          </select>
         </div>
       </div>
 
@@ -244,8 +236,8 @@ const Revenue = () => {
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Client Name</th>
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Mobile Number</th>
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider">Date</th>
-                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-center">Status</th>
-                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Amount</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Total Amount</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-right">Pending Amount</th>
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase text-xs tracking-wider text-center">Actions</th>
                 </tr>
               </thead>
@@ -261,41 +253,13 @@ const Revenue = () => {
                     <td className="px-6 py-4 text-slate-500">
                       {rev.revenueDate}
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      <button 
-                        onClick={() => toggleStatus(rev)}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border ${
-                          rev.status === 'Paid'
-                            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20'
-                            : 'bg-rose-500/10 text-rose-600 border-rose-500/20 hover:bg-rose-500/20'
-                        }`}
-                        title="Click to toggle status"
-                      >
-                        {rev.status === 'Paid' ? (
-                          <>
-                            <CheckCircle size={12} />
-                            Paid
-                          </>
-                        ) : (
-                          <>
-                            <AlertCircle size={12} />
-                            Pending
-                          </>
-                        )}
-                      </button>
-                    </td>
                     <td className="px-6 py-4 font-black text-slate-800 dark:text-white text-right">
                       ₹{rev.totalAmount?.toLocaleString('en-IN')}
                     </td>
+                    <td className="px-6 py-4 font-bold text-rose-600 dark:text-rose-400 text-right">
+                      ₹{rev.pendingAmount?.toLocaleString('en-IN') || 0}
+                    </td>
                     <td className="px-6 py-4 flex items-center justify-center gap-2">
-                      {rev.status === 'Pending' && (
-                        <button
-                          onClick={() => toggleStatus(rev)}
-                          className="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg text-xs font-bold transition-colors"
-                        >
-                          Mark Paid
-                        </button>
-                      )}
                       <button 
                         onClick={() => openEditModal(rev)}
                         className="p-2 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-350 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
@@ -383,6 +347,22 @@ const Revenue = () => {
                   </div>
 
                   <div>
+                    <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Pending Amount (₹)</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2.5 text-slate-450 font-bold text-sm">₹</span>
+                      <input 
+                        required 
+                        type="number" 
+                        value={pendingAmount} 
+                        onChange={e => setPendingAmount(e.target.value)} 
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 pl-8 pr-4 text-sm focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
                     <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Revenue Date</label>
                     <div className="relative">
                       <Calendar size={16} className="absolute left-3 top-3 text-slate-400" />
@@ -394,20 +374,6 @@ const Revenue = () => {
                         className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-indigo-500"
                       />
                     </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Status</label>
-                    <select
-                      value={status}
-                      onChange={e => setStatus(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
-                    >
-                      <option value="Pending">Pending</option>
-                      <option value="Paid">Paid</option>
-                    </select>
                   </div>
                 </div>
 
@@ -431,20 +397,6 @@ const Revenue = () => {
                 >
                   Cancel
                 </button>
-                {status === 'Pending' && (
-                  <button 
-                    type="button"
-                    onClick={() => {
-                      setStatus('Paid');
-                      setTimeout(() => {
-                        document.getElementById('revenue-form-submit-btn').click();
-                      }, 0);
-                    }}
-                    className="flex-1 h-12 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 transition-all text-sm animate-in fade-in"
-                  >
-                    Mark Paid
-                  </button>
-                )}
                 <button 
                   id="revenue-form-submit-btn"
                   type="submit" 
