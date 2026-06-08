@@ -13,7 +13,9 @@ import {
   Edit2,
   Trash2,
   Clock,
-  CreditCard
+  CreditCard,
+  Shield,
+  Power
 } from 'lucide-react';
 
 const Events = () => {
