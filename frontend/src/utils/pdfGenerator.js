@@ -63,6 +63,7 @@ export const getCompressedLogo = (logoPath) => {
 // ==========================================
 
 export const getBillHtml = (data, settings, logoData) => {
+  console.log('PDF Record Data (Bill):', data);
   const docNumber = data.billNumber || 'INV-0000';
   const docDate = data.billGenerateDate || data.billDate || new Date().toISOString().split('T')[0];
   const dueDate = data.eventDate || docDate;
@@ -237,6 +238,7 @@ export const getBillHtml = (data, settings, logoData) => {
 };
 
 export const getQuotationHtml = (data, settings, logoData) => {
+  console.log('PDF Record Data (Quotation):', data);
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     const parts = dateStr.split('-');
@@ -599,19 +601,30 @@ export const getExpenseReportHtml = (expenses, settings, logoData) => {
   `;
 };
 
-export const getRevenueReportHtml = (bills, settings, logoData) => {
+export const getRevenueReportHtml = (revenues, settings, logoData) => {
+  console.log('PDF Record Data (Revenue Report):', revenues);
   let totalRevenue = 0;
   let tableRows = '';
-  bills.forEach((bill, index) => {
-    const amount = (bill.advanceReceived || 0) + ((bill.grandTotal || 0) - (bill.remainingAmount || 0));
-    totalRevenue += amount;
+  revenues.forEach((rev, index) => {
+    totalRevenue += (rev.totalAmount || 0);
     const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
+    
+    // Format date to DD-MM-YYYY if it is YYYY-MM-DD
+    let displayDate = rev.revenueDate || '';
+    if (displayDate.includes('-')) {
+      const parts = displayDate.split('-');
+      if (parts.length === 3 && parts[0].length === 4) {
+        displayDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+
     tableRows += `
       <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
-        <td class="py-3 px-4 text-slate-700 font-medium">${bill.clientName}</td>
-        <td class="py-3 px-4 text-slate-700">${bill.eventName}</td>
-        <td class="py-3 px-4 text-slate-650">${bill.billDate}</td>
-        <td class="py-3 px-4 text-right font-semibold text-slate-800">₹${amount.toLocaleString('en-IN')}</td>
+        <td class="py-3 px-4 text-slate-700 font-medium">${rev.clientName || '-'}</td>
+        <td class="py-3 px-4 text-slate-650">${rev.mobileNumber || '-'}</td>
+        <td class="py-3 px-4 text-slate-650">${displayDate}</td>
+        <td class="py-3 px-4 text-right font-semibold text-slate-800">₹${(rev.totalAmount || 0).toLocaleString('en-IN')}</td>
+        <td class="py-3 px-4 text-right font-semibold ${rev.pendingAmount > 0 ? 'text-rose-600' : 'text-emerald-600'}">₹${(rev.pendingAmount || 0).toLocaleString('en-IN')}</td>
       </tr>
     `;
   });
@@ -644,13 +657,14 @@ export const getRevenueReportHtml = (bills, settings, logoData) => {
           <thead style="display: table-header-group;">
             <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold" style="break-inside: avoid; page-break-inside: avoid;">
               <th class="py-4 px-4">Client Name</th>
-              <th class="py-4 px-4">Event Name</th>
-              <th class="py-4 px-4">Date</th>
-              <th class="py-4 px-4 text-right">Collected Amount</th>
+              <th class="py-4 px-4">Mobile Number</th>
+              <th class="py-4 px-4">Revenue Date</th>
+              <th class="py-4 px-4 text-right">Total Amount</th>
+              <th class="py-4 px-4 text-right">Pending Amount</th>
             </tr>
           </thead>
           <tbody>
-            ${tableRows || '<tr><td colspan="4" class="text-center py-4 text-slate-500">No revenue data found.</td></tr>'}
+            ${tableRows || '<tr><td colspan="5" class="text-center py-4 text-slate-500">No revenue data found.</td></tr>'}
           </tbody>
         </table>
       </div>
