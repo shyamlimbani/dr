@@ -10,7 +10,9 @@ import {
   Settings as SettingsIcon,
   LogOut, 
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Camera,
+  TrendingUp
 } from 'lucide-react';
 import { useSettings } from '../services/SettingsContext';
 import { getAssetUrl } from '../services/api';
@@ -42,8 +44,10 @@ const Layout = () => {
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Events', path: '/events', icon: Calendar },
     { name: 'Payments', path: '/payments', icon: CreditCard },
-    { name: 'Billing', path: '/billing', icon: FileText },
+    { name: 'Bill & Quotation', path: '/billing', icon: FileText },
     { name: 'Expenses', path: '/expenses', icon: Receipt },
+    { name: 'Studio', path: '/studio', icon: Camera },
+    { name: 'Revenue', path: '/revenue', icon: TrendingUp },
     { name: 'Settings', path: '/settings', icon: SettingsIcon },
   ];
 
@@ -180,7 +184,7 @@ const Layout = () => {
                   <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
                 </div>
                 <span className="text-[9px] mt-1 font-medium tracking-tighter">
-                  {item.name === 'Billing' ? 'Billing' : item.name}
+                  {item.name === 'Bill & Quotation' ? 'Billing' : item.name}
                 </span>
               </Link>
             );

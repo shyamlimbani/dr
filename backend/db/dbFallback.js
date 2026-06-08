@@ -153,6 +153,8 @@ const db = {
   Settings: new JSONCollection('settings'),
   Bill: new JSONCollection('bills'),
   Quotation: new JSONCollection('quotations'),
+  StudioBooking: new JSONCollection('studio_bookings'),
+  Revenue: new JSONCollection('revenues'),
 };
 
 module.exports = db;

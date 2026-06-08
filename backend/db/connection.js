@@ -21,7 +21,9 @@ if (process.env.MONGODB_URI) {
     Expense: require('../models/Expense'),
     Settings: require('../models/Settings'),
     Bill: require('../models/Bill'),
-    Quotation: require('../models/Quotation')
+    Quotation: require('../models/Quotation'),
+    StudioBooking: require('../models/StudioBooking'),
+    Revenue: require('../models/Revenue')
   };
 } else {
   console.log('Database initialized: Using local JSON database storage (dbFallback).');

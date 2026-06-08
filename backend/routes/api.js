@@ -12,6 +12,8 @@ const ledgerController = require('../controllers/ledgerController');
 const expenseController = require('../controllers/expenseController');
 const billingController = require('../controllers/billingController');
 const settingsController = require('../controllers/settingsController');
+const studioController = require('../controllers/studioController');
+const revenueController = require('../controllers/revenueController');
 
 // Middleware
 const authMiddleware = require('../middleware/authMiddleware');
@@ -90,7 +92,7 @@ router.post('/bills', billingController.createBill);
 router.put('/bills/:id', billingController.updateBill);
 router.delete('/bills/:id', billingController.deleteBill);
 router.get('/bills/:id/pdf', billingController.generateBillPdf);
-router.get('/revenue/pdf', billingController.generateRevenuePdf);
+router.get('/revenue/pdf', revenueController.generateRevenuePdf);
 
 // Quotations
 router.get('/quotations', billingController.getQuotations);
@@ -98,5 +100,18 @@ router.post('/quotations', billingController.createQuotation);
 router.put('/quotations/:id', billingController.updateQuotation);
 router.delete('/quotations/:id', billingController.deleteQuotation);
 router.get('/quotations/:id/pdf', billingController.generateQuotationPdf);
+
+// Studio Bookings
+router.get('/studio', studioController.getBookings);
+router.post('/studio', studioController.createBooking);
+router.put('/studio/:id', studioController.updateBooking);
+router.delete('/studio/:id', studioController.deleteBooking);
+
+// Revenue Module Manual CRUD
+router.get('/revenues', revenueController.getRevenues);
+router.post('/revenues', revenueController.createRevenue);
+router.put('/revenues/:id', revenueController.updateRevenue);
+router.delete('/revenues/:id', revenueController.deleteRevenue);
+router.get('/revenues/pdf', revenueController.generateRevenuePdf);
 
 module.exports = router;

@@ -1,47 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/api';
-import { Calendar, Wallet, FileText, Receipt, Download } from 'lucide-react';
+import { Calendar, Wallet, FileText, Receipt, Download, Camera, TrendingUp } from 'lucide-react';
 import { useSettings } from '../services/SettingsContext';
-import { generatePdf, getRevenueReportHtml, getCompressedLogo } from '../utils/pdfGenerator';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { settings } = useSettings();
   
-  // PDF Preview Refs & State
-  const revenueReportRef = useRef(null);
-  const [previewData, setPreviewData] = useState(null);
-  const [logoData, setLogoData] = useState(null);
   const [pdfLoading, setPdfLoading] = useState(false);
-
-  // Compress company logo on settings load
-  useEffect(() => {
-    if (settings && settings.companyLogo) {
-      getCompressedLogo(settings.companyLogo)
-        .then(data => setLogoData(data))
-        .catch(err => console.error('Error pre-compressing logo:', err));
-    }
-  }, [settings]);
-
-  // Auto-generate PDF once preview element renders in active DOM
-  useEffect(() => {
-    if (previewData && revenueReportRef.current) {
-      const timer = setTimeout(async () => {
-        try {
-          const filename = `revenue_report_${new Date().toISOString().split('T')[0]}.pdf`;
-          console.log('E2E Rendering visible Revenue Report preview...');
-          await generatePdf(revenueReportRef.current, filename, 'download');
-        } catch (err) {
-          console.error('PDF Action failed:', err);
-          alert('PDF Generation failed: ' + err.message);
-        } finally {
-          setPreviewData(null); // Clean up / close preview
-        }
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [previewData]);
 
   const cards = [
     {
@@ -61,7 +28,7 @@ const Dashboard = () => {
       iconBg: 'bg-teal-500/20 text-teal-400'
     },
     {
-      title: 'Bill Generator',
+      title: 'Bill & Quotation',
       icon: FileText,
       description: 'Create invoices, generate PDFs, print and download bills.',
       path: '/billing',
@@ -75,15 +42,38 @@ const Dashboard = () => {
       path: '/expenses',
       color: 'from-rose-400 to-red-500',
       iconBg: 'bg-rose-500/20 text-rose-400'
+    },
+    {
+      title: 'Studio',
+      icon: Camera,
+      description: 'Isolated booking management for studio sessions and packages.',
+      path: '/studio',
+      color: 'from-pink-500 to-rose-600',
+      iconBg: 'bg-pink-500/20 text-pink-400'
+    },
+    {
+      title: 'Revenue',
+      icon: TrendingUp,
+      description: 'Manually record sales, toggle status, and view summaries.',
+      path: '/revenue',
+      color: 'from-violet-500 to-purple-600',
+      iconBg: 'bg-purple-500/20 text-purple-400'
     }
   ];
 
   const downloadRevenuePdf = async () => {
     try {
       setPdfLoading(true);
-      const res = await apiClient.get('/bills');
-      const sortedBills = (res.data || []).sort((a, b) => new Date(b.billDate || b.createdAt) - new Date(a.billDate || a.createdAt));
-      setPreviewData(sortedBills);
+      const res = await apiClient.get('/revenues/pdf', { responseType: 'blob' });
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `revenue_report_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Download PDF error', error);
       alert('Failed to generate revenue report');
@@ -176,36 +166,6 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* VISIBLE PDF PREVIEW PORTAL (Rendered inside React DOM to ensure correct layouts/Tailwind compilation) */}
-      {previewData && (
-        <div 
-          id="pdf-preview-portal"
-          className="fixed inset-0 z-50 flex flex-col items-center justify-start bg-slate-900/40 backdrop-blur-sm p-4 overflow-y-auto"
-        >
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl max-w-4xl w-full flex flex-col items-center gap-4 my-8 animate-in zoom-in-95 duration-200">
-            <div className="w-full flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h4 className="font-bold text-lg text-slate-850 dark:text-white">Generating PDF (Visible Preview)...</h4>
-              <span className="text-xs text-slate-400 font-medium">Please wait, compiling canvas layout...</span>
-            </div>
-            
-            {/* The actual target element referenced for PDF capture */}
-            <div className="w-full overflow-x-auto flex justify-center py-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800">
-              <div 
-                style={{ width: '210mm', minHeight: '297mm', padding: '15mm 15mm 25mm 15mm', boxSizing: 'border-box' }}
-                className="bg-white text-slate-900 relative shadow-md"
-              >
-                <div
-                  ref={revenueReportRef}
-                  style={{ width: '180mm', boxSizing: 'border-box' }}
-                  dangerouslySetInnerHTML={{ 
-                    __html: getRevenueReportHtml(previewData, settings, logoData)
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

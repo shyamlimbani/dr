@@ -13,6 +13,8 @@ const Ledger = lazy(() => import('./pages/Ledger'));
 const Invoices = lazy(() => import('./pages/Invoices'));
 const Expenses = lazy(() => import('./pages/Expenses'));
 const Settings = lazy(() => import('./pages/Settings'));
+const Studio = lazy(() => import('./pages/Studio'));
+const Revenue = lazy(() => import('./pages/Revenue'));
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
@@ -102,6 +104,8 @@ const App = () => {
                     <Route path="billing" element={<Invoices />} />
                     <Route path="expenses" element={<Expenses />} />
                     <Route path="settings" element={<Settings />} />
+                    <Route path="studio" element={<Studio />} />
+                    <Route path="revenue" element={<Revenue />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Route>
                 </Routes>

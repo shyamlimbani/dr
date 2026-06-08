@@ -271,6 +271,78 @@ const seed = async () => {
       console.log(`Seeded ${expenseData.length} expenses.`);
     }
 
+    // Seed Studio bookings
+    const studioBookingData = [
+      {
+        clientName: 'Manish Verma',
+        mobileNumber: '9876500111',
+        service: 'Photo Shoot',
+        amount: 8000,
+        bookingDate: formatDate(0),
+        notes: 'Family outdoor photoshoot'
+      },
+      {
+        clientName: 'Ritu Sen',
+        mobileNumber: '9876500222',
+        service: 'Baby Package',
+        amount: 15000,
+        bookingDate: formatDate(2),
+        notes: 'Baby milestone photoshoot'
+      },
+      {
+        clientName: 'Sanjay Jain',
+        mobileNumber: '9876500333',
+        service: 'Reels',
+        amount: 5000,
+        bookingDate: formatDate(-3),
+        notes: 'Instagram corporate brand reels'
+      }
+    ];
+
+    const currentBookings = await db.StudioBooking.find();
+    if (currentBookings.length === 0) {
+      for (const b of studioBookingData) {
+        await db.StudioBooking.create(b);
+      }
+      console.log(`Seeded ${studioBookingData.length} studio bookings.`);
+    }
+
+    // Seed Revenues
+    const manualRevenueData = [
+      {
+        clientName: 'Rajesh Mehta',
+        mobileNumber: '9876500444',
+        totalAmount: 25000,
+        revenueDate: formatDate(0),
+        notes: 'Commercial corporate product shoot payout',
+        status: 'Paid'
+      },
+      {
+        clientName: 'Anjali Desai',
+        mobileNumber: '9876500555',
+        totalAmount: 12000,
+        revenueDate: formatDate(-1),
+        notes: 'Album design print charge',
+        status: 'Pending'
+      },
+      {
+        clientName: 'Karan Malhotra',
+        mobileNumber: '9876500666',
+        totalAmount: 35000,
+        revenueDate: formatDate(-4),
+        notes: 'Brand video production invoice payment',
+        status: 'Paid'
+      }
+    ];
+
+    const currentRevenues = await db.Revenue.find();
+    if (currentRevenues.length === 0) {
+      for (const r of manualRevenueData) {
+        await db.Revenue.create(r);
+      }
+      console.log(`Seeded ${manualRevenueData.length} revenue records.`);
+    }
+
     console.log('Database seeding successfully finished!');
   } catch (err) {
     console.error('Error during database seed:', err);
