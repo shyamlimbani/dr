@@ -52,7 +52,7 @@ const Layout = () => {
   ];
 
   const employeeMenuItems = [
-    { name: 'My Portal', path: '/portal', icon: LayoutDashboard },
+    { name: 'My Dashboard', path: '/employee-dashboard', icon: LayoutDashboard },
   ];
 
   const menuItems = user?.role === 'Employee' ? employeeMenuItems : adminMenuItems;
