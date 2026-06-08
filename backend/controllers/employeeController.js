@@ -36,7 +36,7 @@ const getEmployeeById = async (req, res) => {
     const { id } = req.params;
 
     // Security check: Employees can only view their own profile
-    if (req.user && req.user.role === 'Employee' && req.user.id !== id) {
+    if (req.user && (req.user.role === 'Employee' || req.user.role === 'Staff') && req.user.id !== id) {
       return res.status(403).json({ message: 'Forbidden: You can only access your own profile' });
     }
 
@@ -152,6 +152,20 @@ const updateEmployee = async (req, res) => {
     const { id } = req.params;
     const updateData = { ...req.body };
 
+    const employee = await db.Employee.findById(id);
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+
+    // Protection: If changing role from Admin to something else
+    if (employee.role === 'Admin' && updateData.role && updateData.role !== 'Admin') {
+      const adminUsersCount = await db.User.countDocuments();
+      const adminEmployeesCount = await db.Employee.countDocuments({ role: 'Admin' });
+      if (adminUsersCount + adminEmployeesCount <= 1) {
+        return res.status(400).json({ message: 'Cannot demote the final Admin account. At least one Admin must exist.' });
+      }
+    }
+
     // If new file was uploaded
     if (req.file) {
       updateData.profilePhoto = `/uploads/${req.file.filename}`;
@@ -163,10 +177,6 @@ const updateEmployee = async (req, res) => {
     }
 
     const updatedEmployee = await db.Employee.findByIdAndUpdate(id, updateData, { new: true });
-    if (!updatedEmployee) {
-      return res.status(404).json({ message: 'Employee not found' });
-    }
-
     res.json(updatedEmployee);
   } catch (error) {
     console.error('Update employee error:', error);
@@ -177,14 +187,43 @@ const updateEmployee = async (req, res) => {
 const deleteEmployee = async (req, res) => {
   try {
     const { id } = req.params;
-    const deleted = await db.Employee.findByIdAndDelete(id);
-    if (!deleted) {
+
+    const employee = await db.Employee.findById(id);
+    if (!employee) {
       return res.status(404).json({ message: 'Employee not found' });
     }
+
+    // Protection: If deleting an Admin
+    if (employee.role === 'Admin') {
+      const adminUsersCount = await db.User.countDocuments();
+      const adminEmployeesCount = await db.Employee.countDocuments({ role: 'Admin' });
+      if (adminUsersCount + adminEmployeesCount <= 1) {
+        return res.status(400).json({ message: 'Cannot delete the final Admin. At least one Admin account must exist.' });
+      }
+    }
+
+    await db.Employee.findByIdAndDelete(id);
     
-    // Cleanup any pending ledger entries
-    // For simplicity, we can keep the payment records or delete them. We will keep them for ledger integrity, but could mark employee as deleted.
-    res.json({ message: 'Employee deleted successfully' });
+    // Cleanup associated dashboard data (generic checks for MongoDB vs fallback)
+    if (typeof db.Event.deleteMany === 'function') {
+      await db.Event.deleteMany({ employeeId: id });
+    } else {
+      const allEvents = await db.Event.find({ employeeId: id });
+      for (const ev of allEvents) {
+        await db.Event.findByIdAndDelete(ev._id);
+      }
+    }
+
+    if (typeof db.EmployeeLedger.deleteMany === 'function') {
+      await db.EmployeeLedger.deleteMany({ employeeId: id });
+    } else {
+      const allLedgers = await db.EmployeeLedger.find({ employeeId: id });
+      for (const ledger of allLedgers) {
+        await db.EmployeeLedger.findByIdAndDelete(ledger._id);
+      }
+    }
+
+    res.json({ message: 'Employee and associated dashboard data deleted successfully' });
   } catch (error) {
     console.error('Delete employee error:', error);
     res.status(500).json({ message: 'Server error' });

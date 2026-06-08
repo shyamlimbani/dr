@@ -20,7 +20,7 @@ const authMiddleware = async (req, res, next) => {
       if (!user) {
         return res.status(401).json({ message: 'User no longer exists' });
       }
-    } else if (req.user.role === 'Employee') {
+    } else if (req.user.role === 'Employee' || req.user.role === 'Staff') {
       const emp = await db.Employee.findById(decoded.id);
       if (!emp || emp.loginAccess === false) {
         return res.status(401).json({ message: 'Employee access disabled or not found' });

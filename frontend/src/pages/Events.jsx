@@ -16,7 +16,8 @@ import {
   Clock,
   CreditCard,
   Shield,
-  Power
+  Power,
+  MoreVertical
 } from 'lucide-react';
 
 const Events = () => {
@@ -65,10 +66,19 @@ const Events = () => {
   
   // Employee Modal
   const [showEmpModal, setShowEmpModal] = useState(false);
+  const [editingEmployeeId, setEditingEmployeeId] = useState(null);
   const [empName, setEmpName] = useState('');
   const [empMobile, setEmpMobile] = useState('');
   const [empPassword, setEmpPassword] = useState('');
+  const [empRole, setEmpRole] = useState('Staff');
   const [empPhoto, setEmpPhoto] = useState(null);
+
+  // Employee Delete State
+  const [showDeleteEmpModal, setShowDeleteEmpModal] = useState(false);
+  const [deleteEmployeeId, setDeleteEmployeeId] = useState(null);
+
+  // Employee Mobile Menu State
+  const [activeMenuEmployeeId, setActiveMenuEmployeeId] = useState(null);
 
   // Event Modal & Editing
   const [showEventModal, setShowEventModal] = useState(false);
@@ -106,27 +116,67 @@ const Events = () => {
     fetchPayments();
   }, []);
 
+  const handleEditEmployeeClick = (emp) => {
+    setEditingEmployeeId(emp._id);
+    setEmpName(emp.fullName);
+    setEmpMobile(emp.mobileNumber);
+    setEmpPassword(emp.password || '');
+    setEmpRole(emp.role || 'Staff');
+    setEmpPhoto(null);
+    setShowEmpModal(true);
+  };
+
+  const handleDeleteEmployeeClick = (emp) => {
+    setDeleteEmployeeId(emp._id);
+    setShowDeleteEmpModal(true);
+  };
+
+  const toggleMobileMenu = (e, empId) => {
+    e.stopPropagation();
+    setActiveMenuEmployeeId(activeMenuEmployeeId === empId ? null : empId);
+  };
+
+  const handleDeleteEmployeeConfirm = async () => {
+    try {
+      await apiClient.delete(`/employees/${deleteEmployeeId}`);
+      setShowDeleteEmpModal(false);
+      setDeleteEmployeeId(null);
+      fetchEmployees();
+    } catch (err) {
+      const errMsg = err.response?.data?.message || 'Error deleting employee';
+      alert(errMsg);
+    }
+  };
+
   const handleEmpSubmit = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
       formData.append('fullName', empName);
       formData.append('mobileNumber', empMobile);
-      formData.append('role', 'Staff'); // Default role
+      formData.append('role', empRole);
       formData.append('password', empPassword);
       if (empPhoto) {
         formData.append('profilePhoto', empPhoto);
       }
 
-      await apiClient.post('/employees', formData);
+      if (editingEmployeeId) {
+        await apiClient.put(`/employees/${editingEmployeeId}`, formData);
+      } else {
+        await apiClient.post('/employees', formData);
+      }
+
       setShowEmpModal(false);
+      setEditingEmployeeId(null);
       setEmpName('');
       setEmpMobile('');
       setEmpPassword('');
+      setEmpRole('Staff');
       setEmpPhoto(null);
       fetchEmployees();
     } catch (err) {
-      alert('Error saving employee');
+      const errMsg = err.response?.data?.message || 'Error saving employee';
+      alert(errMsg);
     }
   };
 
@@ -310,8 +360,78 @@ const Events = () => {
                 <div 
                   key={emp._id} 
                   onClick={() => openProfile(emp)}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col items-center text-center cursor-pointer hover:shadow-xl hover:border-indigo-500/50 transition-all duration-300 group"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col items-center text-center cursor-pointer hover:shadow-xl hover:border-indigo-500/50 transition-all duration-300 group relative"
                 >
+                  {/* Actions for Desktop */}
+                  <div className="hidden md:flex absolute top-4 right-4 gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditEmployeeClick(emp);
+                      }}
+                      className="p-1.5 text-slate-400 hover:text-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                      title="Edit Employee"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteEmployeeClick(emp);
+                      }}
+                      className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                      title="Delete Employee"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+
+                  {/* Actions for Mobile (3-dot menu) */}
+                  <div className="md:hidden absolute top-4 right-4">
+                    <button
+                      onClick={(e) => toggleMobileMenu(e, emp._id)}
+                      className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors"
+                    >
+                      <MoreVertical size={18} />
+                    </button>
+                    
+                    {activeMenuEmployeeId === emp._id && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-10" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveMenuEmployeeId(null);
+                          }}
+                        />
+                        <div className="absolute right-0 mt-1 w-28 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg py-1 z-20 animate-in fade-in slide-in-from-top-1 duration-100">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveMenuEmployeeId(null);
+                              handleEditEmployeeClick(emp);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"
+                          >
+                            <Edit2 size={14} />
+                            Edit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveMenuEmployeeId(null);
+                              handleDeleteEmployeeClick(emp);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center gap-2"
+                          >
+                            <Trash2 size={14} />
+                            Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
                   {emp.profilePhoto ? (
                     <img src={getAssetUrl(emp.profilePhoto)} alt={emp.fullName} className="w-20 h-20 rounded-full object-cover shadow-inner mb-4 group-hover:scale-105 transition-transform" />
                   ) : (
@@ -611,13 +731,13 @@ const Events = () => {
         </div>
       )}
 
-      {/* Add Employee Modal */}
+      {/* Add / Edit Employee Modal */}
       {showEmpModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
             <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
-              <h3 className="font-bold text-lg">Add Employee</h3>
-              <button onClick={() => setShowEmpModal(false)} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors">
+              <h3 className="font-bold text-lg">{editingEmployeeId ? 'Edit Employee' : 'Add Employee'}</h3>
+              <button onClick={() => { setShowEmpModal(false); setEditingEmployeeId(null); }} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -635,16 +755,23 @@ const Events = () => {
                 <input required type="text" value={empPassword} onChange={e => setEmpPassword(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="Set a secure password" />
               </div>
               <div>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Role</label>
+                <select value={empRole} onChange={e => setEmpRole(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                  <option value="Staff">Staff</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+              <div>
                 <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Profile Photo (Optional)</label>
                 <input type="file" accept="image/*" onChange={e => setEmpPhoto(e.target.files[0])} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-400 focus:outline-none" />
               </div>
             </form>
             <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 shrink-0 bg-slate-50 dark:bg-slate-950">
-              <button type="button" onClick={() => setShowEmpModal(false)} className="flex-1 py-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm">
+              <button type="button" onClick={() => { setShowEmpModal(false); setEditingEmployeeId(null); }} className="flex-1 py-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm">
                 Cancel
               </button>
               <button type="submit" onClick={handleEmpSubmit} className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all text-sm">
-                Save Employee
+                {editingEmployeeId ? 'Update Employee' : 'Save Employee'}
               </button>
             </div>
           </div>
@@ -721,6 +848,39 @@ const Events = () => {
               <button 
                 type="button" 
                 onClick={handleDeleteEventConfirm} 
+                className="flex-1 py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 transition-colors text-sm"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Employee Confirmation Modal */}
+      {showDeleteEmpModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+              <h3 className="font-bold text-lg text-slate-800 dark:text-white">Delete Employee</h3>
+              <button onClick={() => setShowDeleteEmpModal(false)} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 text-slate-650 dark:text-slate-300 text-sm font-semibold">
+              Are you sure you want to permanently delete this employee?
+            </div>
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 bg-slate-50 dark:bg-slate-950">
+              <button 
+                type="button" 
+                onClick={() => setShowDeleteEmpModal(false)} 
+                className="flex-1 py-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm"
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                onClick={handleDeleteEmployeeConfirm} 
                 className="flex-1 py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 transition-colors text-sm"
               >
                 Delete
