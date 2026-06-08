@@ -3,6 +3,7 @@ import { Plus, Trash2, Edit2, Phone, User, Calendar, X, Download, Search, Users,
 import apiClient from '../services/api';
 import { useSettings } from '../services/SettingsContext';
 import { generatePdf, getRevenueReportHtml, getCompressedLogo } from '../utils/pdfGenerator';
+import { formatDate } from '../utils/dateFormatter';
 import { getWhatsAppUrl } from '../utils/whatsapp';
 
 const Revenue = () => {
@@ -286,7 +287,7 @@ const Revenue = () => {
                       {rev.mobileNumber}
                     </td>
                     <td className="px-6 py-4 text-slate-500">
-                      {rev.revenueDate}
+                      {formatDate(rev.revenueDate)}
                     </td>
                     <td className="px-6 py-4 font-black text-slate-800 dark:text-white text-right">
                       ₹{rev.totalAmount?.toLocaleString('en-IN')}

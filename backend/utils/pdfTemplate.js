@@ -1,19 +1,12 @@
+const { formatDate } = require('./dateFormatter');
+
 const generateHtmlTemplate = (type, data, settings) => {
   const isBill = type === 'Bill';
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const parts = dateStr.split('-');
-    if (parts.length === 3 && parts[0].length === 4) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
-    return dateStr;
-  };
   
   if (isBill) {
     const docNumber = data.billNumber;
-    const docDate = data.billGenerateDate || data.billDate;
-    const dueDate = data.eventDate || docDate; // Default due date to event date
+    const docDate = formatDate(data.billGenerateDate || data.billDate);
+    const dueDate = formatDate(data.eventDate || data.billGenerateDate || data.billDate); // Default due date to event date
 
     let status = 'Pending';
     let statusBadge = '';
@@ -134,7 +127,7 @@ const generateHtmlTemplate = (type, data, settings) => {
             </div>
             <div>
               <p class="text-xs font-semibold ${textAccent} opacity-80 uppercase tracking-wider mb-1">Event Date</p>
-              <p class="text-sm font-semibold text-slate-800">${data.eventDate}</p>
+              <p class="text-sm font-semibold text-slate-800">${formatDate(data.eventDate)}</p>
             </div>
           </div>
         </div>
@@ -304,7 +297,7 @@ const generateHtmlTemplate = (type, data, settings) => {
           <div class="mt-2 text-xs text-slate-500">
             <span class="font-bold text-slate-400 block uppercase tracking-wider text-[10px] mb-1">Quotation Details</span>
             <span class="font-bold text-slate-700">No:</span> ${docNumber} <br/>
-            <span class="font-bold text-slate-700">Date:</span> ${new Date(docDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+            <span class="font-bold text-slate-700">Date:</span> ${formatDate(docDate)}
           </div>
         </div>
         <div class="text-right">
@@ -340,7 +333,7 @@ const generateHtmlTemplate = (type, data, settings) => {
           <div class="w-2/3">
             <h3 class="font-bold text-slate-800 mb-2">Event Details</h3>
             <p class="text-slate-700 mb-1"><span class="font-bold text-slate-400">Name:</span> ${data.eventName}</p>
-            <p class="text-slate-700"><span class="font-bold text-slate-400">Date:</span> ${new Date(data.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+            <p class="text-slate-700"><span class="font-bold text-slate-400">Date:</span> ${formatDate(data.eventDate)}</p>
           </div>
         </div>
       </div>

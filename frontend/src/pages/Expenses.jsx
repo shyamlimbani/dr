@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useSettings } from '../services/SettingsContext';
 import { generatePdf, getExpenseReportHtml, getCompressedLogo } from '../utils/pdfGenerator';
+import { formatDate } from '../utils/dateFormatter';
 
 const Expenses = () => {
   const { settings } = useSettings();
@@ -224,7 +225,7 @@ const Expenses = () => {
               {filteredExpenses.map((exp) => (
                 <tr key={exp._id} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/20 transition-all">
                   <td className="p-4 font-medium text-slate-700 dark:text-slate-300">
-                    {exp.date}
+                    {formatDate(exp.date)}
                   </td>
                   <td className="p-4">
                     <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">
@@ -259,7 +260,7 @@ const Expenses = () => {
                   <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider block w-max">
                     {exp.expenseCategory}
                   </span>
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{exp.date}</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{formatDate(exp.date)}</p>
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">Amount</span>

@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const generateHtmlTemplate = require('../utils/pdfTemplate');
 const db = require('../db/connection');
+const { formatDate } = require('../utils/dateFormatter');
 
 // =====================================
 // BILLS CRUD
@@ -213,7 +214,7 @@ const generateRevenuePdf = async (req, res) => {
         <tr class="${bgClass} border-b border-slate-100">
           <td class="py-3 px-4 text-slate-700">${bill.clientName}</td>
           <td class="py-3 px-4 text-slate-700">${bill.eventName}</td>
-          <td class="py-3 px-4 text-slate-600">${bill.billDate}</td>
+          <td class="py-3 px-4 text-slate-600">${formatDate(bill.billDate)}</td>
           <td class="py-3 px-4 text-right font-medium text-slate-800">&#8377;${amount.toLocaleString('en-IN')}</td>
         </tr>
       `;
@@ -240,7 +241,7 @@ const generateRevenuePdf = async (req, res) => {
           <div>
             ${settings.logoData ? `<img src="${settings.logoData}" alt="Company Logo" class="max-h-16 max-w-[200px] object-contain mb-4"/>` : `<h1 class="poppins text-4xl font-extrabold tracking-tight text-teal-700 mb-1">${settings.studioName}</h1>`}
             <h2 class="poppins text-2xl font-bold text-slate-900 tracking-tight mb-1">REVENUE REPORT</h2>
-            <p class="text-sm font-medium text-slate-500 tracking-widest uppercase">Generated: ${new Date().toISOString().split('T')[0]}</p>
+            <p class="text-sm font-medium text-slate-500 tracking-widest uppercase">Generated: ${formatDate(new Date())}</p>
           </div>
           <div class="text-right">
             ${settings.logoData ? `<h2 class="poppins text-xl font-bold text-teal-700 mb-1">${settings.studioName}</h2>` : ''}

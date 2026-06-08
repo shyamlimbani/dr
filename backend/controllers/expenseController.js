@@ -1,5 +1,6 @@
 const db = require('../db/connection');
 const puppeteer = require('puppeteer');
+const { formatDate } = require('../utils/dateFormatter');
 
 const getExpenses = async (req, res) => {
   try {
@@ -144,7 +145,7 @@ const generateExpensePdf = async (req, res) => {
       const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
       tableRows += `
         <tr class="${bgClass} border-b border-slate-100">
-          <td class="py-3 px-4 text-slate-700">${new Date(exp.date).toISOString().split('T')[0]}</td>
+          <td class="py-3 px-4 text-slate-700">${formatDate(exp.date)}</td>
           <td class="py-3 px-4 text-slate-700">${exp.expenseCategory}</td>
           <td class="py-3 px-4 text-slate-600">${exp.description || '-'}</td>
           <td class="py-3 px-4 text-right font-medium text-slate-800">&#8377;${exp.amount.toLocaleString('en-IN')}</td>
@@ -173,7 +174,7 @@ const generateExpensePdf = async (req, res) => {
           <div>
             ${settings.logoData ? `<img src="${settings.logoData}" alt="Company Logo" class="max-h-16 max-w-[200px] object-contain mb-4"/>` : `<h1 class="poppins text-4xl font-extrabold tracking-tight text-rose-700 mb-1">${settings.studioName}</h1>`}
             <h2 class="poppins text-2xl font-bold text-slate-900 tracking-tight mb-1">EXPENSE REPORT</h2>
-            <p class="text-sm font-medium text-slate-500 tracking-widest uppercase">Generated: ${new Date().toISOString().split('T')[0]}</p>
+            <p class="text-sm font-medium text-slate-500 tracking-widest uppercase">Generated: ${formatDate(new Date())}</p>
           </div>
           <div class="text-right">
             ${settings.logoData ? `<h2 class="poppins text-xl font-bold text-rose-700 mb-1">${settings.studioName}</h2>` : ''}

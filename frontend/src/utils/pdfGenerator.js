@@ -1,4 +1,5 @@
 import { getAssetUrl } from '../services/api';
+import { formatDate } from './dateFormatter';
 
 // Memory cache for compressed base64 logo
 let cachedCompressedLogo = null;
@@ -50,17 +51,8 @@ export const getCompressedLogo = (logoPath) => {
 export const getBillHtml = (data, settings, logoData) => {
   console.log('PDF Record Data (Bill):', data);
   const docNumber = data.billNumber || 'INV-0000';
-  const docDate = data.billGenerateDate || data.billDate || new Date().toISOString().split('T')[0];
-  const dueDate = data.eventDate || docDate;
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const parts = dateStr.split('-');
-    if (parts.length === 3 && parts[0].length === 4) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
-    return dateStr;
-  };
+  const docDate = formatDate(data.billGenerateDate || data.billDate || new Date());
+  const dueDate = formatDate(data.eventDate || data.billGenerateDate || data.billDate || new Date());
 
   let statusBadge = '';
   if (data.remainingAmount <= 0) {
@@ -136,7 +128,7 @@ export const getBillHtml = (data, settings, logoData) => {
             </div>
             <div>
               <span class="text-[10px] font-bold text-slate-400 uppercase block">Event Date</span>
-              <span class="font-semibold text-slate-800">${data.eventDate}</span>
+              <span class="font-semibold text-slate-800">${formatDate(data.eventDate)}</span>
             </div>
           </div>
         </div>
@@ -220,14 +212,6 @@ export const getBillHtml = (data, settings, logoData) => {
 
 export const getQuotationHtml = (data, settings, logoData) => {
   console.log('PDF Record Data (Quotation):', data);
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const parts = dateStr.split('-');
-    if (parts.length === 3 && parts[0].length === 4) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
-    return dateStr;
-  };
 
   const daySections = [];
   let videoOutputSection = null;
@@ -434,14 +418,7 @@ export const getPaymentReportHtml = (ledgers, settings, logoData) => {
     totalPaymentsGiven += l.amountGiven || 0;
     const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
 
-    // Format date to DD-MM-YYYY if it is YYYY-MM-DD
-    let displayDate = l.paymentDate || '';
-    if (displayDate.includes('-')) {
-      const parts = displayDate.split('-');
-      if (parts.length === 3 && parts[0].length === 4) {
-        displayDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-      }
-    }
+    const displayDate = formatDate(l.paymentDate);
 
     tableRows += `
       <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
@@ -462,7 +439,7 @@ export const getPaymentReportHtml = (ledgers, settings, logoData) => {
         <div>
           ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>` : `<h1 class="text-3xl font-extrabold text-indigo-700 tracking-tight mb-1">${settings.studioName}</h1>`}
           <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">EMPLOYEE PAYMENT REPORT</h2>
-          <p class="text-xs font-semibold text-slate-500 tracking-wider">Generated: ${new Date().toISOString().split('T')[0]}</p>
+          <p class="text-xs font-semibold text-slate-500 tracking-wider">Generated: ${formatDate(new Date())}</p>
         </div>
         <div class="text-right">
           ${logoData ? `<h2 class="text-lg font-bold text-indigo-700 mb-1">${settings.studioName}</h2>` : ''}
@@ -518,7 +495,7 @@ export const getExpenseReportHtml = (expenses, settings, logoData) => {
     const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
     tableRows += `
       <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
-        <td class="py-3 px-4 text-slate-700">${new Date(exp.date).toISOString().split('T')[0]}</td>
+        <td class="py-3 px-4 text-slate-700">${formatDate(exp.date)}</td>
         <td class="py-3 px-4 text-slate-700 font-medium">${exp.expenseCategory}</td>
         <td class="py-3 px-4 text-slate-655">${exp.description || '-'}</td>
         <td class="py-3 px-4 text-right font-semibold text-slate-800">₹${(exp.amount || 0).toLocaleString('en-IN')}</td>
@@ -533,7 +510,7 @@ export const getExpenseReportHtml = (expenses, settings, logoData) => {
         <div>
           ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>` : `<h1 class="text-3xl font-extrabold text-rose-700 tracking-tight mb-1">${settings.studioName}</h1>`}
           <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">EXPENSE REPORT</h2>
-          <p class="text-xs font-semibold text-slate-500 tracking-wider">Generated: ${new Date().toISOString().split('T')[0]}</p>
+          <p class="text-xs font-semibold text-slate-500 tracking-wider">Generated: ${formatDate(new Date())}</p>
         </div>
         <div class="text-right">
           ${logoData ? `<h2 class="text-lg font-bold text-rose-700 mb-1">${settings.studioName}</h2>` : ''}
@@ -586,14 +563,7 @@ export const getRevenueReportHtml = (revenues, settings, logoData) => {
     totalRevenue += (rev.totalAmount || 0);
     const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
     
-    // Format date to DD-MM-YYYY if it is YYYY-MM-DD
-    let displayDate = rev.revenueDate || '';
-    if (displayDate.includes('-')) {
-      const parts = displayDate.split('-');
-      if (parts.length === 3 && parts[0].length === 4) {
-        displayDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-      }
-    }
+    const displayDate = formatDate(rev.revenueDate);
 
     tableRows += `
       <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
@@ -613,7 +583,7 @@ export const getRevenueReportHtml = (revenues, settings, logoData) => {
         <div>
           ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>` : `<h1 class="text-3xl font-extrabold text-teal-700 tracking-tight mb-1">${settings.studioName}</h1>`}
           <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">REVENUE REPORT</h2>
-          <p class="text-xs font-semibold text-slate-500 tracking-wider">Generated: ${new Date().toISOString().split('T')[0]}</p>
+          <p class="text-xs font-semibold text-slate-500 tracking-wider">Generated: ${formatDate(new Date())}</p>
         </div>
         <div class="text-right">
           ${logoData ? `<h2 class="text-lg font-bold text-teal-700 mb-1">${settings.studioName}</h2>` : ''}
@@ -662,25 +632,10 @@ export const getRevenueReportHtml = (revenues, settings, logoData) => {
 export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
   const { employee, reportMonth, stats, events, payments } = data;
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    if (dateStr.includes('-')) {
-      const parts = dateStr.split('-');
-      if (parts.length === 3 && parts[0].length === 4) {
-        return `${parts[2]}-${parts[1]}-${parts[0]}`;
-      }
-    }
-    return dateStr;
-  };
-
-  const currentDate = new Date().toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
+  const now = new Date();
+  const datePart = formatDate(now);
+  const timePart = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const currentDate = `${datePart}, ${timePart}`;
 
   let eventRows = '';
   if (events && events.length > 0) {

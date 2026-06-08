@@ -16,6 +16,7 @@ import {
 import { useSettings } from '../services/SettingsContext';
 import { generatePdf, getBillHtml, getQuotationHtml, getCompressedLogo } from '../utils/pdfGenerator';
 import { getWhatsAppUrl } from '../utils/whatsapp';
+import { formatDate } from '../utils/dateFormatter';
 
 const Invoices = () => {
   const [activeTab, setActiveTab] = useState('bills'); // 'bills' | 'quotations'
@@ -51,14 +52,7 @@ const Invoices = () => {
   const [advanceReceived, setAdvanceReceived] = useState(0);
   const [notes, setNotes] = useState('');
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const parts = dateStr.split('-');
-    if (parts.length === 3 && parts[0].length === 4) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
-    return dateStr;
-  };
+
   
   // Dynamic Services Array (Used by Bills)
   const [services, setServices] = useState([
@@ -316,7 +310,7 @@ const Invoices = () => {
   };
 
   const getQuotationWhatsAppMessage = (item) => {
-    return `Hello ${item.clientName},\n\nThank you for choosing Dreams Video.\n\nQuotation Details:\nClient Name: ${item.clientName}\nMobile Number: ${item.mobileNumber}\nEvent Name: ${item.eventName}\nBooking Date: ${item.eventDate || formatDate(item.quotationDate)}\nLocation: ${settings?.address || 'Studio'}\nQuotation Amount: ₹${(item.grandTotal || 0).toLocaleString('en-IN')}\n\nPlease find the generated Quotation PDF attached.`;
+    return `Hello ${item.clientName},\n\nThank you for choosing Dreams Video.\n\nQuotation Details:\nClient Name: ${item.clientName}\nMobile Number: ${item.mobileNumber}\nEvent Name: ${item.eventName}\nBooking Date: ${formatDate(item.eventDate) || formatDate(item.quotationDate)}\nLocation: ${settings?.address || 'Studio'}\nQuotation Amount: ₹${(item.grandTotal || 0).toLocaleString('en-IN')}\n\nPlease find the generated Quotation PDF attached.`;
   };
 
   const filteredData = (activeTab === 'bills' ? bills : quotations).filter(item => 
@@ -414,7 +408,7 @@ const Invoices = () => {
                       {item.clientName}
                     </td>
                     <td className="px-6 py-4 text-slate-500">
-                      {item.billGenerateDate ? formatDate(item.billGenerateDate) : (item.billDate ? formatDate(item.billDate) : new Date(item.quotationDate).toLocaleDateString())}
+                      {item.billGenerateDate ? formatDate(item.billGenerateDate) : (item.billDate ? formatDate(item.billDate) : formatDate(item.quotationDate))}
                     </td>
                     <td className="px-6 py-4 font-black text-slate-800 dark:text-white text-right">
                       ₹{item.grandTotal?.toLocaleString('en-IN')}
@@ -482,7 +476,7 @@ const Invoices = () => {
                   <div className="space-y-0.5 text-right">
                     <span className="text-[10px] uppercase font-bold text-slate-400 block">Date</span>
                     <p className="font-medium">
-                      {item.billGenerateDate ? formatDate(item.billGenerateDate) : (item.billDate ? formatDate(item.billDate) : new Date(item.quotationDate).toLocaleDateString())}
+                      {item.billGenerateDate ? formatDate(item.billGenerateDate) : (item.billDate ? formatDate(item.billDate) : formatDate(item.quotationDate))}
                     </p>
                   </div>
                 </div>

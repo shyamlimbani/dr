@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Calendar as CalendarIcon, Phone, User, DollarSign, FileText, ChevronLeft, ChevronRight, X, Search, MessageCircle } from 'lucide-react';
 import apiClient from '../services/api';
 import { getWhatsAppUrl } from '../utils/whatsapp';
+import { formatDate } from '../utils/dateFormatter';
 
 const SERVICES_LIST = [
   'Photo Shoot',
@@ -116,7 +117,7 @@ const Studio = () => {
   });
 
   const getBookingWhatsAppMessage = (b) => {
-    return `Hello ${b.clientName},\n\nYour Studio Booking has been confirmed.\n\nBooking Details:\nClient Name: ${b.clientName}\nMobile Number: ${b.mobileNumber}\nService: ${b.service}\nAmount: ₹${b.amount}\nBooking Date: ${b.bookingDate}\nNotes: ${b.notes || 'None'}\n\nThank you for choosing Dreams Video.`;
+    return `Hello ${b.clientName},\n\nYour Studio Booking has been confirmed.\n\nBooking Details:\nClient Name: ${b.clientName}\nMobile Number: ${b.mobileNumber}\nService: ${b.service}\nAmount: ₹${b.amount}\nBooking Date: ${formatDate(b.bookingDate)}\nNotes: ${b.notes || 'None'}\n\nThank you for choosing Dreams Video.`;
   };
 
   // Calculate Summary metrics
@@ -214,7 +215,7 @@ const Studio = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-slate-550">
-                      {b.bookingDate}
+                      {formatDate(b.bookingDate)}
                     </td>
                     <td className="px-6 py-4 font-black text-slate-800 dark:text-white text-right">
                       ₹{b.amount?.toLocaleString('en-IN')}

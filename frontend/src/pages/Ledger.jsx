@@ -18,6 +18,7 @@ import {
 import { useSettings } from '../services/SettingsContext';
 import { generatePdf, getPaymentReportHtml, getCompressedLogo } from '../utils/pdfGenerator';
 import { getWhatsAppUrl } from '../utils/whatsapp';
+import { formatDate } from '../utils/dateFormatter';
 
 const Ledger = () => {
   const { settings } = useSettings();
@@ -201,14 +202,7 @@ Thank You.`;
     setPreviewData(filteredPayments);
   };
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const parts = dateStr.split('-');
-    if (parts.length === 3 && parts[0].length === 4) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
-    return dateStr;
-  };
+
 
   const filteredPayments = payments.filter(p => 
     (p.employeeName || '').toLowerCase().includes(search.toLowerCase()) ||

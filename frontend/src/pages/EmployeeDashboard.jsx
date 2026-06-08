@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import apiClient, { getAssetUrl } from '../services/api';
+import { formatDate } from '../utils/dateFormatter';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../services/SettingsContext';
 import { generatePdf, getEmployeeMonthlyReportHtml, getCompressedLogo } from '../utils/pdfGenerator';
@@ -248,7 +249,7 @@ const EmployeeDashboard = () => {
                       </span>
                       <span className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mt-3">
                         <CalendarIcon size={14} className="text-slate-400" />
-                        {new Date(ev.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        {formatDate(ev.eventDate)}
                       </span>
                     </div>
                   </div>
@@ -293,7 +294,7 @@ const EmployeeDashboard = () => {
                       </span>
                       <span className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mt-3">
                         <CalendarIcon size={14} className="text-slate-400" />
-                        {new Date(p.paymentDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        {formatDate(p.paymentDate)}
                       </span>
                     </div>
                     <div className="text-right">
