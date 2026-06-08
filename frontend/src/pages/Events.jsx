@@ -173,6 +173,17 @@ const Events = () => {
     }
   };
 
+  const handleToggleAccess = async () => {
+    try {
+      const newAccess = activeEmployee.loginAccess === false ? true : false;
+      await apiClient.put(`/employees/${activeEmployee._id}`, { loginAccess: newAccess });
+      setActiveEmployee({ ...activeEmployee, loginAccess: newAccess });
+      fetchEmployees();
+    } catch (err) {
+      alert('Failed to update access');
+    }
+  };
+
   const handleSendWhatsAppLogin = () => {
     if (!activeEmployee) return;
     const text = `Hello ${activeEmployee.fullName}\n\nYour Employee Login Details:\n\nMobile Number: ${activeEmployee.mobileNumber}\nPassword: [Contact Admin for Password]`;
