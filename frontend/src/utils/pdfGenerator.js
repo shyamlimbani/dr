@@ -880,7 +880,7 @@ export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
         <table class="header-table">
           <tr>
             <td class="header-left-col">
-              ${logoData ? `<img src="${logoData}" alt="Dreams Video Logo" style="max-height: 44px; max-width: 150px; object-fit: contain;"/>` : `<div style="height: 40px; width: 40px; background: #000; border-radius: 4px; text-align: center; line-height: 40px; color: #fff; font-weight: 800; font-size: 18px;">D</div>`}
+              ${logoData ? `<img src="${logoData}" alt="Dreams Video Logo" style="max-height: 44px; max-width: 150px; object-fit: contain;"/>` : ''}
             </td>
             <td class="header-center-col">
               <h1 class="company-title">DREAMS VIDEO</h1>
