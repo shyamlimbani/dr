@@ -15,7 +15,6 @@ const Expenses = lazy(() => import('./pages/Expenses'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Studio = lazy(() => import('./pages/Studio'));
 const Revenue = lazy(() => import('./pages/Revenue'));
-const EmployeeLogin = lazy(() => import('./pages/EmployeeLogin'));
 const EmployeeDashboard = lazy(() => import('./pages/EmployeeDashboard'));
 
 // Error Boundary Component
@@ -83,7 +82,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   if (!user) return <Navigate to="/login" replace />;
   
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to={user.role === 'Employee' ? '/employee-dashboard' : '/'} replace />;
+    return <Navigate to={user.role === 'Staff' ? '/employee-dashboard' : '/'} replace />;
   }
   
   return children;
@@ -99,7 +98,6 @@ const App = () => {
               <Suspense fallback={<PageLoader />}>
                 <Routes>
                   <Route path="/login" element={<Login />} />
-                  <Route path="/employee-login" element={<EmployeeLogin />} />
                   
                   <Route path="/" element={
                     <ProtectedRoute>
@@ -116,8 +114,8 @@ const App = () => {
                     <Route path="studio" element={<ProtectedRoute allowedRoles={['Admin']}><Studio /></ProtectedRoute>} />
                     <Route path="revenue" element={<ProtectedRoute allowedRoles={['Admin']}><Revenue /></ProtectedRoute>} />
                     
-                    {/* Employee Only Routes */}
-                    <Route path="employee-dashboard" element={<ProtectedRoute allowedRoles={['Employee']}><EmployeeDashboard /></ProtectedRoute>} />
+                    {/* Staff Only Routes */}
+                    <Route path="employee-dashboard" element={<ProtectedRoute allowedRoles={['Staff']}><EmployeeDashboard /></ProtectedRoute>} />
 
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Route>

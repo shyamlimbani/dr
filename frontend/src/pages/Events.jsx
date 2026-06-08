@@ -66,6 +66,7 @@ const Events = () => {
   const [showEmpModal, setShowEmpModal] = useState(false);
   const [empName, setEmpName] = useState('');
   const [empMobile, setEmpMobile] = useState('');
+  const [empRole, setEmpRole] = useState('Staff');
   const [empPassword, setEmpPassword] = useState('');
   const [empPhoto, setEmpPhoto] = useState(null);
 
@@ -106,7 +107,7 @@ const Events = () => {
       const formData = new FormData();
       formData.append('fullName', empName);
       formData.append('mobileNumber', empMobile);
-      formData.append('role', 'Staff'); // Default role
+      formData.append('role', empRole);
       formData.append('password', empPassword);
       if (empPhoto) {
         formData.append('profilePhoto', empPhoto);
@@ -116,6 +117,7 @@ const Events = () => {
       setShowEmpModal(false);
       setEmpName('');
       setEmpMobile('');
+      setEmpRole('Staff');
       setEmpPassword('');
       setEmpPhoto(null);
       fetchEmployees();
@@ -609,6 +611,13 @@ const Events = () => {
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Mobile Number</label>
                 <input required type="text" value={empMobile} onChange={e => setEmpMobile(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="+91 9876543210" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Role</label>
+                <select value={empRole} onChange={e => setEmpRole(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                  <option value="Staff">Staff</option>
+                  <option value="Admin">Admin</option>
+                </select>
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Login Password</label>
