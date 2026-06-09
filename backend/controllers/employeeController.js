@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const db = require('../db/connection');
 
 const getEmployees = async (req, res) => {
@@ -106,13 +107,67 @@ const createEmployee = async (req, res) => {
       password
     } = req.body;
 
-    if (!fullName || !mobileNumber) {
-      return res.status(400).json({ message: 'Full name and mobile number are required' });
+    // 1. Validate required fields (Synchronous)
+    const trimmedName = typeof fullName === 'string' ? fullName.trim() : '';
+    const trimmedMobile = typeof mobileNumber === 'string' ? mobileNumber.trim() : '';
+
+    if (!trimmedName) {
+      return res.status(400).json({ message: 'Full name is required' });
+    }
+    if (!trimmedMobile) {
+      return res.status(400).json({ message: 'Mobile number is required' });
     }
 
-    // Generate unique employee ID
+    // 2. Validate mobile number format (Synchronous)
+    const mobileRegex = /^\+?[0-9\s-]{10,15}$/;
+    if (!mobileRegex.test(trimmedMobile)) {
+      return res.status(400).json({ message: 'Mobile number must be a valid 10 to 15 digit number' });
+    }
+
+    // 3. Validate role (Synchronous)
+    const validRoles = ['Staff', 'Admin'];
+    const finalRole = role || 'Staff';
+    if (!validRoles.includes(finalRole)) {
+      return res.status(400).json({ message: `Role must be one of: ${validRoles.join(', ')}` });
+    }
+
+    // 4. Validate password if provided (Synchronous)
+    if (password !== undefined) {
+      const trimmedPassword = typeof password === 'string' ? password.trim() : '';
+      if (!trimmedPassword) {
+        return res.status(400).json({ message: 'Password cannot be empty or only whitespace' });
+      }
+      if (trimmedPassword.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+      }
+    }
+
+    // 5. Check database connection if Mongoose model is used
+    const isMongoose = db.Employee && db.Employee.prototype instanceof mongoose.Model;
+    if (isMongoose && mongoose.connection && mongoose.connection.readyState === 0) {
+      return res.status(500).json({ message: 'Database connection failed. Please contact your administrator.' });
+    }
+
+    // 6. Check if mobile number is already registered (Database query)
+    const existingEmployee = await db.Employee.findOne({ mobileNumber: trimmedMobile });
+    if (existingEmployee) {
+      return res.status(400).json({ message: 'Mobile number is already registered' });
+    }
+
+    // 7. Generate unique employee ID (avoiding duplicate key conflict when employees are deleted)
     const count = await db.Employee.countDocuments();
-    const employeeId = `EMP-${String(count + 1).padStart(3, '0')}`;
+    let employeeId;
+    let isUnique = false;
+    let nextNum = count + 1;
+    while (!isUnique) {
+      employeeId = `EMP-${String(nextNum).padStart(3, '0')}`;
+      const existing = await db.Employee.findOne({ employeeId });
+      if (!existing) {
+        isUnique = true;
+      } else {
+        nextNum++;
+      }
+    }
 
     // Profile photo upload configuration
     let profilePhoto = '';
@@ -121,11 +176,11 @@ const createEmployee = async (req, res) => {
     }
 
     const employee = await db.Employee.create({
-      fullName,
-      mobileNumber,
+      fullName: trimmedName,
+      mobileNumber: trimmedMobile,
       email: email || '',
       address: address || '',
-      role,
+      role: finalRole,
       perDayCharge: Number(perDayCharge) || 0,
       joiningDate: joiningDate || new Date().toISOString().split('T')[0],
       notes: notes || '',
@@ -136,14 +191,14 @@ const createEmployee = async (req, res) => {
       loginAccess: true
     });
 
-    // Don't send back the password in plain text typically, but since it's manual, we can omit it
-    const returnEmployee = employee.toObject();
+    // Handle toObject compatibility for mongoose vs local JSON database fallback
+    const returnEmployee = typeof employee.toObject === 'function' ? employee.toObject() : { ...employee };
     delete returnEmployee.password;
 
     res.status(201).json(returnEmployee);
   } catch (error) {
     console.error('Create employee error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: error.message || 'Server error' });
   }
 };
 
