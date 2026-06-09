@@ -154,11 +154,38 @@ const createEmployee = async (req, res) => {
       return res.status(400).json({ message: 'Mobile number is already registered' });
     }
 
-    // 7. Generate unique employee ID (avoiding duplicate key conflict when employees are deleted)
-    const count = await db.Employee.countDocuments();
+    // 7. Generate unique employee ID (finding highest existing employeeId and incrementing by 1)
+    let highestIdNum = 0;
+    
+    if (isMongoose) {
+      const lastEmployee = await db.Employee.findOne({}, { employeeId: 1 }).sort({ employeeId: -1 });
+      if (lastEmployee && lastEmployee.employeeId) {
+        const match = lastEmployee.employeeId.match(/EMP-(\d+)/);
+        if (match) {
+          highestIdNum = parseInt(match[1], 10);
+        }
+      }
+    } else {
+      // For dbFallback
+      const allEmployees = await db.Employee.find({});
+      if (allEmployees && allEmployees.length > 0) {
+        allEmployees.forEach(emp => {
+          if (emp.employeeId) {
+            const match = emp.employeeId.match(/EMP-(\d+)/);
+            if (match) {
+              const num = parseInt(match[1], 10);
+              if (num > highestIdNum) {
+                highestIdNum = num;
+              }
+            }
+          }
+        });
+      }
+    }
+
+    let nextNum = highestIdNum + 1;
     let employeeId;
     let isUnique = false;
-    let nextNum = count + 1;
     while (!isUnique) {
       employeeId = `EMP-${String(nextNum).padStart(3, '0')}`;
       const existing = await db.Employee.findOne({ employeeId });
