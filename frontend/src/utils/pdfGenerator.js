@@ -992,9 +992,34 @@ export const generatePdf = async (contentOrElement, filename, action) => {
   });
   await Promise.all(imagePromises);
 
-  // Await browser layout updates
-  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  // 3. Verify display property and wait until the container has a non-zero rendered height
+  const style = window.getComputedStyle(element);
+  if (style.display === 'none') {
+    if (isTempElement && element.parentNode) {
+      element.parentNode.removeChild(element);
+    }
+    throw new Error('PDF generation failed: Source element has display:none and cannot be captured.');
+  }
+
+  const hasHeight = (el) => {
+    return el.offsetHeight > 0 || el.scrollHeight > 0 || el.clientHeight > 0;
+  };
+
+  let heightRetry = 0;
+  const maxHeightRetries = 20; // max ~500ms wait
+  while (!hasHeight(element) && heightRetry < maxHeightRetries) {
+    console.log(`PDF container height is 0 (attempt ${heightRetry + 1}). Waiting for layout render...`);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    heightRetry++;
+  }
+
+  if (!hasHeight(element)) {
+    if (isTempElement && element.parentNode) {
+      element.parentNode.removeChild(element);
+    }
+    throw new Error(`PDF generation failed: Rendered element height is 0 (offsetHeight: ${element.offsetHeight}, scrollHeight: ${element.scrollHeight}, clientHeight: ${element.clientHeight}).`);
+  }
 
   console.log('PDF Source Element:', element);
   console.log('HTML Content Length:', element.innerHTML.length);
@@ -1089,6 +1114,48 @@ export const generatePdf = async (contentOrElement, filename, action) => {
     const blob = result.blob;
 
     if (action === 'download') {
+      try {
+        const blobToBase64 = (b) => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              if (typeof reader.result === 'string') {
+                const base64data = reader.result.split(',')[1];
+                resolve(base64data);
+              } else {
+                reject(new Error('FileReader result is not a string.'));
+              }
+            };
+            reader.onerror = (err) => reject(err);
+            reader.readAsDataURL(b);
+          });
+        };
+
+        const base64 = await blobToBase64(blob);
+        const response = await apiClient.post('/pdf/temp-upload', {
+          pdfBase64: base64,
+          filename: opt.filename
+        });
+
+        if (response.data && response.data.success && response.data.downloadId) {
+          const downloadId = response.data.downloadId;
+          const downloadUrl = `${getBaseUrl()}/pdf/temp-download/${downloadId}`;
+          
+          const a = document.createElement('a');
+          a.href = downloadUrl;
+          a.download = opt.filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          return;
+        } else {
+          console.warn('Backend PDF upload response unsuccessful, falling back to local download.');
+        }
+      } catch (backendErr) {
+        console.error('Backend PDF download integration failed, falling back to local download:', backendErr);
+      }
+
+      // Fallback: Local blob download
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
