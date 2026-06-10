@@ -951,10 +951,13 @@ export const generatePdf = async (contentOrElement, filename, action) => {
   if (typeof contentOrElement === 'string') {
     element = document.createElement('div');
     element.style.position = 'fixed';
-    element.style.left = '-9999px';
+    element.style.left = '0';
     element.style.top = '0';
     element.style.width = '210mm'; // A4 width
     element.style.backgroundColor = '#ffffff';
+    element.style.zIndex = '-9999'; // Rendered behind the active UI
+    element.style.opacity = '0.01'; // Invisible but painted by browser
+    element.style.pointerEvents = 'none';
     element.className = 'bg-white text-slate-900 font-sans';
     element.innerHTML = contentOrElement;
     document.body.appendChild(element);
@@ -973,6 +976,25 @@ export const generatePdf = async (contentOrElement, filename, action) => {
     }
     throw new Error(`PDF Content Audit Failed: HTML template has insufficient text content (${textContent.length} chars).`);
   }
+
+  // 2. Asset Staging & Synchronization (Fonts, Images, Logo, Layout rendering)
+  if (document.fonts && document.fonts.ready) {
+    await document.fonts.ready;
+  }
+
+  const images = Array.from(element.getElementsByTagName('img'));
+  const imagePromises = images.map((img) => {
+    if (img.complete) return Promise.resolve();
+    return new Promise((resolve) => {
+      img.onload = () => resolve();
+      img.onerror = () => resolve(); // Proceed even if some image fails to load
+    });
+  });
+  await Promise.all(imagePromises);
+
+  // Await browser layout updates
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   console.log('PDF Source Element:', element);
   console.log('HTML Content Length:', element.innerHTML.length);
@@ -1027,34 +1049,47 @@ export const generatePdf = async (contentOrElement, filename, action) => {
     filename:     filename || 'report.pdf',
     image:        { type: 'jpeg', quality: 1.0 },
     html2canvas:  { 
-      scale: 3, // Set scale to 3 for high-resolution DPI
+      scale: 2, // scale 2 as requested
       useCORS: true, 
-      logging: true, 
+      backgroundColor: "#ffffff",
+      logging: false, // logging false as requested
       scrollX: 0, 
-      scrollY: 0,
-      backgroundColor: "#ffffff"
+      scrollY: 0
     },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
     pagebreak:    { mode: ['css', 'legacy'] }
   };
 
-  const verifyBlob = (blob, label) => {
-    if (!blob) {
-      throw new Error(`PDF generation failed: ${label} Blob is null.`);
-    }
-    // Canvas-drawn pages are typically > 15KB. Empty/blank templates compile to < 3KB.
-    if (blob.size < 10000) { 
-      throw new Error(`PDF generation failed: ${label} PDF is empty or blank (size: ${blob.size} bytes).`);
-    }
-    console.log(`PDF Content Audit Passed: ${label} PDF size is ${blob.size} bytes.`);
+  const generateBlob = async () => {
+    const worker = html2pdf().set(opt).from(element);
+    const canvas = await worker.toCanvas().get('canvas');
+    const width = canvas ? canvas.width : 0;
+    const height = canvas ? canvas.height : 0;
+    const blob = await worker.toPdf().outputPdf('blob');
+    return { blob, width, height };
   };
 
   try {
-    if (action === 'download') {
-      const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
-      verifyBlob(pdfBlob, 'Download');
+    let result = await generateBlob();
+    
+    // Validation: Verify canvas width > 0, canvas height > 0, generated blob size > 10000 bytes
+    if (result.width <= 0 || result.height <= 0 || !result.blob || result.blob.size < 10000) {
+      console.warn(`PDF generation failed on first attempt (width: ${result.width}, height: ${result.height}, size: ${result.blob ? result.blob.size : 0} bytes). Retrying capture once...`);
       
-      const url = URL.createObjectURL(pdfBlob);
+      // Delay before retrying to let layouts paint complete
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      
+      result = await generateBlob();
+      
+      if (result.width <= 0 || result.height <= 0 || !result.blob || result.blob.size < 10000) {
+        throw new Error(`PDF generation failed: Download PDF is empty or blank (size: ${result.blob ? result.blob.size : 0} bytes).`);
+      }
+    }
+
+    const blob = result.blob;
+
+    if (action === 'download') {
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = opt.filename;
@@ -1066,15 +1101,9 @@ export const generatePdf = async (contentOrElement, filename, action) => {
         URL.revokeObjectURL(url);
       }, 100);
     } else if (action === 'view') {
-      const blob = await html2pdf().set(opt).from(element).outputPdf('blob');
-      verifyBlob(blob, 'View');
-      
       const blobUrl = URL.createObjectURL(blob);
       window.open(blobUrl, '_blank');
     } else if (action === 'print') {
-      const blob = await html2pdf().set(opt).from(element).outputPdf('blob');
-      verifyBlob(blob, 'Print');
-      
       const blobUrl = URL.createObjectURL(blob);
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
