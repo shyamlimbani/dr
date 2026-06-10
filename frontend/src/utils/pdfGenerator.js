@@ -945,39 +945,50 @@ export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
 // ==========================================
 
 export const generatePdf = async (contentOrElement, filename, action) => {
-  let element = contentOrElement;
+  // 1. Wait for React render completion
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  await new Promise((resolve) => setTimeout(resolve, 150));
+
+  let htmlContent = '';
   let isTempElement = false;
+  let element = null;
 
   if (typeof contentOrElement === 'string') {
-    element = document.createElement('div');
-    element.style.position = 'fixed';
-    element.style.left = '-10000px';
-    element.style.top = '0';
-    element.style.width = '210mm'; // A4 width
-    element.style.backgroundColor = '#ffffff';
-    element.style.visibility = 'visible';
-    element.style.opacity = '1';
-    element.style.pointerEvents = 'none';
-    element.className = 'bg-white text-slate-900 font-sans';
-    element.innerHTML = contentOrElement;
-    document.body.appendChild(element);
-    isTempElement = true;
-  }
-
-  if (!element) {
+    htmlContent = contentOrElement;
+  } else if (contentOrElement instanceof HTMLElement) {
+    htmlContent = contentOrElement.innerHTML;
+  } else if (contentOrElement && contentOrElement.current instanceof HTMLElement) {
+    htmlContent = contentOrElement.current.innerHTML;
+  } else {
     throw new Error('PDF generation failed: Source element is null or undefined.');
   }
 
-  // 1. Pre-flight HTML Content Audit
-  const textContent = element.textContent || element.innerText || '';
-  if (!textContent.trim() || textContent.length < 50) {
-    if (isTempElement && element.parentNode) {
-      element.parentNode.removeChild(element);
-    }
-    throw new Error(`PDF Content Audit Failed: HTML template has insufficient text content (${textContent.length} chars).`);
-  }
+  // 2. Ensure the PDF template is mounted in DOM before capture.
+  // Render the PDF container off-screen: left: -10000px; visibility: visible; opacity: 1;
+  element = document.createElement('div');
+  element.style.position = 'fixed';
+  element.style.left = '-10000px';
+  element.style.top = '0';
+  element.style.width = '210mm'; // A4 width
+  element.style.backgroundColor = '#ffffff';
+  element.style.visibility = 'visible';
+  element.style.opacity = '1';
+  element.style.pointerEvents = 'none';
+  element.className = 'bg-white text-slate-900 font-sans';
+  element.innerHTML = htmlContent;
+  document.body.appendChild(element);
+  isTempElement = true;
 
-  // 2. Asset Staging & Synchronization (Fonts, Images, Logo, Layout rendering)
+  // 3. Remove any display:none from the PDF template.
+  const allElements = element.querySelectorAll('*');
+  allElements.forEach((el) => {
+    const style = window.getComputedStyle(el);
+    if (style.display === 'none' || el.style.display === 'none') {
+      el.style.display = 'block';
+    }
+  });
+
+  // 4. Wait for fonts.ready and images loaded
   if (document.fonts && document.fonts.ready) {
     await document.fonts.ready;
   }
@@ -987,43 +998,60 @@ export const generatePdf = async (contentOrElement, filename, action) => {
     if (img.complete) return Promise.resolve();
     return new Promise((resolve) => {
       img.onload = () => resolve();
-      img.onerror = () => resolve(); // Proceed even if some image fails to load
+      img.onerror = () => resolve();
     });
   });
   await Promise.all(imagePromises);
 
-  // 3. Verify display property and wait until the container has a non-zero rendered height
-  const style = window.getComputedStyle(element);
-  if (style.display === 'none') {
+  // 5. Diagnostics logging and height check
+  console.log('Before capture element diagnostics:');
+  console.log(`- element.id: ${element.id || 'N/A'}`);
+  console.log(`- element.className: ${element.className || 'N/A'}`);
+  console.log(`- offsetWidth: ${element.offsetWidth}`);
+  console.log(`- offsetHeight: ${element.offsetHeight}`);
+  console.log(`- scrollWidth: ${element.scrollWidth}`);
+  console.log(`- scrollHeight: ${element.scrollHeight}`);
+  console.log(`- clientWidth: ${element.clientWidth}`);
+  console.log(`- clientHeight: ${element.clientHeight}`);
+
+  if (element.offsetHeight === 0 || element.scrollHeight === 0) {
+    // Identify why the element is not rendered
+    const style = window.getComputedStyle(element);
+    const parentStyles = [];
+    let parent = element.parentElement;
+    while (parent) {
+      const pStyle = window.getComputedStyle(parent);
+      parentStyles.push({
+        tagName: parent.tagName,
+        id: parent.id,
+        className: parent.className,
+        display: pStyle.display,
+        visibility: pStyle.visibility,
+        opacity: pStyle.opacity
+      });
+      parent = parent.parentElement;
+    }
+    
+    const errMessage = `PDF generation failed: Target element has zero height (offsetHeight: ${element.offsetHeight}, scrollHeight: ${element.scrollHeight}).
+Details:
+- display: ${style.display}
+- visibility: ${style.visibility}
+- opacity: ${style.opacity}
+- parent chain styles: ${JSON.stringify(parentStyles, null, 2)}`;
+    
+    console.error(errMessage);
     if (isTempElement && element.parentNode) {
       element.parentNode.removeChild(element);
     }
-    throw new Error('PDF generation failed: Source element has display:none and cannot be captured.');
+    throw new Error(errMessage);
   }
 
-  const hasHeight = (el) => {
-    return el.offsetHeight > 0 || el.scrollHeight > 0 || el.clientHeight > 0;
-  };
-
-  let heightRetry = 0;
-  const maxHeightRetries = 20; // max ~500ms wait
-  while (!hasHeight(element) && heightRetry < maxHeightRetries) {
-    console.log(`PDF container height is 0 (attempt ${heightRetry + 1}). Waiting for layout render...`);
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    heightRetry++;
-  }
-
-  if (!hasHeight(element)) {
-    if (isTempElement && element.parentNode) {
-      element.parentNode.removeChild(element);
-    }
-    throw new Error(`PDF generation failed: Rendered element height is 0 (offsetHeight: ${element.offsetHeight}, scrollHeight: ${element.scrollHeight}, clientHeight: ${element.clientHeight}).`);
-  }
-
-  // Await browser layout updates to ensure fully rendered
-  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  // 6. Use the actual rendered element height:
+  const height = Math.max(
+    element.scrollHeight,
+    element.offsetHeight,
+    element.clientHeight
+  );
 
   // Dynamically import html2pdf to code-split the bundle
   const html2pdf = (await import('html2pdf.js')).default;
@@ -1038,7 +1066,8 @@ export const generatePdf = async (contentOrElement, filename, action) => {
       backgroundColor: "#ffffff",
       logging: false, 
       scrollX: 0, 
-      scrollY: 0
+      scrollY: 0,
+      height: height // actual rendered height
     },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
     pagebreak:    { mode: ['css', 'legacy'] }
@@ -1047,24 +1076,25 @@ export const generatePdf = async (contentOrElement, filename, action) => {
   const generateBlob = async () => {
     const worker = html2pdf().set(opt).from(element);
     const canvas = await worker.toCanvas().get('canvas');
-    const width = canvas ? canvas.width : 0;
-    const height = canvas ? canvas.height : 0;
+    const cWidth = canvas ? canvas.width : 0;
+    const cHeight = canvas ? canvas.height : 0;
     const blob = await worker.toPdf().outputPdf('blob');
     
     // Debugging logs
     console.log(`PDF Generation Debugging Logs:`);
-    console.log(`- canvas width: ${width}`);
-    console.log(`- canvas height: ${height}`);
+    console.log(`- canvas width: ${cWidth}`);
+    console.log(`- canvas height: ${cHeight}`);
     console.log(`- blob size: ${blob ? blob.size : 0} bytes`);
     console.log(`- element scrollWidth: ${element.scrollWidth}`);
     console.log(`- element scrollHeight: ${element.scrollHeight}`);
     
-    return { blob, width, height };
+    return { blob, width: cWidth, height: cHeight };
   };
 
   try {
     let result = await generateBlob();
     
+    // If first capture fails, retry once.
     if (result.width <= 0 || result.height <= 0 || !result.blob) {
       console.warn(`PDF generation failed on first attempt (width: ${result.width}, height: ${result.height}). Retrying capture once...`);
       
