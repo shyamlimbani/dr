@@ -50,7 +50,9 @@ const Revenue = () => {
           if (!content || content.trim() === '') {
              throw new Error('Container is empty');
           }
-          const filename = `revenue_report_${new Date().toISOString().split('T')[0]}.pdf`;
+          const monthName = new Date().toLocaleString('default', { month: 'long' });
+          const year = new Date().getFullYear();
+          const filename = `Revenue_Report_${monthName}_${year}.pdf`;
           console.log('Rendering visible Revenue Report preview...');
           await generatePdf(revenueReportRef.current, filename, 'download');
         } catch (err) {

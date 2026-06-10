@@ -14,6 +14,7 @@ const billingController = require('../controllers/billingController');
 const settingsController = require('../controllers/settingsController');
 const studioController = require('../controllers/studioController');
 const revenueController = require('../controllers/revenueController');
+const pdfController = require('../controllers/pdfController');
 
 // Middleware
 const authMiddleware = require('../middleware/authMiddleware');
@@ -45,6 +46,7 @@ const upload = multer({
 router.post('/auth/login', authController.login);
 router.post('/auth/forgot-password', authController.forgotPassword);
 router.post('/auth/reset-password', authController.resetPassword);
+router.get('/pdf/temp-download/:downloadId', pdfController.tempDownload);
 
 // ==========================================
 // PROTECTED ROUTES (Requires JWT)
@@ -53,6 +55,7 @@ router.use(authMiddleware);
 
 // Auth Validation
 router.get('/auth/me', authController.getMe);
+router.post('/pdf/temp-upload', pdfController.tempUpload);
 
 // Employee Management (Integrated within Events module)
 router.get('/employees', employeeController.getEmployees);

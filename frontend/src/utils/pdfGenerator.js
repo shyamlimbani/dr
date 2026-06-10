@@ -1,4 +1,4 @@
-import { getAssetUrl } from '../services/api';
+import apiClient, { getAssetUrl, getBaseUrl } from '../services/api';
 import { formatDate } from './dateFormatter';
 
 // Memory cache for compressed base64 logo
@@ -1035,14 +1035,33 @@ export const generatePdf = async (element, filename, action) => {
       const blob = await html2pdf().set(opt).from(element).outputPdf('blob');
       verifyBlob(blob, 'Download');
       
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = opt.filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
+      // Convert blob to base64 to stage it via backend (ensures mobile/webview compatibility)
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = async () => {
+        try {
+          const base64data = reader.result.split(',')[1];
+          const response = await apiClient.post('/pdf/temp-upload', {
+            pdfBase64: base64data,
+            filename: opt.filename
+          });
+          const { downloadId } = response.data;
+          
+          // Redirect page to trigger instant native download
+          window.location.href = `${getBaseUrl()}/pdf/temp-download/${downloadId}`;
+        } catch (uploadErr) {
+          console.error('Server-assisted PDF download failed, falling back to client blob:', uploadErr);
+          // Fallback to standard client blob download if server is unavailable
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = opt.filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(blobUrl);
+        }
+      };
     } else if (action === 'view') {
       const blob = await html2pdf().set(opt).from(element).outputPdf('blob');
       verifyBlob(blob, 'View');

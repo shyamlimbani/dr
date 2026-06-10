@@ -61,7 +61,7 @@ const EmployeeDashboard = () => {
       if (pdfLoading && pdfPreviewRef.current && data) {
         try {
           const monthName = new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long' });
-          const filename = `my_monthly_report_${data.employee.fullName.replace(/[^a-zA-Z0-9]/g, '_')}_${monthName}_${selectedYear}.pdf`;
+          const filename = `Employee_Report_${monthName}_${selectedYear}.pdf`;
           await generatePdf(pdfPreviewRef.current, filename, 'download');
         } catch (err) {
           console.error('PDF Action failed:', err);

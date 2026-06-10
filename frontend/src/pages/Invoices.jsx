@@ -88,7 +88,10 @@ const Invoices = () => {
           }
           
           const docNumber = previewItem.billNumber || previewItem.quotationNumber || 'document';
-          const filename = `${previewType.toLowerCase()}_${docNumber}.pdf`;
+          const cleanDoc = docNumber.replace(/[^a-zA-Z0-9]/g, '');
+          const filename = previewType === 'Bill' 
+            ? `Bill_${cleanDoc}.pdf` 
+            : `Quotation_${cleanDoc}.pdf`;
           
           console.log(`E2E Rendering visible ${previewType} preview for ${docNumber}...`);
           await generatePdf(quotationRef.current, filename, previewAction);
