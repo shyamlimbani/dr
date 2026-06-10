@@ -979,20 +979,27 @@ export const generatePdf = async (contentOrElement, filename, action) => {
   document.body.appendChild(element);
   isTempElement = true;
 
-  // 3. Remove any display:none from the PDF template.
+  // 3. Remove any display:none or hidden styles from the PDF template.
   const allElements = element.querySelectorAll('*');
   allElements.forEach((el) => {
     const style = window.getComputedStyle(el);
     if (style.display === 'none' || el.style.display === 'none') {
       el.style.display = 'block';
     }
+    if (style.visibility === 'hidden' || el.style.visibility === 'hidden') {
+      el.style.visibility = 'visible';
+    }
+    if (style.opacity === '0' || el.style.opacity === '0') {
+      el.style.opacity = '1';
+    }
   });
 
-  // 4. Wait for fonts.ready and images loaded
+  // 4. Wait for fonts.ready
   if (document.fonts && document.fonts.ready) {
     await document.fonts.ready;
   }
 
+  // 5. Wait until all images finish loading before capture
   const images = Array.from(element.getElementsByTagName('img'));
   const imagePromises = images.map((img) => {
     if (img.complete) return Promise.resolve();
@@ -1003,19 +1010,19 @@ export const generatePdf = async (contentOrElement, filename, action) => {
   });
   await Promise.all(imagePromises);
 
-  // 5. Diagnostics logging and height check
-  console.log('Before capture element diagnostics:');
-  console.log(`- element.id: ${element.id || 'N/A'}`);
-  console.log(`- element.className: ${element.className || 'N/A'}`);
+  // 6. Diagnostics logging
+  console.log('Element Content Diagnostics:');
+  console.log(`- innerHTML length: ${element.innerHTML.length}`);
   console.log(`- offsetWidth: ${element.offsetWidth}`);
   console.log(`- offsetHeight: ${element.offsetHeight}`);
-  console.log(`- scrollWidth: ${element.scrollWidth}`);
   console.log(`- scrollHeight: ${element.scrollHeight}`);
   console.log(`- clientWidth: ${element.clientWidth}`);
   console.log(`- clientHeight: ${element.clientHeight}`);
+  console.log(`- element.id: ${element.id || 'N/A'}`);
+  console.log(`- element.className: ${element.className || 'N/A'}`);
 
+  // Check if element has zero height
   if (element.offsetHeight === 0 || element.scrollHeight === 0) {
-    // Identify why the element is not rendered
     const style = window.getComputedStyle(element);
     const parentStyles = [];
     let parent = element.parentElement;
@@ -1046,69 +1053,97 @@ Details:
     throw new Error(errMessage);
   }
 
-  // 6. Use the actual rendered element height:
-  const height = Math.max(
-    element.scrollHeight,
-    element.offsetHeight,
-    element.clientHeight
-  );
+  // Dynamically import dependencies
+  const html2canvas = (await import('html2canvas')).default;
+  const { jsPDF } = await import('jspdf');
 
-  // Dynamically import html2pdf to code-split the bundle
-  const html2pdf = (await import('html2pdf.js')).default;
-
-  const opt = {
-    margin:       [15, 15, 15, 15], // 15mm Top, Bottom, Left, Right
-    filename:     filename || 'report.pdf',
-    image:        { type: 'jpeg', quality: 1.0 },
-    html2canvas:  { 
-      scale: 2, 
-      useCORS: true, 
-      backgroundColor: "#ffffff",
-      logging: false, 
-      scrollX: 0, 
-      scrollY: 0,
-      height: height // actual rendered height
-    },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:    { mode: ['css', 'legacy'] }
+  const isCanvasBlank = (cvs) => {
+    const ctx = cvs.getContext('2d');
+    if (!ctx) return false;
+    const imgData = ctx.getImageData(0, 0, cvs.width, cvs.height).data;
+    for (let i = 0; i < imgData.length; i += 4) {
+      const r = imgData[i];
+      const g = imgData[i+1];
+      const b = imgData[i+2];
+      const a = imgData[i+3];
+      if (a !== 0 && (r !== 255 || g !== 255 || b !== 255)) {
+        return false; // Found non-white, non-transparent pixel
+      }
+    }
+    return true; // Completely blank
   };
 
-  const generateBlob = async () => {
-    const worker = html2pdf().set(opt).from(element);
-    const canvas = await worker.toCanvas().get('canvas');
-    const cWidth = canvas ? canvas.width : 0;
-    const cHeight = canvas ? canvas.height : 0;
-    const blob = await worker.toPdf().outputPdf('blob');
+  const captureCanvas = async () => {
+    // Temporarily position element at left: 0px to ensure html2canvas paints it within standard coordinate bounds
+    const originalLeft = element.style.left;
+    element.style.left = '0px';
     
-    // Debugging logs
-    console.log(`PDF Generation Debugging Logs:`);
-    console.log(`- canvas width: ${cWidth}`);
-    console.log(`- canvas height: ${cHeight}`);
-    console.log(`- blob size: ${blob ? blob.size : 0} bytes`);
-    console.log(`- element scrollWidth: ${element.scrollWidth}`);
-    console.log(`- element scrollHeight: ${element.scrollHeight}`);
-    
-    return { blob, width: cWidth, height: cHeight };
+    try {
+      const cvs = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: true
+      });
+      return cvs;
+    } finally {
+      element.style.left = originalLeft;
+    }
   };
 
   try {
-    let result = await generateBlob();
-    
-    // If first capture fails, retry once.
-    if (result.width <= 0 || result.height <= 0 || !result.blob) {
-      console.warn(`PDF generation failed on first attempt (width: ${result.width}, height: ${result.height}). Retrying capture once...`);
-      
-      // Delay before retrying to let layouts paint complete
+    let canvas = await captureCanvas();
+    console.log('canvas.width:', canvas.width);
+    console.log('canvas.height:', canvas.height);
+
+    let isBlank = isCanvasBlank(canvas);
+    console.log('Is canvas blank?', isBlank);
+
+    // If first capture fails or is blank, retry once
+    if (canvas.width <= 0 || canvas.height <= 0 || isBlank) {
+      console.warn('Canvas is blank or invalid on first attempt. Retrying capture once...');
       await new Promise((resolve) => setTimeout(resolve, 300));
+      canvas = await captureCanvas();
+      console.log('Retried canvas.width:', canvas.width);
+      console.log('Retried canvas.height:', canvas.height);
+      isBlank = isCanvasBlank(canvas);
+      console.log('Is retried canvas blank?', isBlank);
       
-      result = await generateBlob();
-      
-      if (result.width <= 0 || result.height <= 0 || !result.blob) {
-        throw new Error(`PDF generation failed: Canvas dimensions are invalid (width: ${result.width}, height: ${result.height}).`);
+      if (canvas.width <= 0 || canvas.height <= 0 || isBlank) {
+        throw new Error('PDF generation failed: Generated canvas is blank or empty.');
       }
     }
 
-    const blob = result.blob;
+    // Generate PDF using jsPDF
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const imgWidth = 180; // A4 width minus margins (15mm left, 15mm right)
+    const pageHeight = 297;
+    const marginX = 15;
+    const marginY = 15;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    // Add first page
+    pdf.addImage(imgData, 'JPEG', marginX, marginY, imgWidth, imgHeight);
+    heightLeft -= (pageHeight - marginY * 2);
+
+    // Add subsequent pages if necessary
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight + marginY;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', marginX, position, imgWidth, imgHeight);
+      heightLeft -= (pageHeight - marginY * 2);
+    }
+
+    const blob = pdf.output('blob');
 
     if (action === 'download') {
       try {
@@ -1131,7 +1166,7 @@ Details:
         const base64 = await blobToBase64(blob);
         const response = await apiClient.post('/pdf/temp-upload', {
           pdfBase64: base64,
-          filename: opt.filename
+          filename: filename || 'report.pdf'
         });
 
         if (response.data && response.data.success && response.data.downloadId) {
@@ -1140,7 +1175,7 @@ Details:
           
           const a = document.createElement('a');
           a.href = downloadUrl;
-          a.download = opt.filename;
+          a.download = filename || 'report.pdf';
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -1156,7 +1191,7 @@ Details:
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = opt.filename;
+      a.download = filename || 'report.pdf';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
