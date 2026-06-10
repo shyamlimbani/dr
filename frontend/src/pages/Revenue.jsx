@@ -9,9 +9,6 @@ import { getWhatsAppUrl } from '../utils/whatsapp';
 const Revenue = () => {
   const { settings } = useSettings();
   
-  // PDF Preview Refs & State
-  const revenueReportRef = useRef(null);
-  const [previewData, setPreviewData] = useState(null);
   const [logoData, setLogoData] = useState(null);
 
   const [revenues, setRevenues] = useState([]);
@@ -40,31 +37,7 @@ const Revenue = () => {
     }
   }, [settings]);
 
-  // Auto-generate PDF once preview element renders in active DOM
-  useEffect(() => {
-    if (previewData && revenueReportRef.current) {
-      // Ensure the element has actual content before generating PDF
-      const timer = setTimeout(async () => {
-        try {
-          const content = revenueReportRef.current.innerHTML;
-          if (!content || content.trim() === '') {
-             throw new Error('Container is empty');
-          }
-          const monthName = new Date().toLocaleString('default', { month: 'long' });
-          const year = new Date().getFullYear();
-          const filename = `Revenue_Report_${monthName}_${year}.pdf`;
-          console.log('Rendering visible Revenue Report preview...');
-          await generatePdf(revenueReportRef.current, filename, 'download');
-        } catch (err) {
-          console.error('PDF Action failed:', err);
-          alert('PDF Generation failed: ' + err.message);
-        } finally {
-          setPreviewData(null); // Clean up / close preview
-        }
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [previewData]);
+
 
   useEffect(() => {
     fetchRevenues();
@@ -149,7 +122,20 @@ const Revenue = () => {
   };
 
   const downloadPdf = async () => {
-    setPreviewData(filteredRevenues);
+    try {
+      setPdfLoading(true);
+      const monthName = new Date().toLocaleString('default', { month: 'long' });
+      const year = new Date().getFullYear();
+      const filename = `Revenue_Report_${monthName}_${year}.pdf`;
+
+      const htmlContent = getRevenueReportHtml(filteredRevenues, settings || {}, logoData);
+      await generatePdf(htmlContent, filename, 'download');
+    } catch (err) {
+      console.error('PDF Action failed:', err);
+      alert('PDF Generation failed: ' + err.message);
+    } finally {
+      setPdfLoading(false);
+    }
   };
 
   // Summaries
@@ -471,37 +457,6 @@ const Revenue = () => {
           <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-xl flex flex-col items-center gap-4 border border-slate-100 dark:border-slate-800">
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
             <p className="text-sm font-bold text-slate-800 dark:text-white">Generating PDF...</p>
-          </div>
-        </div>
-      )}
-
-      {/* VISIBLE PDF PREVIEW PORTAL (Rendered inside React DOM to ensure correct layouts/Tailwind compilation) */}
-      {previewData && (
-        <div 
-          id="pdf-preview-portal"
-          className="fixed inset-0 z-50 flex flex-col items-center justify-start bg-slate-900/40 backdrop-blur-sm p-4 overflow-y-auto"
-        >
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl max-w-4xl w-full flex flex-col items-center gap-4 my-8 animate-in zoom-in-95 duration-200">
-            <div className="w-full flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h4 className="font-bold text-lg text-slate-850 dark:text-white">Generating PDF (Visible Preview)...</h4>
-              <span className="text-xs text-slate-400 font-medium">Please wait, compiling canvas layout...</span>
-            </div>
-            
-            {/* The actual target element referenced for PDF capture */}
-            <div className="w-full overflow-x-auto flex justify-center py-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800">
-              <div 
-                style={{ width: '210mm', minHeight: '297mm', padding: '15mm 15mm 25mm 15mm', boxSizing: 'border-box' }}
-                className="bg-white text-slate-900 relative shadow-md"
-              >
-                <div
-                  ref={revenueReportRef}
-                  style={{ width: '180mm', boxSizing: 'border-box' }}
-                  dangerouslySetInnerHTML={{ 
-                    __html: getRevenueReportHtml(previewData, settings || {}, logoData)
-                  }}
-                />
-              </div>
-            </div>
           </div>
         </div>
       )}

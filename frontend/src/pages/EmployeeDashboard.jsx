@@ -24,10 +24,7 @@ const EmployeeDashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // PDF Preview Refs & State
-  const pdfPreviewRef = useRef(null);
   const [pdfLoading, setPdfLoading] = useState(false);
-  const [pdfLogoData, setPdfLogoData] = useState(null);
 
   // Month & Year Filter
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // 1-12
@@ -55,31 +52,33 @@ const EmployeeDashboard = () => {
     }
   }, [user]);
 
-  // Trigger PDF Generation
-  useEffect(() => {
-    const generate = async () => {
-      if (pdfLoading && pdfPreviewRef.current && data) {
-        try {
-          const monthName = new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long' });
-          const filename = `Employee_Report_${monthName}_${selectedYear}.pdf`;
-          await generatePdf(pdfPreviewRef.current, filename, 'download');
-        } catch (err) {
-          console.error('PDF Action failed:', err);
-          alert('PDF Generation failed: ' + err.message);
-        } finally {
-          setPdfLoading(false);
-        }
-      }
-    };
-    generate();
-  }, [pdfLoading, data, selectedMonth, selectedYear]);
+
 
   const downloadMonthlyPdf = async () => {
-    if (settings?.logo) {
-      const compressed = await getCompressedLogo(settings.logo);
-      setPdfLogoData(compressed);
+    try {
+      setPdfLoading(true);
+      let logo = null;
+      if (settings?.logo) {
+        logo = await getCompressedLogo(settings.logo);
+      }
+      const monthName = new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long' });
+      const filename = `Employee_Report_${monthName}_${selectedYear}.pdf`;
+
+      const htmlContent = getEmployeeMonthlyReportHtml({
+        employee: employee,
+        reportMonth: `${monthName} ${selectedYear}`,
+        stats: { totalEvents, totalEarnings, totalPaymentsGiven, pendingAmount },
+        events: filteredEvents,
+        payments: filteredPayments
+      }, settings, logo);
+
+      await generatePdf(htmlContent, filename, 'download');
+    } catch (err) {
+      console.error('PDF Action failed:', err);
+      alert('PDF Generation failed: ' + err.message);
+    } finally {
+      setPdfLoading(false);
     }
-    setPdfLoading(true);
   };
 
   if (loading) {
@@ -317,22 +316,7 @@ const EmployeeDashboard = () => {
 
       </div>
 
-      {/* PDF Generation Portal */}
-      {pdfLoading && data && (
-        <div style={{ position: 'fixed', left: '-9999px', top: 0 }}>
-          <div ref={pdfPreviewRef} style={{ width: '180mm', backgroundColor: '#fff' }}>
-            <div dangerouslySetInnerHTML={{ 
-              __html: getEmployeeMonthlyReportHtml({
-                employee: employee,
-                reportMonth: `${new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long' })} ${selectedYear}`,
-                stats: { totalEvents, totalEarnings, totalPaymentsGiven, pendingAmount },
-                events: filteredEvents,
-                payments: filteredPayments
-              }, settings, pdfLogoData)
-            }} />
-          </div>
-        </div>
-      )}
+
 
     </div>
   );

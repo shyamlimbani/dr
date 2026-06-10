@@ -944,7 +944,23 @@ export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
 // CORE GENERATOR ENTRYPOINT
 // ==========================================
 
-export const generatePdf = async (element, filename, action) => {
+export const generatePdf = async (contentOrElement, filename, action) => {
+  let element = contentOrElement;
+  let isTempElement = false;
+
+  if (typeof contentOrElement === 'string') {
+    element = document.createElement('div');
+    element.style.position = 'fixed';
+    element.style.left = '-9999px';
+    element.style.top = '0';
+    element.style.width = '210mm'; // A4 width
+    element.style.backgroundColor = '#ffffff';
+    element.className = 'bg-white text-slate-900 font-sans';
+    element.innerHTML = contentOrElement;
+    document.body.appendChild(element);
+    isTempElement = true;
+  }
+
   if (!element) {
     throw new Error('PDF generation failed: Source element is null or undefined.');
   }
@@ -952,6 +968,9 @@ export const generatePdf = async (element, filename, action) => {
   // 1. Pre-flight HTML Content Audit
   const textContent = element.textContent || element.innerText || '';
   if (!textContent.trim() || textContent.length < 50) {
+    if (isTempElement && element.parentNode) {
+      element.parentNode.removeChild(element);
+    }
     throw new Error(`PDF Content Audit Failed: HTML template has insufficient text content (${textContent.length} chars).`);
   }
 
@@ -1032,36 +1051,20 @@ export const generatePdf = async (element, filename, action) => {
 
   try {
     if (action === 'download') {
-      const blob = await html2pdf().set(opt).from(element).outputPdf('blob');
-      verifyBlob(blob, 'Download');
+      const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
+      verifyBlob(pdfBlob, 'Download');
       
-      // Convert blob to base64 to stage it via backend (ensures mobile/webview compatibility)
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = async () => {
-        try {
-          const base64data = reader.result.split(',')[1];
-          const response = await apiClient.post('/pdf/temp-upload', {
-            pdfBase64: base64data,
-            filename: opt.filename
-          });
-          const { downloadId } = response.data;
-          
-          // Redirect page to trigger instant native download
-          window.location.href = `${getBaseUrl()}/pdf/temp-download/${downloadId}`;
-        } catch (uploadErr) {
-          console.error('Server-assisted PDF download failed, falling back to client blob:', uploadErr);
-          // Fallback to standard client blob download if server is unavailable
-          const blobUrl = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = blobUrl;
-          link.download = opt.filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(blobUrl);
-        }
-      };
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = opt.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 100);
     } else if (action === 'view') {
       const blob = await html2pdf().set(opt).from(element).outputPdf('blob');
       verifyBlob(blob, 'View');
@@ -1090,5 +1093,9 @@ export const generatePdf = async (element, filename, action) => {
   } catch (err) {
     console.error('PDF Generation failed:', err);
     throw err;
+  } finally {
+    if (isTempElement && element && element.parentNode) {
+      element.parentNode.removeChild(element);
+    }
   }
 };
