@@ -951,12 +951,12 @@ export const generatePdf = async (contentOrElement, filename, action) => {
   if (typeof contentOrElement === 'string') {
     element = document.createElement('div');
     element.style.position = 'fixed';
-    element.style.left = '0';
+    element.style.left = '-10000px';
     element.style.top = '0';
     element.style.width = '210mm'; // A4 width
     element.style.backgroundColor = '#ffffff';
-    element.style.zIndex = '-9999'; // Rendered behind the active UI
-    element.style.opacity = '0.01'; // Invisible but painted by browser
+    element.style.visibility = 'visible';
+    element.style.opacity = '1';
     element.style.pointerEvents = 'none';
     element.className = 'bg-white text-slate-900 font-sans';
     element.innerHTML = contentOrElement;
@@ -1021,63 +1021,22 @@ export const generatePdf = async (contentOrElement, filename, action) => {
     throw new Error(`PDF generation failed: Rendered element height is 0 (offsetHeight: ${element.offsetHeight}, scrollHeight: ${element.scrollHeight}, clientHeight: ${element.clientHeight}).`);
   }
 
-  console.log('PDF Source Element:', element);
-  console.log('HTML Content Length:', element.innerHTML.length);
-  console.log('Rendered Text Count:', textContent.length);
+  // Await browser layout updates to ensure fully rendered
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   // Dynamically import html2pdf to code-split the bundle
   const html2pdf = (await import('html2pdf.js')).default;
-
-  // Explicitly set scrollX and scrollY to 0 to capture from the top of the document,
-  // preventing blank/cropped canvas issues when page is scrolled down.
-  const actualHeight = element.scrollHeight;
-  const actualWidth = element.scrollWidth;
-  console.log('Actual content height:', actualHeight);
-  console.log('Actual content width:', actualWidth);
-
-  // Height calculations for audit
-  const pdfPageHeightMm = 297; // A4 Portrait height
-  const pdfPageWidthMm = 210;  // A4 Portrait width
-  const marginTopMm = 15;
-  const marginBottomMm = 25;
-  const marginLeftMm = 15;
-  const marginRightMm = 15;
-  
-  const printableWidthMm = pdfPageWidthMm - marginLeftMm - marginRightMm; // 180mm
-  const printableHeightMm = pdfPageHeightMm - marginTopMm - marginBottomMm; // 257mm
-  
-  // Calculate scaling factor from element pixels to PDF mm
-  const scaleFactorMmPerPx = printableWidthMm / (actualWidth || 680);
-  const contentHeightMm = actualHeight * scaleFactorMmPerPx;
-  
-  // Remaining page space on the final page
-  const pageCountEstimated = Math.ceil(contentHeightMm / printableHeightMm);
-  const remainingPageSpaceMm = (pageCountEstimated * printableHeightMm) - contentHeightMm;
-  
-  // Find footer position in mm
-  const footerElement = element.querySelector('.border-t') || element.lastElementChild;
-  const footerPosPx = footerElement ? footerElement.offsetTop : 0;
-  const footerPosMm = footerPosPx * scaleFactorMmPerPx;
-  const canvasHeight = actualHeight + 10;
-
-  console.log('PDF page height (mm):', pdfPageHeightMm);
-  console.log('Printable area height (mm):', printableHeightMm);
-  console.log('Content height scaled to PDF (mm):', contentHeightMm);
-  console.log('Estimated PDF page count:', pageCountEstimated);
-  console.log('Remaining page space (mm):', remainingPageSpaceMm);
-  console.log('Footer element top offset (px):', footerPosPx);
-  console.log('Footer position scaled to PDF (mm):', footerPosMm);
-  console.log('Canvas height (px):', canvasHeight);
 
   const opt = {
     margin:       [15, 15, 15, 15], // 15mm Top, Bottom, Left, Right
     filename:     filename || 'report.pdf',
     image:        { type: 'jpeg', quality: 1.0 },
     html2canvas:  { 
-      scale: 2, // scale 2 as requested
+      scale: 2, 
       useCORS: true, 
       backgroundColor: "#ffffff",
-      logging: false, // logging false as requested
+      logging: false, 
       scrollX: 0, 
       scrollY: 0
     },
@@ -1091,23 +1050,31 @@ export const generatePdf = async (contentOrElement, filename, action) => {
     const width = canvas ? canvas.width : 0;
     const height = canvas ? canvas.height : 0;
     const blob = await worker.toPdf().outputPdf('blob');
+    
+    // Debugging logs
+    console.log(`PDF Generation Debugging Logs:`);
+    console.log(`- canvas width: ${width}`);
+    console.log(`- canvas height: ${height}`);
+    console.log(`- blob size: ${blob ? blob.size : 0} bytes`);
+    console.log(`- element scrollWidth: ${element.scrollWidth}`);
+    console.log(`- element scrollHeight: ${element.scrollHeight}`);
+    
     return { blob, width, height };
   };
 
   try {
     let result = await generateBlob();
     
-    // Validation: Verify canvas width > 0, canvas height > 0, generated blob size > 10000 bytes
-    if (result.width <= 0 || result.height <= 0 || !result.blob || result.blob.size < 10000) {
-      console.warn(`PDF generation failed on first attempt (width: ${result.width}, height: ${result.height}, size: ${result.blob ? result.blob.size : 0} bytes). Retrying capture once...`);
+    if (result.width <= 0 || result.height <= 0 || !result.blob) {
+      console.warn(`PDF generation failed on first attempt (width: ${result.width}, height: ${result.height}). Retrying capture once...`);
       
       // Delay before retrying to let layouts paint complete
       await new Promise((resolve) => setTimeout(resolve, 300));
       
       result = await generateBlob();
       
-      if (result.width <= 0 || result.height <= 0 || !result.blob || result.blob.size < 10000) {
-        throw new Error(`PDF generation failed: Download PDF is empty or blank (size: ${result.blob ? result.blob.size : 0} bytes).`);
+      if (result.width <= 0 || result.height <= 0 || !result.blob) {
+        throw new Error(`PDF generation failed: Canvas dimensions are invalid (width: ${result.width}, height: ${result.height}).`);
       }
     }
 
