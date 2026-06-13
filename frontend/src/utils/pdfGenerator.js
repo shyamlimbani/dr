@@ -984,6 +984,7 @@ export const generatePdf = async (contentOrElement, filename, action) => {
   allElements.forEach((el) => {
     const tagName = el.tagName.toLowerCase();
     if (['style', 'script', 'link', 'meta'].includes(tagName)) {
+      el.style.setProperty('display', 'none', 'important');
       return;
     }
     const style = window.getComputedStyle(el);
