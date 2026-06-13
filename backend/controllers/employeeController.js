@@ -25,6 +25,11 @@ const getEmployees = async (req, res) => {
       );
     }
 
+    console.log('--- Loaded database value (getEmployees):');
+    employees.forEach(emp => {
+      console.log(`  - Employee: ${emp.fullName}, profilePhoto: ${emp.profilePhoto}`);
+    });
+
     res.json(employees);
   } catch (error) {
     console.error('Get employees error:', error);
@@ -46,6 +51,8 @@ const getEmployeeById = async (req, res) => {
     if (!employee) {
       return res.status(404).json({ message: 'Employee not found' });
     }
+
+    console.log('--- Loaded database value (getEmployeeById):', employee.profilePhoto);
 
     // Aggregate statistics
     // 1. Payment details
@@ -200,6 +207,7 @@ const createEmployee = async (req, res) => {
     let profilePhoto = '';
     if (req.file) {
       profilePhoto = `/uploads/${req.file.filename}`;
+      console.log('--- Uploaded image URL (create):', profilePhoto);
     }
 
     const employee = await db.Employee.create({
@@ -217,6 +225,8 @@ const createEmployee = async (req, res) => {
       password: password || '123456', // default fallback, though frontend requires it
       loginAccess: true
     });
+
+    console.log('--- Saved database value (create):', employee.profilePhoto);
 
     // Handle toObject compatibility for mongoose vs local JSON database fallback
     const returnEmployee = typeof employee.toObject === 'function' ? employee.toObject() : { ...employee };
@@ -251,6 +261,7 @@ const updateEmployee = async (req, res) => {
     // If new file was uploaded
     if (req.file) {
       updateData.profilePhoto = `/uploads/${req.file.filename}`;
+      console.log('--- Uploaded image URL (update):', updateData.profilePhoto);
     }
 
     // Cast perDayCharge to Number if present
@@ -259,6 +270,7 @@ const updateEmployee = async (req, res) => {
     }
 
     const updatedEmployee = await db.Employee.findByIdAndUpdate(id, updateData, { new: true });
+    console.log('--- Saved database value (update):', updatedEmployee ? updatedEmployee.profilePhoto : 'None');
     res.json(updatedEmployee);
   } catch (error) {
     console.error('Update employee error:', error);
