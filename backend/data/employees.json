@@ -1,0 +1,27 @@
+[
+  {
+    "_id": "manual-id-002",
+    "fullName": "Conflict Employee",
+    "mobileNumber": "9999999999",
+    "role": "Staff",
+    "employeeId": "EMP-002"
+  },
+  {
+    "_id": "rrv4dmamq6f82me",
+    "fullName": "New Non-Conflicting Employee",
+    "mobileNumber": "8888888888",
+    "email": "",
+    "address": "",
+    "role": "Staff",
+    "perDayCharge": 0,
+    "joiningDate": "2026-06-09",
+    "notes": "",
+    "profilePhoto": "",
+    "status": "Active",
+    "employeeId": "EMP-003",
+    "password": "123456",
+    "loginAccess": true,
+    "createdAt": "2026-06-09T09:11:58.790Z",
+    "updatedAt": "2026-06-09T09:11:58.790Z"
+  }
+]

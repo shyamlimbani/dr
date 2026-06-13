@@ -1,0 +1,79 @@
+[
+  {
+    "_id": "zlygbzdmq4ssvlh",
+    "clientName": "Rajesh Mehta",
+    "mobileNumber": "9876500444",
+    "totalAmount": 25000,
+    "revenueDate": "2026-06-08",
+    "notes": "Commercial corporate product shoot payout",
+    "status": "Paid",
+    "createdAt": "2026-06-08T05:56:32.117Z",
+    "updatedAt": "2026-06-08T05:56:32.117Z"
+  },
+  {
+    "_id": "h6kxruzmq4ssvlh",
+    "clientName": "Anjali Desai",
+    "mobileNumber": "9876500555",
+    "totalAmount": 12000,
+    "revenueDate": "2026-06-07",
+    "notes": "Album design print charge",
+    "status": "Pending",
+    "createdAt": "2026-06-08T05:56:32.117Z",
+    "updatedAt": "2026-06-08T05:56:32.117Z"
+  },
+  {
+    "_id": "ni437okmq4ssvli",
+    "clientName": "Karan Malhotra",
+    "mobileNumber": "9876500666",
+    "totalAmount": 35000,
+    "revenueDate": "2026-06-04",
+    "notes": "Brand video production invoice payment",
+    "status": "Paid",
+    "createdAt": "2026-06-08T05:56:32.118Z",
+    "updatedAt": "2026-06-08T05:56:32.118Z"
+  },
+  {
+    "_id": "hmoqjaomq4sy85k",
+    "clientName": "E2E Revenue Client",
+    "mobileNumber": "9991112222",
+    "totalAmount": 18000,
+    "revenueDate": "2026-06-08",
+    "notes": "",
+    "status": "Pending",
+    "createdAt": "2026-06-08T06:00:41.672Z",
+    "updatedAt": "2026-06-08T06:00:41.672Z"
+  },
+  {
+    "_id": "1c2ytu0mq4t0c0l",
+    "clientName": "E2E Revenue Client",
+    "mobileNumber": "9991112222",
+    "totalAmount": 18000,
+    "revenueDate": "2026-06-08",
+    "notes": "",
+    "status": "Pending",
+    "createdAt": "2026-06-08T06:02:19.989Z",
+    "updatedAt": "2026-06-08T06:02:19.989Z"
+  },
+  {
+    "_id": "b25sfc2mq4t7oif",
+    "clientName": "E2E Revenue Client",
+    "mobileNumber": "9991112222",
+    "totalAmount": 18000,
+    "revenueDate": "2026-06-08",
+    "notes": "",
+    "status": "Pending",
+    "createdAt": "2026-06-08T06:08:02.775Z",
+    "updatedAt": "2026-06-08T06:08:02.775Z"
+  },
+  {
+    "_id": "uguusn1mq4t8p2c",
+    "clientName": "E2E Revenue Client",
+    "mobileNumber": "9991112222",
+    "totalAmount": 18000,
+    "revenueDate": "2026-06-08",
+    "notes": "",
+    "status": "Pending",
+    "createdAt": "2026-06-08T06:08:50.148Z",
+    "updatedAt": "2026-06-08T06:08:50.148Z"
+  }
+]

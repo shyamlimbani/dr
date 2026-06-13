@@ -1,0 +1,79 @@
+[
+  {
+    "_id": "uknhwodmq4ssvlf",
+    "clientName": "Manish Verma",
+    "mobileNumber": "9876500111",
+    "service": "Photo Shoot",
+    "amount": 8000,
+    "bookingDate": "2026-06-08",
+    "notes": "Family outdoor photoshoot",
+    "createdAt": "2026-06-08T05:56:32.115Z",
+    "updatedAt": "2026-06-08T05:56:32.115Z"
+  },
+  {
+    "_id": "u5dr33emq4ssvlf",
+    "clientName": "Ritu Sen",
+    "mobileNumber": "9876500222",
+    "service": "Baby Package",
+    "amount": 15000,
+    "bookingDate": "2026-06-10",
+    "notes": "Baby milestone photoshoot",
+    "createdAt": "2026-06-08T05:56:32.116Z",
+    "updatedAt": "2026-06-08T05:56:32.116Z"
+  },
+  {
+    "_id": "elgmkbfmq4ssvlg",
+    "clientName": "Sanjay Jain",
+    "mobileNumber": "9876500333",
+    "service": "Reels",
+    "amount": 5000,
+    "bookingDate": "2026-06-05",
+    "notes": "Instagram corporate brand reels",
+    "createdAt": "2026-06-08T05:56:32.116Z",
+    "updatedAt": "2026-06-08T05:56:32.116Z"
+  },
+  {
+    "_id": "z1kbzx0mq4sy4hd",
+    "clientName": "E2E Studio Guest",
+    "mobileNumber": "9998887777",
+    "service": "Photo Shoot",
+    "amount": 7500,
+    "bookingDate": "2026-06-08",
+    "notes": "Audit Studio photoshoot notes.",
+    "createdAt": "2026-06-08T06:00:36.913Z",
+    "updatedAt": "2026-06-08T06:00:36.913Z"
+  },
+  {
+    "_id": "feblvkbmq4t08af",
+    "clientName": "E2E Studio Guest",
+    "mobileNumber": "9998887777",
+    "service": "Photo Shoot",
+    "amount": 7500,
+    "bookingDate": "2026-06-08",
+    "notes": "Audit Studio photoshoot notes.",
+    "createdAt": "2026-06-08T06:02:15.159Z",
+    "updatedAt": "2026-06-08T06:02:15.159Z"
+  },
+  {
+    "_id": "srbou91mq4t7ksr",
+    "clientName": "E2E Studio Guest",
+    "mobileNumber": "9998887777",
+    "service": "Photo Shoot",
+    "amount": 7500,
+    "bookingDate": "2026-06-08",
+    "notes": "Audit Studio photoshoot notes.",
+    "createdAt": "2026-06-08T06:07:57.963Z",
+    "updatedAt": "2026-06-08T06:07:57.963Z"
+  },
+  {
+    "_id": "9v3tgimmq4t8lc4",
+    "clientName": "E2E Studio Guest",
+    "mobileNumber": "9998887777",
+    "service": "Photo Shoot",
+    "amount": 7500,
+    "bookingDate": "2026-06-08",
+    "notes": "Audit Studio photoshoot notes.",
+    "createdAt": "2026-06-08T06:08:45.316Z",
+    "updatedAt": "2026-06-08T06:08:45.316Z"
+  }
+]
