@@ -982,6 +982,10 @@ export const generatePdf = async (contentOrElement, filename, action) => {
   // 3. Remove any display:none or hidden styles from the PDF template.
   const allElements = element.querySelectorAll('*');
   allElements.forEach((el) => {
+    const tagName = el.tagName.toLowerCase();
+    if (['style', 'script', 'link', 'meta'].includes(tagName)) {
+      return;
+    }
     const style = window.getComputedStyle(el);
     if (style.display === 'none' || el.style.display === 'none') {
       el.style.display = 'block';
