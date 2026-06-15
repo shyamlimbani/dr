@@ -1,0 +1,62 @@
+[
+  {
+    "_id": "mwafcidmpzrpwst",
+    "employeeId": "itorf9qmpzrpwsp",
+    "employeeName": "Shyam Sundar",
+    "mobileNumber": "+91 98765 12345",
+    "amountGiven": 5000,
+    "paymentMethod": "UPI",
+    "notes": "Completed Event Payout",
+    "paymentDate": "2026-05-21",
+    "createdAt": "2026-06-04T17:27:23.213Z",
+    "updatedAt": "2026-06-04T17:27:23.213Z"
+  },
+  {
+    "_id": "fj39211mpzrpwsu",
+    "employeeId": "a98vgmympzrpwsq",
+    "employeeName": "Jay Patel",
+    "mobileNumber": "+91 98765 23456",
+    "amountGiven": 5500,
+    "paymentMethod": "Bank Transfer",
+    "notes": "Completed Event Payout",
+    "paymentDate": "2026-05-21",
+    "createdAt": "2026-06-04T17:27:23.214Z",
+    "updatedAt": "2026-06-04T17:27:23.214Z"
+  },
+  {
+    "_id": "ovbzdc4mpzrpwsv",
+    "employeeId": "bt6g5o4mpzrpwsp",
+    "employeeName": "Rahul Sharma",
+    "mobileNumber": "+91 98765 34567",
+    "amountGiven": 6500,
+    "paymentMethod": "Cash",
+    "notes": "Completed Event Payout",
+    "paymentDate": "2026-05-21",
+    "createdAt": "2026-06-04T17:27:23.215Z",
+    "updatedAt": "2026-06-04T17:27:23.215Z"
+  },
+  {
+    "_id": "agru7gfmpzrpwsw",
+    "employeeId": "itorf9qmpzrpwsp",
+    "employeeName": "Shyam Sundar",
+    "mobileNumber": "+91 98765 12345",
+    "amountGiven": 5000,
+    "paymentMethod": "UPI",
+    "notes": "Payout installment for TechCorp Annual Summit 2026",
+    "paymentDate": "2026-06-04",
+    "createdAt": "2026-06-04T17:27:23.216Z",
+    "updatedAt": "2026-06-04T17:52:03.681Z"
+  },
+  {
+    "_id": "vvuzc1hmpzrpwsx",
+    "employeeId": "9wrhl17mpzrpwsr",
+    "employeeName": "Rohit Kadam",
+    "mobileNumber": "+91 98765 56789",
+    "amountGiven": 3500,
+    "paymentMethod": "Bank Transfer",
+    "notes": "Payout installment for TechCorp Annual Summit 2026",
+    "paymentDate": "2026-06-04",
+    "createdAt": "2026-06-04T17:27:23.217Z",
+    "updatedAt": "2026-06-04T17:52:06.899Z"
+  }
+]

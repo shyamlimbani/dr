@@ -1,0 +1,70 @@
+[
+  {
+    "_id": "bcqr6r5mpzrpwss",
+    "clientName": "Alok Sharma",
+    "eventId": "ibtxfw4mpzrpwss",
+    "totalProjectValue": 150000,
+    "advanceReceived": 80000,
+    "remainingAmount": 70000,
+    "payments": [
+      {
+        "amount": 80000,
+        "date": "2026-05-05",
+        "notes": "Advance Booking Payment"
+      }
+    ],
+    "createdAt": "2026-06-04T17:27:23.212Z",
+    "updatedAt": "2026-06-04T17:27:23.212Z"
+  },
+  {
+    "_id": "ylt9dkampzrpwsw",
+    "clientName": "Sanjay Kapoor (HR)",
+    "eventId": "ww32cccmpzrpwsv",
+    "totalProjectValue": 95000,
+    "advanceReceived": 95000,
+    "remainingAmount": 0,
+    "payments": [
+      {
+        "amount": 95000,
+        "date": "2026-05-05",
+        "notes": "Advance Booking Payment"
+      }
+    ],
+    "createdAt": "2026-06-04T17:27:23.216Z",
+    "updatedAt": "2026-06-04T17:27:23.216Z"
+  },
+  {
+    "_id": "oyn5276mpzrpwsz",
+    "clientName": "Kunal Mehta",
+    "eventId": "4okfb25mpzrpwsy",
+    "totalProjectValue": 50000,
+    "advanceReceived": 20000,
+    "remainingAmount": 30000,
+    "payments": [
+      {
+        "amount": 20000,
+        "date": "2026-05-05",
+        "notes": "Advance Booking Payment"
+      }
+    ],
+    "createdAt": "2026-06-04T17:27:23.219Z",
+    "updatedAt": "2026-06-04T17:27:23.219Z"
+  },
+  {
+    "_id": "5pshfk5mpzrpwt0",
+    "clientName": "Deepa Shah",
+    "eventId": "icgm12pmpzrpwsz",
+    "totalProjectValue": 35000,
+    "advanceReceived": 10000,
+    "remainingAmount": 25000,
+    "payments": [
+      {
+        "amount": 10000,
+        "date": "2026-05-05",
+        "notes": "Advance Booking Payment"
+      }
+    ],
+    "createdAt": "2026-06-04T17:27:23.220Z",
+    "updatedAt": "2026-06-04T17:27:23.220Z"
+  }
+]
