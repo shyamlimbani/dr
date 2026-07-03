@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const db = require('../db/connection');
+const fs = require('fs');
 
 const getEmployees = async (req, res) => {
   try {
@@ -206,8 +207,15 @@ const createEmployee = async (req, res) => {
     // Profile photo upload configuration
     let profilePhoto = '';
     if (req.file) {
-      profilePhoto = `/uploads/${req.file.filename}`;
-      console.log('--- Uploaded image URL (create):', profilePhoto);
+      try {
+        const fileData = fs.readFileSync(req.file.path);
+        const base64Str = fileData.toString('base64');
+        profilePhoto = `data:${req.file.mimetype};base64,${base64Str}`;
+        fs.unlinkSync(req.file.path); // remove temp file
+      } catch (err) {
+        console.error('Error converting file to base64:', err);
+      }
+      console.log('--- Uploaded image URL (create):', profilePhoto ? (profilePhoto.substring(0, 30) + '...') : '');
     }
 
     const employee = await db.Employee.create({
@@ -260,8 +268,15 @@ const updateEmployee = async (req, res) => {
 
     // If new file was uploaded
     if (req.file) {
-      updateData.profilePhoto = `/uploads/${req.file.filename}`;
-      console.log('--- Uploaded image URL (update):', updateData.profilePhoto);
+      try {
+        const fileData = fs.readFileSync(req.file.path);
+        const base64Str = fileData.toString('base64');
+        updateData.profilePhoto = `data:${req.file.mimetype};base64,${base64Str}`;
+        fs.unlinkSync(req.file.path); // remove temp file
+      } catch (err) {
+        console.error('Error converting file to base64:', err);
+      }
+      console.log('--- Uploaded image URL (update):', updateData.profilePhoto ? (updateData.profilePhoto.substring(0, 30) + '...') : '');
     }
 
     // Cast perDayCharge to Number if present
