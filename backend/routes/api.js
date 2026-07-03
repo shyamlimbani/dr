@@ -117,6 +117,7 @@ router.get('/revenues', revenueController.getRevenues);
 router.post('/revenues', revenueController.createRevenue);
 router.put('/revenues/:id', revenueController.updateRevenue);
 router.delete('/revenues/:id', revenueController.deleteRevenue);
+router.post('/revenues/:id/payments', revenueController.addPayment);
 router.get('/revenues/pdf', revenueController.generateRevenuePdf);
 
 module.exports = router;

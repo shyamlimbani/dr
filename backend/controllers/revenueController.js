@@ -106,6 +106,42 @@ const deleteRevenue = async (req, res) => {
   }
 };
 
+const addPayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { amount, date, method, notes } = req.body;
+
+    if (!amount || !date || !method) {
+      return res.status(400).json({ message: 'Amount, date, and method are required' });
+    }
+
+    const revenue = await db.Revenue.findById(id);
+    if (!revenue) {
+      return res.status(404).json({ message: 'Revenue record not found' });
+    }
+
+    // Add payment to the payments array
+    revenue.payments.push({
+      amount: Number(amount),
+      date,
+      method,
+      notes: notes || ''
+    });
+
+    // Deduct the payment from pendingAmount (ensure it doesn't drop below 0 if not intended, but we'll just subtract)
+    revenue.pendingAmount -= Number(amount);
+    if (revenue.pendingAmount < 0) {
+      revenue.pendingAmount = 0;
+    }
+
+    await revenue.save();
+    res.json(revenue);
+  } catch (error) {
+    console.error('Add payment error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 const generateRevenuePdf = async (req, res) => {
   console.log('[Backend Logs]: generateRevenuePdf controller entered');
   try {
@@ -254,5 +290,6 @@ module.exports = {
   createRevenue,
   updateRevenue,
   deleteRevenue,
+  addPayment,
   generateRevenuePdf
 };

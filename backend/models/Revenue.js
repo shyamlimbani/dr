@@ -6,7 +6,13 @@ const revenueSchema = new mongoose.Schema({
   totalAmount: { type: Number, required: true },
   pendingAmount: { type: Number, required: true },
   revenueDate: { type: String, required: true },
-  notes: { type: String, default: '' }
+  notes: { type: String, default: '' },
+  payments: [{
+    amount: { type: Number, required: true },
+    date: { type: String, required: true },
+    method: { type: String, required: true },
+    notes: { type: String, default: '' }
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Revenue', revenueSchema);
