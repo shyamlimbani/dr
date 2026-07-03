@@ -75,5 +75,24 @@
     "status": "Pending",
     "createdAt": "2026-06-08T06:08:50.148Z",
     "updatedAt": "2026-06-08T06:08:50.148Z"
+  },
+  {
+    "_id": "vq0zvmpmr4r9fkk",
+    "clientName": "shyam",
+    "mobileNumber": "9512405140",
+    "totalAmount": 50000,
+    "pendingAmount": 10000,
+    "revenueDate": "2026-07-03",
+    "notes": "",
+    "payments": [
+      {
+        "amount": 20000,
+        "date": "2026-07-03",
+        "method": "Cash",
+        "notes": ""
+      }
+    ],
+    "createdAt": "2026-07-03T09:53:07.604Z",
+    "updatedAt": "2026-07-03T09:53:07.604Z"
   }
 ]

@@ -57,7 +57,8 @@ const createRevenue = async (req, res) => {
       totalAmount: Number(totalAmount),
       pendingAmount: Number(pendingAmount),
       revenueDate,
-      notes: notes || ''
+      notes: notes || '',
+      payments: req.body.payments || []
     });
 
     res.status(201).json(revenue);
@@ -77,6 +78,10 @@ const updateRevenue = async (req, res) => {
     }
     if (updateData.pendingAmount !== undefined) {
       updateData.pendingAmount = Number(updateData.pendingAmount);
+    }
+    if (updateData.payments) {
+      // Allow updating payments array
+      updateData.payments = updateData.payments;
     }
 
     const updated = await db.Revenue.findByIdAndUpdate(id, updateData, { new: true });
