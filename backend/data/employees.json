@@ -23,5 +23,23 @@
     "loginAccess": true,
     "createdAt": "2026-06-09T09:11:58.790Z",
     "updatedAt": "2026-06-09T09:11:58.790Z"
+  },
+  {
+    "_id": "501ne1dmr6ab4d0",
+    "fullName": "shyam",
+    "mobileNumber": "+91 9512405140",
+    "email": "",
+    "address": "",
+    "role": "Studio",
+    "perDayCharge": 0,
+    "joiningDate": "2026-07-04",
+    "notes": "",
+    "profilePhoto": "",
+    "status": "Active",
+    "employeeId": "EMP-004",
+    "password": "7622@Shyam",
+    "loginAccess": true,
+    "createdAt": "2026-07-04T11:34:05.268Z",
+    "updatedAt": "2026-07-04T11:47:47.052Z"
   }
 ]

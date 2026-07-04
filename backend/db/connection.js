@@ -23,6 +23,7 @@ if (process.env.MONGODB_URI) {
     Bill: require('../models/Bill'),
     Quotation: require('../models/Quotation'),
     StudioBooking: require('../models/StudioBooking'),
+    StudioExpense: require('../models/StudioExpense'),
     Revenue: require('../models/Revenue')
   };
 } else {

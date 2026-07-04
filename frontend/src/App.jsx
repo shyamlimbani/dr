@@ -82,10 +82,19 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   if (!user) return <Navigate to="/login" replace />;
   
   if (allowedRoles && !allowedRoles.includes(user.role)) {
+    if (user.role === 'Studio') return <Navigate to="/studio" replace />;
     return <Navigate to={user.role === 'Staff' ? '/employee-dashboard' : '/dashboard'} replace />;
   }
   
   return children;
+};
+
+const IndexRedirect = () => {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role === 'Studio') return <Navigate to="/studio" replace />;
+  if (user.role === 'Staff') return <Navigate to="/employee-dashboard" replace />;
+  return <Navigate to="/dashboard" replace />;
 };
 
 const App = () => {
@@ -105,7 +114,7 @@ const App = () => {
                     </ProtectedRoute>
                   }>
                     {/* Role-Based Index Redirect */}
-                    <Route index element={<Navigate to="/dashboard" replace />} />
+                    <Route index element={<IndexRedirect />} />
                     
                     {/* Admin Only Routes */}
                     <Route path="dashboard" element={<ProtectedRoute allowedRoles={['Admin']}><Dashboard /></ProtectedRoute>} />
@@ -114,7 +123,7 @@ const App = () => {
                     <Route path="billing" element={<ProtectedRoute allowedRoles={['Admin']}><Invoices /></ProtectedRoute>} />
                     <Route path="expenses" element={<ProtectedRoute allowedRoles={['Admin']}><Expenses /></ProtectedRoute>} />
                     <Route path="settings" element={<ProtectedRoute allowedRoles={['Admin']}><Settings /></ProtectedRoute>} />
-                    <Route path="studio" element={<ProtectedRoute allowedRoles={['Admin']}><Studio /></ProtectedRoute>} />
+                    <Route path="studio" element={<ProtectedRoute allowedRoles={['Admin', 'Studio']}><Studio /></ProtectedRoute>} />
                     <Route path="revenue" element={<ProtectedRoute allowedRoles={['Admin']}><Revenue /></ProtectedRoute>} />
                     
                     {/* Staff Only Routes */}

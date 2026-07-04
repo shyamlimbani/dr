@@ -154,6 +154,7 @@ const db = {
   Bill: new JSONCollection('bills'),
   Quotation: new JSONCollection('quotations'),
   StudioBooking: new JSONCollection('studio_bookings'),
+  StudioExpense: new JSONCollection('studio_expenses'),
   Revenue: new JSONCollection('revenues'),
 };
 

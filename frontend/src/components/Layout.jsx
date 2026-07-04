@@ -55,7 +55,11 @@ const Layout = () => {
     { name: 'My Dashboard', path: '/employee-dashboard', icon: LayoutDashboard },
   ];
 
-  const menuItems = user?.role === 'Staff' ? employeeMenuItems : adminMenuItems;
+  const studioMenuItems = [
+    { name: 'Studio', path: '/studio', icon: Camera },
+  ];
+
+  const menuItems = user?.role === 'Staff' ? employeeMenuItems : user?.role === 'Studio' ? studioMenuItems : adminMenuItems;
 
   const handleLogout = () => {
     logout();

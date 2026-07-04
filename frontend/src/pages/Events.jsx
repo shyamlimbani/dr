@@ -786,6 +786,7 @@ const Events = () => {
                 <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Role</label>
                 <select value={empRole} onChange={e => setEmpRole(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
                   <option value="Staff">Staff</option>
+                  <option value="Studio">Studio</option>
                   <option value="Admin">Admin</option>
                 </select>
               </div>

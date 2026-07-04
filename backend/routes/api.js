@@ -13,11 +13,17 @@ const expenseController = require('../controllers/expenseController');
 const billingController = require('../controllers/billingController');
 const settingsController = require('../controllers/settingsController');
 const studioController = require('../controllers/studioController');
+const studioExpenseController = require('../controllers/studioExpenseController');
 const revenueController = require('../controllers/revenueController');
 const pdfController = require('../controllers/pdfController');
 
 // Middleware
 const authMiddleware = require('../middleware/authMiddleware');
+const requireRole = require('../middleware/requireRole');
+
+const requireAdmin = requireRole(['Admin']);
+const requireAdminOrStaff = requireRole(['Admin', 'Staff']);
+const requireAdminOrStudio = requireRole(['Admin', 'Studio']);
 
 // Configure Multer for local file storage (uploads)
 const uploadDir = path.join(__dirname, '../uploads');
@@ -58,66 +64,72 @@ router.get('/auth/me', authController.getMe);
 router.post('/pdf/temp-upload', pdfController.tempUpload);
 
 // Employee Management (Integrated within Events module)
-router.get('/employees', employeeController.getEmployees);
-router.get('/employees/:id', employeeController.getEmployeeById);
-router.post('/employees', upload.single('profilePhoto'), employeeController.createEmployee);
-router.put('/employees/:id', upload.single('profilePhoto'), employeeController.updateEmployee);
-router.delete('/employees/:id', employeeController.deleteEmployee);
-router.put('/employees/:id/toggle-access', employeeController.toggleLoginAccess);
-router.post('/employees/:id/reset-password', employeeController.resetEmployeePassword);
+router.get('/employees', requireAdminOrStaff, employeeController.getEmployees);
+router.get('/employees/:id', requireAdminOrStaff, employeeController.getEmployeeById);
+router.post('/employees', requireAdmin, upload.single('profilePhoto'), employeeController.createEmployee);
+router.put('/employees/:id', requireAdmin, upload.single('profilePhoto'), employeeController.updateEmployee);
+router.delete('/employees/:id', requireAdmin, employeeController.deleteEmployee);
+router.put('/employees/:id/toggle-access', requireAdmin, employeeController.toggleLoginAccess);
+router.post('/employees/:id/reset-password', requireAdmin, employeeController.resetEmployeePassword);
 
 // Event Management
-router.get('/events', eventController.getEvents);
-router.get('/events/:id', eventController.getEventById);
-router.post('/events', eventController.createEvent);
-router.put('/events/:id', eventController.updateEvent);
-router.delete('/events/:id', eventController.deleteEvent);
+router.get('/events', requireAdminOrStaff, eventController.getEvents);
+router.get('/events/:id', requireAdminOrStaff, eventController.getEventById);
+router.post('/events', requireAdmin, eventController.createEvent);
+router.put('/events/:id', requireAdmin, eventController.updateEvent);
+router.delete('/events/:id', requireAdmin, eventController.deleteEvent);
 
 // Payments (Employee Payment Ledger)
-router.get('/ledger', ledgerController.getLedgers);
-router.post('/ledger', ledgerController.createLedger);
-router.put('/ledger/:id', ledgerController.updateLedger);
-router.delete('/ledger/:id', ledgerController.deleteLedger);
-router.get('/ledger/pdf', ledgerController.generateLedgerPdf);
+router.get('/ledger', requireAdminOrStaff, ledgerController.getLedgers);
+router.post('/ledger', requireAdmin, ledgerController.createLedger);
+router.put('/ledger/:id', requireAdmin, ledgerController.updateLedger);
+router.delete('/ledger/:id', requireAdmin, ledgerController.deleteLedger);
+router.get('/ledger/pdf', requireAdmin, ledgerController.generateLedgerPdf);
 
 // Expenses
-router.get('/expenses', expenseController.getExpenses);
-router.post('/expenses', upload.single('receipt'), expenseController.createExpense);
-router.put('/expenses/:id', upload.single('receipt'), expenseController.updateExpense);
-router.delete('/expenses/:id', expenseController.deleteExpense);
-router.get('/expenses/pdf', expenseController.generateExpensePdf);
+router.get('/expenses', requireAdmin, expenseController.getExpenses);
+router.post('/expenses', requireAdmin, upload.single('receipt'), expenseController.createExpense);
+router.put('/expenses/:id', requireAdmin, upload.single('receipt'), expenseController.updateExpense);
+router.delete('/expenses/:id', requireAdmin, expenseController.deleteExpense);
+router.get('/expenses/pdf', requireAdmin, expenseController.generateExpensePdf);
 
 // Settings
-router.get('/settings', settingsController.getSettings);
-router.post('/settings', upload.single('companyLogo'), settingsController.updateSettings);
+router.get('/settings', requireAdmin, settingsController.getSettings);
+router.post('/settings', requireAdmin, upload.single('companyLogo'), settingsController.updateSettings);
 
 // Bills
-router.get('/bills', billingController.getBills);
-router.post('/bills', billingController.createBill);
-router.put('/bills/:id', billingController.updateBill);
-router.delete('/bills/:id', billingController.deleteBill);
-router.get('/bills/:id/pdf', billingController.generateBillPdf);
-router.get('/revenue/pdf', revenueController.generateRevenuePdf);
+router.get('/bills', requireAdmin, billingController.getBills);
+router.post('/bills', requireAdmin, billingController.createBill);
+router.put('/bills/:id', requireAdmin, billingController.updateBill);
+router.delete('/bills/:id', requireAdmin, billingController.deleteBill);
+router.get('/bills/:id/pdf', requireAdmin, billingController.generateBillPdf);
+router.get('/revenue/pdf', requireAdmin, revenueController.generateRevenuePdf);
 
 // Quotations
-router.get('/quotations', billingController.getQuotations);
-router.post('/quotations', billingController.createQuotation);
-router.put('/quotations/:id', billingController.updateQuotation);
-router.delete('/quotations/:id', billingController.deleteQuotation);
-router.get('/quotations/:id/pdf', billingController.generateQuotationPdf);
+router.get('/quotations', requireAdmin, billingController.getQuotations);
+router.post('/quotations', requireAdmin, billingController.createQuotation);
+router.put('/quotations/:id', requireAdmin, billingController.updateQuotation);
+router.delete('/quotations/:id', requireAdmin, billingController.deleteQuotation);
+router.get('/quotations/:id/pdf', requireAdmin, billingController.generateQuotationPdf);
 
 // Studio Bookings
-router.get('/studio', studioController.getBookings);
-router.post('/studio', studioController.createBooking);
-router.put('/studio/:id', studioController.updateBooking);
-router.delete('/studio/:id', studioController.deleteBooking);
+router.get('/studio', requireAdminOrStudio, studioController.getBookings);
+router.post('/studio', requireAdminOrStudio, studioController.createBooking);
+router.put('/studio/:id', requireAdminOrStudio, studioController.updateBooking);
+router.delete('/studio/:id', requireAdminOrStudio, studioController.deleteBooking);
+
+// Studio Expenses
+router.get('/studio-expenses', requireAdminOrStudio, studioExpenseController.getExpenses);
+router.post('/studio-expenses', requireAdminOrStudio, upload.single('receipt'), studioExpenseController.createExpense);
+router.put('/studio-expenses/:id', requireAdminOrStudio, upload.single('receipt'), studioExpenseController.updateExpense);
+router.delete('/studio-expenses/:id', requireAdminOrStudio, studioExpenseController.deleteExpense);
 
 // Revenue Module Manual CRUD
-router.get('/revenues', revenueController.getRevenues);
-router.post('/revenues', revenueController.createRevenue);
-router.put('/revenues/:id', revenueController.updateRevenue);
-router.delete('/revenues/:id', revenueController.deleteRevenue);
-router.post('/revenues/:id/payments', revenueController.addPayment);
-router.get('/revenues/pdf', revenueController.generateRevenuePdf);
+router.get('/revenues', requireAdmin, revenueController.getRevenues);
+router.post('/revenues', requireAdmin, revenueController.createRevenue);
+router.put('/revenues/:id', requireAdmin, revenueController.updateRevenue);
+router.delete('/revenues/:id', requireAdmin, revenueController.deleteRevenue);
+router.post('/revenues/:id/payments', requireAdmin, revenueController.addPayment);
+router.get('/revenues/pdf', requireAdmin, revenueController.generateRevenuePdf);
 
 module.exports = router;

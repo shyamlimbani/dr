@@ -27,6 +27,8 @@ const Login = () => {
       
       if (loggedInUser?.role === 'Admin') {
         navigate('/dashboard');
+      } else if (loggedInUser?.role === 'Studio') {
+        navigate('/studio');
       } else {
         navigate('/employee-dashboard');
       }

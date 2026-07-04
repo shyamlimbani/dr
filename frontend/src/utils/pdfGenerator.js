@@ -940,6 +940,152 @@ export const getEmployeeMonthlyReportHtml = (data, settings, logoData) => {
   `;
 };
 
+export const getStudioReportHtml = (bookings, settings, logoData) => {
+  let totalAmount = 0;
+  let tableRows = '';
+  bookings.forEach((b, index) => {
+    totalAmount += b.amount || 0;
+    const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
+    const displayDate = formatDate(b.bookingDate);
+    tableRows += `
+      <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
+        <td class="py-3 px-4 text-slate-700">${displayDate}</td>
+        <td class="py-3 px-4 text-slate-700 font-medium">${b.clientName}</td>
+        <td class="py-3 px-4 text-slate-655">${b.mobileNumber}</td>
+        <td class="py-3 px-4 text-slate-655">${b.service}</td>
+        <td class="py-3 px-4 text-slate-655">${b.notes || '-'}</td>
+        <td class="py-3 px-4 text-right font-semibold text-slate-800">₹${(b.amount || 0).toLocaleString('en-IN')}</td>
+      </tr>
+    `;
+  });
+
+  return `
+    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box; padding-bottom: 30px;">
+      <!-- HEADER -->
+      <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
+        <div>
+          ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>` : `<h1 class="text-3xl font-extrabold text-teal-700 tracking-tight mb-1">${settings.studioName}</h1>`}
+          <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">STUDIO BOOKINGS REPORT</h2>
+          <p class="text-xs font-semibold text-slate-500 tracking-wider">Generated: ${formatDate(new Date())}</p>
+        </div>
+        <div class="text-right">
+          ${logoData ? `<h2 class="text-lg font-bold text-teal-700 mb-1">${settings.studioName}</h2>` : ''}
+          <p class="text-xs text-slate-600 max-w-[240px] ml-auto leading-relaxed">${settings.address || ''}</p>
+          <p class="text-xs text-slate-600 mt-2">
+            <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''}
+          </p>
+        </div>
+      </div>
+
+      <div class="w-full h-1 rounded-full bg-slate-100 mb-8 overflow-hidden" style="break-inside: avoid; page-break-inside: avoid;">
+        <div class="h-full w-1/3 bg-teal-600"></div>
+      </div>
+
+      <!-- TABLE -->
+      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8 shadow-sm" style="break-inside: avoid; page-break-inside: avoid;">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead style="display: table-header-group;">
+            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold" style="break-inside: avoid; page-break-inside: avoid;">
+              <th class="py-4 px-4">Date</th>
+              <th class="py-4 px-4">Client Name</th>
+              <th class="py-4 px-4">Mobile</th>
+              <th class="py-4 px-4">Service</th>
+              <th class="py-4 px-4">Notes</th>
+              <th class="py-4 px-4 text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows || '<tr><td colspan="6" class="text-center py-4 text-slate-500">No bookings data found.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TOTALS SECTION -->
+      <div class="flex justify-end mb-12 text-xs" style="break-inside: avoid; page-break-inside: avoid;">
+        <div class="w-72">
+          <div class="flex justify-between items-center py-1 mb-1 border-t border-slate-100 pt-2">
+            <span class="font-bold text-slate-800">Total Amount</span>
+            <span class="text-base font-bold text-teal-700">₹${totalAmount.toLocaleString('en-IN')}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+export const getStudioExpenseReportHtml = (expenses, settings, logoData) => {
+  let totalAmount = 0;
+  let tableRows = '';
+  expenses.forEach((e, index) => {
+    totalAmount += e.amount || 0;
+    const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
+    const displayDate = formatDate(e.date);
+    tableRows += `
+      <tr class="${bgClass} border-b border-slate-100" style="break-inside: avoid; page-break-inside: avoid;">
+        <td class="py-3 px-4 text-slate-700">${displayDate}</td>
+        <td class="py-3 px-4 text-slate-700 font-medium">${e.title}</td>
+        <td class="py-3 px-4 text-slate-655">${e.category}</td>
+        <td class="py-3 px-4 text-slate-655">${e.paymentMethod}</td>
+        <td class="py-3 px-4 text-slate-655">${e.description || '-'}</td>
+        <td class="py-3 px-4 text-right font-semibold text-slate-800">₹${(e.amount || 0).toLocaleString('en-IN')}</td>
+      </tr>
+    `;
+  });
+
+  return `
+    <div class="bg-white text-slate-900 font-sans" style="width: 100%; box-sizing: border-box; padding-bottom: 30px;">
+      <!-- HEADER -->
+      <div class="flex justify-between items-start mb-8" style="break-inside: avoid; page-break-inside: avoid;">
+        <div>
+          ${logoData ? `<img src="${logoData}" alt="Company Logo" style="max-height: 56px; max-width: 200px; object-fit: contain; margin-bottom: 16px;"/>` : `<h1 class="text-3xl font-extrabold text-teal-700 tracking-tight mb-1">${settings.studioName}</h1>`}
+          <h2 class="text-xl font-bold text-slate-900 tracking-tight mb-1">STUDIO EXPENSES REPORT</h2>
+          <p class="text-xs font-semibold text-slate-500 tracking-wider">Generated: ${formatDate(new Date())}</p>
+        </div>
+        <div class="text-right">
+          ${logoData ? `<h2 class="text-lg font-bold text-teal-700 mb-1">${settings.studioName}</h2>` : ''}
+          <p class="text-xs text-slate-600 max-w-[240px] ml-auto leading-relaxed">${settings.address || ''}</p>
+          <p class="text-xs text-slate-600 mt-2">
+            <span class="font-semibold text-slate-400">P:</span> ${settings.mobileNumber || ''}
+          </p>
+        </div>
+      </div>
+
+      <div class="w-full h-1 rounded-full bg-slate-100 mb-8 overflow-hidden" style="break-inside: avoid; page-break-inside: avoid;">
+        <div class="h-full w-1/3 bg-teal-600"></div>
+      </div>
+
+      <!-- TABLE -->
+      <div class="rounded-2xl border border-slate-200 overflow-hidden mb-8 shadow-sm" style="break-inside: avoid; page-break-inside: avoid;">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead style="display: table-header-group;">
+            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold" style="break-inside: avoid; page-break-inside: avoid;">
+              <th class="py-4 px-4">Date</th>
+              <th class="py-4 px-4">Title</th>
+              <th class="py-4 px-4">Category</th>
+              <th class="py-4 px-4">Method</th>
+              <th class="py-4 px-4">Description</th>
+              <th class="py-4 px-4 text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows || '<tr><td colspan="6" class="text-center py-4 text-slate-500">No expenses data found.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TOTALS SECTION -->
+      <div class="flex justify-end mb-12 text-xs" style="break-inside: avoid; page-break-inside: avoid;">
+        <div class="w-72">
+          <div class="flex justify-between items-center py-1 mb-1 border-t border-slate-100 pt-2">
+            <span class="font-bold text-slate-800">Total Expenses</span>
+            <span class="text-base font-bold text-teal-700">₹${totalAmount.toLocaleString('en-IN')}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
 // ==========================================
 // CORE GENERATOR ENTRYPOINT
 // ==========================================
