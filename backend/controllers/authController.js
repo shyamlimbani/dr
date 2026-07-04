@@ -58,14 +58,14 @@ const login = async (req, res) => {
         return res.status(403).json({ message: 'Login disabled by admin' });
       }
 
-      const token = jwt.sign({ id: employee._id, role: 'Staff' }, JWT_SECRET, { expiresIn: '7d' });
+      const token = jwt.sign({ id: employee._id, role: employee.role || 'Staff' }, JWT_SECRET, { expiresIn: '7d' });
       return res.json({
         token,
         user: {
           id: employee._id,
           name: employee.fullName,
           email: employee.mobileNumber,
-          role: 'Staff',
+          role: employee.role || 'Staff',
           employeeId: employee.employeeId
         }
       });

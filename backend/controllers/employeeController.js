@@ -43,7 +43,7 @@ const getEmployeeById = async (req, res) => {
     const { id } = req.params;
 
     // Security check: Employees can only view their own profile
-    if (req.user && (req.user.role === 'Employee' || req.user.role === 'Staff') && req.user.id !== id) {
+    if (req.user && (req.user.role === 'Employee' || req.user.role === 'Staff' || req.user.role === 'Studio') && req.user.id !== id) {
       return res.status(403).json({ message: 'Forbidden: You can only access your own profile' });
     }
 
@@ -133,7 +133,7 @@ const createEmployee = async (req, res) => {
     }
 
     // 3. Validate role (Synchronous)
-    const validRoles = ['Staff', 'Admin'];
+    const validRoles = ['Staff', 'Admin', 'Studio'];
     const finalRole = role || 'Staff';
     if (!validRoles.includes(finalRole)) {
       return res.status(400).json({ message: `Role must be one of: ${validRoles.join(', ')}` });
